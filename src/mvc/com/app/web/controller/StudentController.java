@@ -140,9 +140,9 @@ public class StudentController {
 	          
 	        onePaper.setContestpaper(contestpaper);
 	        onePaper.setProb(ProblemList); 
-	        onePaper.setSimp(SimproblemList);  
+	        onePaper.setSimp(SimproblemList);     
 	        System.out.println(JSONObject.fromObject(onePaper).toString());
-	        model.addObject("paper",JSONObject.fromObject(onePaper).toString());
+	        model.addObject("paper",JSONObject.fromObject(onePaper).toString());    
 
 	  //      model.addObject("paper",fh.getFileContent(path + "\\测试数据\\text.json"));
 	        Contest contest = new Contest();

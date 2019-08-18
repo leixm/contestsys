@@ -763,8 +763,7 @@ catch(ex){}
 <script src="js/jquery-3.3.1.js"></script>
 <script type="text/javascript">
 	
-	var json = '${paper}' 
-	//var student = JSON.parse('${student}')
+	//var student = JSON.parse('${student}') 
 	var contestStatusId = ${contestStatusId}    
 
 
@@ -773,7 +772,7 @@ catch(ex){}
 	var curProblem;
 	var problemCache = [];
 	var languageCache = []; 
-	var pro = JSON.parse('${paper}');
+	var pro = ${paper}
 	
 	
 	GenerateAllProblem(pro)
@@ -787,7 +786,7 @@ catch(ex){}
 			var da = JSON.parse(data)
 			//GenerateAllProblem(da)
 			pro = da;
-		}
+		} 
 		})
 	
 	function AddOption(){
@@ -1135,16 +1134,19 @@ function submitpaper()
 	 console.log(pro) 
 	 
 	   $.ajax({ 
-		 type: "POST",
-		 url: "Student/submit.do", 
-		 contentType: 'application/json', 
-		 dataType : 'json',
+		 type: "POST", 
+		 url: "submit.do",   
+		 dataType : 'text',
+		 contentType:"application/json;charset=UTF-8", 
 		 data: JSON.stringify(pro), 
-		 success: function(){ 
-		 alert("提交成功") 
+		 success: function(data){  
+		 alert("提交成功")   
+		 }, 
+		 error: function(data){
+		 alert("提交失败")
 		 }
-	 }) 
-	 
+	 })
+	  
 }
 
 /* 

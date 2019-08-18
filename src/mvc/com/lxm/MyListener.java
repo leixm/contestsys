@@ -60,7 +60,7 @@ import net.sf.json.JSONArray;
 
 public class MyListener implements ServletContextListener{
 
-	private MyThread mythread;
+	private MyThread mythread; 
  
 	@Override
 	public void contextDestroyed(ServletContextEvent e) {
@@ -79,10 +79,10 @@ public class MyListener implements ServletContextListener{
 		
 		mythread = new MyThread();
 
-		//mythread.setPath(path);
-		//mythread.start();
+		mythread.setPath(path);
+		mythread.start();
 	}
-}
+} 
 
 class MyThread extends Thread{
 	

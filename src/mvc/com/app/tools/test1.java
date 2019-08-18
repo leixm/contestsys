@@ -77,16 +77,39 @@ import java.text.NumberFormat;
 import java.util.ArrayList; 
 import java.util.Date;
 
+import com.app.dao.AnswerMapper;
+import com.app.dao.ContestMapper;
+import com.app.dao.ContestStatusMapper;
+import com.app.dao.ContestpaperMapper;
+import com.app.dao.OptionsMapper;
+import com.app.dao.ProblemMapper;
+import com.app.dao.SimproblemMapper;
+import com.app.dao.SimsolutionMapper;
+import com.app.dao.SolutionMapper;
 import com.app.dao.UserMapper;
 import com.app.service.impl.UserService;
 import com.code.model.Answer;
+import com.code.model.AnswerExample;
+import com.code.model.Contest;
+import com.code.model.ContestStatus;
+import com.code.model.ContestStatusExample;
 import com.code.model.Contestpaper;
+import com.code.model.OneContest;
 import com.code.model.OnePaper;
 import com.code.model.OneProblem;
 import com.code.model.OneSimproblem;
 import com.code.model.Options;
+import com.code.model.OptionsExample;
+import com.code.model.Problem;
+import com.code.model.ProblemExample;
 import com.code.model.ProblemWithBLOBs;
 import com.code.model.Simproblem;
+import com.code.model.SimproblemExample;
+import com.code.model.Simsolution;
+import com.code.model.SimsolutionExample;
+import com.code.model.Solution;
+import com.code.model.SolutionExample;
+import com.code.model.SolutionWithBLOBs;
 import com.code.model.User;
 import com.code.model.UserExample;
 import com.itextpdf.text.*;
@@ -103,199 +126,280 @@ import com.itextpdf.text.pdf.PdfWriter;
 public class test1 {
 
 	@Autowired
-	private UserService userService;
-
-public void test() throws IOException
-{
+	private SimsolutionMapper simsolutionDao;
 	
+	@Autowired
+	private SimproblemMapper simproblemDao;
 	
+    @Autowired
+    private OptionsMapper optionDao;
     
-
-	List<OneSimproblem> oneSimproblems = new ArrayList<OneSimproblem>();
+    @Autowired
+    private AnswerMapper answerDao;
+    
+    @Autowired
+    private ContestStatusMapper contestStatusDao;
+    
+    @Autowired
+    private SolutionMapper solutionDao;
 	
-	List<Answer> answerList = new ArrayList<Answer>();
-	Simproblem simproblem = new Simproblem();
-	List<Options> optionList = new ArrayList<Options>();
-	Answer answer = new Answer();
-	    simproblem.setContent("单选题");
-	    simproblem.setPaperId(new Integer(1));
-	    simproblem.setPos(new Integer(1));
-	    simproblem.setType(new Integer(1));
-	    simproblem.setSimproblemId(new Integer(1));
-	    simproblem.setScore(new BigDecimal(5));
-
-	    for(int i=1;i<=4;i++)
-	    {
-	    	Options option = new Options();
-		    option.setOptionId(new Integer(i));
-		    option.setPos(i);
-		    option.setSimproblemId(new Integer(1));
-		    option.setContent("选项" + i);
-		    optionList.add(option);
-	    }
-	    
-
-	    answer.setAnswerId(new Integer(1));
-	    answer.setContent("选项1");
-	    answer.setSimproblemId(new Integer(1));
-	    answerList.add(answer);
-	    
-	    OneSimproblem onesimproblem = new OneSimproblem();
-	    onesimproblem.setOption(optionList);
-	    onesimproblem.setSimproblem(simproblem);  //单选题添加完毕
-	    onesimproblem.setAnswer(answerList);
-	    oneSimproblems.add(onesimproblem);
+    @Autowired
+    private ProblemMapper problemDao;
     
-/*	simproblem = new Simproblem();
-	simproblem.setScore(new BigDecimal(5));
-	simproblem.setSimproblemId(new Integer(2));
-	simproblem.setPaperId(new Integer(1));
-    simproblem.setContent("多选题");
-    simproblem.setPos(new Integer(2));
-    simproblem.setType(new Integer(2));
+    @Autowired
+    private ContestMapper contestDao;
     
-    optionList.clear();
-    for(int i=5;i<=8;i++)
-    {
-    	Options option = new Options();
-	    option.setOptionId(new Integer(i));
-	    option.setPos(i);
-	    option.setSimproblemId(new Integer(1));
-	    option.setContent("选项" + i);
-	    optionList.add(option);
-    }
-    answerList.clear();
-    answer.setAnswerId(new Integer(2));
-    answer.setContent("选项1");
-    answer.setSimproblemId(new Integer(2));
-    answerList.add(answer);
+    @Autowired
+    private ContestpaperMapper contestpaperDao;
     
-    onesimproblem.setOption(optionList);
-    onesimproblem.setSimproblem(simproblem);  //多选题添加完毕
-    onesimproblem.setAnswer(answerList);
-    oneSimproblems.add(onesimproblem);*/
-    
-    
-   /*  simproblem = new Simproblem();
-	simproblem.setScore(new BigDecimal(5));
-	simproblem.setSimproblemId(new Integer(3));
-	simproblem.setPaperId(new Integer(1));
-    simproblem.setContent("判断题");
-    simproblem.setPos(new Integer(3));
-    simproblem.setType(new Integer(3));
-    
-    optionList.clear();
-    for(int i=9;i<=10;i++)
-    {
-    	Options option = new Options();
-	    option.setOptionId(new Integer(i));
-	    option.setPos(i);
-	    option.setSimproblemId(new Integer(1));
-	    option.setContent("选项" + i);
-	    optionList.add(option);
-    }
-    answerList.clear();
-    answer.setAnswerId(new Integer(3));
-    answer.setContent("选项1");
-    answer.setSimproblemId(new Integer(3));
-    answerList.add(answer);
-    
-    onesimproblem.setOption(optionList);
-    onesimproblem.setSimproblem(simproblem);  //判断题添加完毕
-    onesimproblem.setAnswer(answerList);
-    oneSimproblems.add(onesimproblem);*/
-    
-    
- /*     simproblem = new Simproblem();
-	simproblem.setScore(new BigDecimal(5));
-	simproblem.setSimproblemId(new Integer(4));
-	simproblem.setPaperId(new Integer(1));
-    simproblem.setContent("填空题,问题1:___问题2___");
-    simproblem.setPos(new Integer(4));
-    simproblem.setType(new Integer(4));
-    simproblem.setBlanks(2);
-    
-    answerList.clear();
-    answer.setAnswerId(new Integer(4));
-    answer.setContent("答案1");
-    answer.setSimproblemId(new Integer(4));
-    answer.setPos(new Integer(1));
-    answerList.add(answer);
-    
-    answer.setAnswerId(new Integer(5));
-    answer.setContent("答案2");
-    answer.setSimproblemId(new Integer(4));
-    answer.setPos(new Integer(2));
-    answerList.add(answer);
-    
-    onesimproblem.setOption(optionList);
-    onesimproblem.setSimproblem(simproblem);  //填空题添加完毕
-    onesimproblem.setAnswer(answerList);
-    oneSimproblems.add(onesimproblem);
-    */
-    OnePaper onepaper = new OnePaper();
-    onepaper.setSimp(oneSimproblems);
-    
-    
-    OneProblem oneproblem = new OneProblem();
-    ProblemWithBLOBs problem = new ProblemWithBLOBs();
-    problem.setProblemId(new Integer(1));
-    problem.setDescription("madoka小朋友最近在玩一堆积木。这堆积木都是圆柱体。现在madoka想把M个积木堆成M层体积为N的物体。为了让堆出来的这货看上去比较和谐，madoka规定堆在较下面的圆柱体的底面半径和高度都必须比上面的大。现在madoka想把堆成物体的外表面涂色（不包括最下面一层底面），madoka想知道怎么来堆积木，才能使总涂色面积S最小假设所有积木的底面半径和高度均为正整数，且每种积木madoka都有无限个。");
-    problem.setInput("有多组数据。每组数据包括两个正整数n,m(n<=10000,m<=20)，m表示堆m层，n表示要求的体积为nπ（π是圆周率）。");
-    problem.setOutput("对每组数据输出一个正整数s，表示最小面积为sπ（π是圆周率）。如果无解输出0");
-    problem.setSampleInput("100 2");
-    problem.setSampleOutput("68");
-    problem.setTimeLimit(new Integer(2));
-    problem.setMemoryLimit(new Integer(64));
-    problem.setTitle("积木");
-    problem.setHint("动态规划");
-    problem.setScore(new BigDecimal(5));
-    problem.setPos(new Integer(2));
-    oneproblem.setProblem(problem);
-    List<OneProblem> oneproblems = new ArrayList<OneProblem>();
-    oneproblems.add(oneproblem);
-    
-    onepaper.setProb(oneproblems);
-    
-    Contestpaper contestPaper = new Contestpaper();
-    contestPaper.setTitle("期末测试");
-    contestPaper.setTeacher("4562224314");
-    contestPaper.setPaperId(new Integer(1));
-    contestPaper.setDate(new Date());
-    
-    onepaper.setContestpaper(contestPaper);
-    System.out.println(JSONObject.fromObject(onepaper).toString());
-
-/*    UserExample userExample = new UserExample();
-    UserExample.Criteria criteria = userExample.createCriteria();
-    criteria.andClassIdEqualTo(new Integer(1));
-    UserMapper userDao = new UserMapper();
-    User user = new User();
-    */
-    
-    
- //   FileHelper fh = new FileHelper();
-//	String content = fh.getFileContent("G:\\测试数据\\text.json");
-
-//	JSONObject obj = JSONObject.fromObject(content);
-//    OnePaper paper = (OnePaper) JSONObject.toBean(obj, OnePaper.class); 
-    HTMLGenerator ge = new HTMLGenerator();
-
-    String paperContent = ge.GenerateAllProblem(onepaper);
-    System.out.println(paperContent);
-    
-    
-    
-}
-
-
+    @Autowired
+    private UserMapper userDao;
 
 @Test
-public void tt() throws UnsupportedEncodingException, MessagingException, GeneralSecurityException
+public void test() throws IOException
 {
-	int state = userService.LoginByUserName("1614080902217", "771226822");
-	System.out.println(state);
+
+		
+		SimsolutionExample simsolutionExample = new SimsolutionExample(); 
+		SimsolutionExample.Criteria simsolutionCriteria = simsolutionExample.createCriteria();
+		simsolutionCriteria.andStatusEqualTo(new Integer(0));
+		List<Simsolution> simsolutions = simsolutionDao.selectByExample(simsolutionExample);  //未批改的题目
+		if(simsolutions.size()>0)
+		{
+			for(Simsolution simsolution : simsolutions)
+			{
+				Simproblem simproblem = simproblemDao.selectByPrimaryKey(simsolution.getSimproblemId());  //找对应的题目
+				
+				if(simproblem==null) continue;  //找不到题目
+				AnswerExample answerExample = new AnswerExample();
+				AnswerExample.Criteria answerCriteria = answerExample.createCriteria();
+				answerCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());  //找到这题的答案
+				List<Answer> answers = answerDao.selectByExample(answerExample);
+				if(answers.size()>0){
+					BigDecimal bd = new BigDecimal(0);  //分数
+
+					int type = simproblem.getType().intValue();   //题目类型
+					
+					if(type==1 || type==3)  //单选和判断 只需要匹配一个答案即可 且答案必定只有一个
+					{
+						for(Answer answer : answers)  //答题正确
+						{ 
+							if(answer.getContent().equals(simsolution.getAnswer())){
+								simsolution.setStatus(new Integer(1));
+								bd = simproblem.getScore();
+								break;
+							}
+						}	
+					}
+					else if(type==5) //简答题
+					{
+						for(Answer answer : answers)  //简答题 包含答案即可
+						{
+							if(simsolution.getAnswer().contains(answer.getContent())){
+								simsolution.setStatus(new Integer(1));
+								bd = simproblem.getScore();
+								break;
+							}
+						}
+					}
+					else if(type==2){ //多选题
+						JSONArray arr = JSONArray.fromObject(simsolution.getAnswer());
+					    boolean flag = true;
+					    for(int i=0;i<answers.size();i++)  //必须选对所有选项
+					    {
+					    	if(!arr.contains(answers.get(i).getContent())){
+					    		flag = false;
+					    		break;
+					    	}
+					    }
+					    if(flag){
+					    	bd = simproblem.getScore();
+					    }
+					}
+					else if(type==4)  //填空题 对应的空必须等于正确答案
+					{
+						JSONArray arr = JSONArray.fromObject(simsolution.getAnswer());
+						double count = 0;
+						for(int i=0;i<simproblem.getBlanks().intValue();i++)  //第i+1个空
+						{
+							for(int j=0;j<answers.size();j++){
+								if(answers.get(j).getPos().intValue()==i+1 && arr.get(i)!=null && answers.get(j).getContent().equals(arr.get(i))){
+									count++;  //答对一个空
+									break;
+								}
+							}
+							
+						}
+						
+					bd = new BigDecimal(simproblem.getScore().doubleValue() * (count/simproblem.getBlanks().intValue())); //根据对的空 给分
+						
+					}
+					
+                    Simsolution newSimsolution = new Simsolution();
+                    newSimsolution.setScore(bd);
+                    newSimsolution.setStatus(new Integer(1));
+                    newSimsolution.setSimsolutionId(simsolution.getSimsolutionId());
+					simsolutionDao.updateByPrimaryKeySelective(newSimsolution);  //更新提交记录
+
+					ContestStatus contestStatus =  contestStatusDao.selectByPrimaryKey(simsolution.getContestStatusId());
+					if(contestStatus!=null)
+					{
+						contestStatus.setScore(new BigDecimal(contestStatus.getScore().doubleValue() + bd.doubleValue())); //更新分数
+						contestStatusDao.updateByPrimaryKey(contestStatus);
+					}
+				}
+				
+				
+			}
+			
+		}
+		
+		//编程题
+		SolutionExample solutionExample = new SolutionExample();
+		SolutionExample.Criteria solutionCriteria = solutionExample.createCriteria();
+		short result = 1;
+		solutionCriteria.andResultGreaterThan(result);  //result大于1 即评判完成的题目
+		solutionCriteria.andStatusEqualTo(new Integer(0));  //未完成批改
+		List<Solution> solutions = solutionDao.selectByExample(solutionExample);
+		for(Solution solution : solutions)
+		{
+			Problem problem = problemDao.selectByPrimaryKey(solution.getProblemId()); //找对应题目
+			double score = problem.getScore().doubleValue();  //分数
+			ContestStatus contestStatus = contestStatusDao.selectByPrimaryKey(solution.getContestStatusId()); //考试记录
+			if(contestStatus!=null)
+			{
+				contestStatus.setScore(new BigDecimal(contestStatus.getScore().doubleValue() + score * solution.getPassRate().doubleValue())); //根据通过率给分
+				contestStatusDao.updateByPrimaryKey(contestStatus);  //更新记录
+				
+				solution.setStatus(new Integer(1));
+			    solutionDao.updateByPrimaryKey(solution); //更新这一题为已经批改
+			}
+		}
+		
+		ContestStatusExample contestStatusExample = new ContestStatusExample();
+		ContestStatusExample.Criteria contestStatusCriteria = contestStatusExample.createCriteria();
+		contestStatusCriteria.andStatusEqualTo(new Integer(1));   //所有待完成批改的考试记录
+		List<ContestStatus> contestStatuss = contestStatusDao.selectByExample(contestStatusExample);
+		
+		for(ContestStatus contestStatus : contestStatuss)
+		{
+			simsolutionExample = new SimsolutionExample();
+			simsolutionCriteria = simsolutionExample.createCriteria();
+			simsolutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
+			simsolutionCriteria.andStatusEqualTo(new Integer(0)); //未批改
+            simsolutions = simsolutionDao.selectByExample(simsolutionExample);	
+            if(simsolutions.size()>0)  //存在未批改
+            	continue;
+            
+            solutionExample = new SolutionExample();
+            solutionCriteria = solutionExample.createCriteria();
+            solutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
+            solutionCriteria.andStatusEqualTo(new Integer(0));
+            solutions = solutionDao.selectByExample(solutionExample);
+            if(solutions.size()>0) continue;
+            
+            contestStatus.setStatus(new Integer(2));  //这次考试已经批改完成了
+            contestStatusDao.updateByPrimaryKey(contestStatus);
+           
+           //尝试生成该试卷的答卷情况PDF 
+           OneContest oneContest = new OneContest();
+           
+           OnePaper paper = new OnePaper();  
+           Contest contest = contestDao.selectByPrimaryKey(contestStatus.getContestId());
+           if(contest==null) continue;
+           
+           Contestpaper contestPaper = contestpaperDao.selectByPrimaryKey(contest.getPaperId());
+           if(contestPaper==null) continue;
+           paper.setContestpaper(contestPaper); //试卷信息
+	           
+           oneContest.setContest(contest);  //考试信息
+            
+           User student = userDao.selectByPrimaryKey(contestStatus.getStudent());
+           if(student==null) continue;
+           oneContest.setStudent(student);  //考生信息
+           
+  //         paper.setContestStatus(contestStatus);
+           
+           SimproblemExample simproblemExample = new SimproblemExample();  
+           SimproblemExample.Criteria simproblemExampleCriteria = simproblemExample.createCriteria();
+           simproblemExampleCriteria.andPaperIdEqualTo(contest.getPaperId());
+           List<Simproblem> simproblems = simproblemDao.selectByExample(simproblemExample); //该试卷所有填空选择题
+           
+           if(simproblems.size()>0)
+           {
+        	   List<OneSimproblem> oneProblems = new ArrayList<OneSimproblem>();
+        	   for(Simproblem simproblem : simproblems)
+        	   {
+        		   OneSimproblem oneProblem =  new OneSimproblem(); 
+        		   oneProblem.setSimproblem(simproblem);  //题目
+        		   
+        		   simsolutionExample = new SimsolutionExample();
+        		   simsolutionCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());
+        		   simsolutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
+        		   simsolutions = simsolutionDao.selectByExample(simsolutionExample);
+        		   if(simsolutions.size()>0)
+        			   oneProblem.setSimsolution(simsolutions.get(0)); //作答情况
+        		   
+        		   OptionsExample optionExample = new OptionsExample();
+        		   OptionsExample.Criteria optionExampleCriteria = optionExample.createCriteria();
+        		   optionExampleCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());
+        		   List<Options> options = optionDao.selectByExample(optionExample);
+        		   oneProblem.setOption(options);
+        		   AnswerExample answerExample = new AnswerExample();
+        		   AnswerExample.Criteria answerExampleCriteria = answerExample.createCriteria();
+        		   answerExampleCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());
+        		   List<Answer> answers = answerDao.selectByExample(answerExample);
+        		   oneProblem.setAnswer(answers);
+        		   
+        		   oneProblems.add(oneProblem);
+        	   }
+               paper.setSimp(oneProblems);
+           }
+           
+           ProblemExample problemExample = new ProblemExample();
+           ProblemExample.Criteria problemExampleCriteria = problemExample.createCriteria();
+           problemExampleCriteria.andPaperIdEqualTo(contest.getPaperId());
+           List<ProblemWithBLOBs> problems  = problemDao.selectByExampleWithBLOBs(problemExample);
+           if(problems.size()>0)
+           {
+        	   List<OneProblem> oneProblems = new ArrayList<OneProblem>();
+        	   
+        	   for(ProblemWithBLOBs problem : problems)
+        	   {
+        		   OneProblem oneProblem = new OneProblem();
+        		   oneProblem.setProblem(problem);  //题目内容
+        		   
+        		   solutionExample = new SolutionExample();
+        		   solutionCriteria = solutionExample.createCriteria();
+        		   solutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
+        		   solutionCriteria.andProblemIdEqualTo(problem.getProblemId());
+        		   List<SolutionWithBLOBs> solutionList = solutionDao.selectByExampleWithBLOBs(solutionExample);
+        		   if(solutions.size()>0)
+        			   oneProblem.setSolution(solutionList.get(0));  //作答情况
+        		   
+        		   oneProblems.add(oneProblem);
+        	   }
+        	   
+        	   paper.setProb(oneProblems);
+           }
+           
+            
+           oneContest.setPaper(paper);
+		}
+		
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) { 
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	
+    
 }
+
+
+
 
 
 
