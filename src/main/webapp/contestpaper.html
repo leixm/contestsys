@@ -1,0 +1,314 @@
+<html class="x-admin-sm">
+	<head>
+		<meta charset="UTF-8">
+		<title>欢迎页面-X-admin2.2</title>
+		<meta name="renderer" content="webkit">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+		<link rel="stylesheet" href="lib/layui/css/layui.css">
+		<link rel="stylesheet" href="css/font.css">
+		<link rel="stylesheet" href="css/xadmin.css">
+		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+		<script src="./lib/layui/layui.all.js" charset="utf-8"></script>
+		<script type="text/javascript" src="./js/xadmin.js"></script>
+		<!--[if lt IE 9]>
+          <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+          <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+	</head>
+
+	<body>
+		<body>
+			<div class="x-nav">
+				<span class="layui-breadcrumb"> <a href="">首页</a> <a href="">演示</a>
+					<a> <cite>导航元素</cite></a>
+				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
+				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
+			</div>
+			<div class="layui-fluid">
+				<div class="layui-row layui-col-space15">
+					<div class="layui-col-md12">
+						<div class="layui-card">
+
+
+							<div class="layui-card-body layui-table-body layui-table-main">
+								<table class="layui-table" id="demo" lay-filter="demo"></table>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</body>
+
+
+
+
+
+
+		<script id="dateTpl" type="text/html">
+			{{#  var fn = function(){
+        return moment(d.ApplyDate).format("YYYY-MM-DD");
+         }; if(true){ }}
+        {{ fn() }}
+        {{#  } }}
+ 
+    </script>
+
+		<script type="text/html" id="header">
+
+
+
+			<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
+						<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
+										<input name="id" class="layui-input" id="keyword" placeholder="id/名称/出卷人">
+									</div>
+									
+									<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
+						<input name="startTime" type="text" class="layui-input" id="startTime" placeholder="开始时间">
+						</div>
+
+<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
+						<input name="endTime" type="text" class="layui-input" id="endTime" placeholder="结束时间">
+						</div>
+						
+									<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
+</script>
+
+		<script type="text/html" id="demotool">
+			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑试卷信息</a>
+            <a class="layui-btn layui-btn-warm" lay-event="view">预览试卷</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+
+
+		<script>
+			$(document).ready(function() {
+
+				initTable();
+			});
+
+			function initTable() {
+				var timeArea = $("#timearea").val();
+				var startTime = "";
+				var endTime = "";
+				if (timeArea) {
+					startTime = timeArea.split(" - ")[0]; //开始时间
+					endTime = timeArea.split(" - ")[1]; //结束时间
+				}
+				layui.use(['table', 'layer','laydate'], function() {
+					var table = layui.table;
+					var laydate = layui.laydate;
+					//执行渲染 
+					table.render({
+						id: 'demo',
+						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
+						height: '600', //容器高度
+						toolbar: '#header',
+						cols: [
+							[{
+								checkbox: true
+							}, {
+								field: 'paper_id',
+								title: '试卷编号',
+								width: 180,
+								sort: true
+							}, {
+								field: 'realName',
+								title: '出卷人',
+								width: 180,
+								sort: true
+							}, {
+								field: 'title',
+								title: '试卷标题',
+								width: 200,
+								sort: true
+							}, {
+								field: 'date',
+								title: '最后修改时间', 
+								width: 200,
+								sort: true
+							}, {
+								title: '操作',
+								toolbar: '#demotool',
+								'fixed': 'right',
+								width: 300
+							}] 
+						],
+						url: 'ContestPaper/GetAllContestPaper',
+						method: 'post',
+						limits: [10, 20, 30, 50, 100],
+						limit: 10, //默认采用10
+						loading: true,
+						page: true
+					});
+
+
+					table.on('toolbar(demo)', function(obj) {
+						if (obj.event === 'reload') {
+							console.log("执行搜索")
+							var type = $(this).data('type');
+							active[type] ? active[type].call(this) : '';
+						} else if (obj.event === 'delAll') {
+							var type = $(this).data('type');
+							active[type] ? active[type].call(this) : '';
+						}
+					});
+
+
+					table.on('tool(demo)', function(obj) {
+						if (obj.event == "edit") {
+							//新增
+							console.log("edit")
+							layer.open({
+								type: 2,
+								title: "编辑",
+								shadeClose: false, //点击遮罩关闭层
+								area: ['40%', '70%'],
+								content: "editcontestpaper.do?id=" + obj.data.paper_id
+							});
+
+						} else if (obj.event === 'del') {
+							//删除
+							delinventory(obj.data.paper_id); 
+						}
+						else if(obj.event == "view"){
+						layer.open({
+								type: 2,
+								title: "编辑",
+								shadeClose: false, //点击遮罩关闭层
+								area: ['100%', '100%'], 
+								content: "viewpaper.do?id=" + obj.data.paper_id
+							});
+						}
+
+					});
+
+					//删除用户函数
+					function delinventory(id) {
+						layer.confirm('是否删除?', function(index) {
+							$.ajax({
+								url: "ContestPaper/DeleteContestPaper?id=" + id,
+								type: "post",
+								success: function(result) {
+
+									if (!result.code) {
+										layer.msg("删除成功!", {
+											time: 1000
+										});
+										active.reload();
+									} else {
+										layer.msg(result.msg, {
+											time: 2000
+										});
+										return false;
+									}
+
+								}
+							});
+							layer.close(index);
+						})
+					}
+					
+					
+					laydate.render({
+						elem : '#startTime',
+						type : 'datetime',
+						format : 'yyyy-MM-dd HH:mm:ss',
+						max : '2020-5-20',
+						min : '2019-5-20',
+					});
+					
+					laydate.render({
+						elem : '#endTime',
+						type : 'datetime',
+						format : 'yyyy-MM-dd HH:mm:ss',
+						max : '2020-5-20',
+						min : '2019-5-20',
+					});
+
+
+
+					active = {
+						reload: function() {
+							//执行重载
+							table
+								.reload('demo', {
+									page: {
+										curr: 1 //重新从第 1 页开始
+									},
+									where: {
+										Keyword: $('#keyword').val(),
+										startTime:$('#startTime').val(),
+										endTime: $('#endTime').val()
+									}
+								});
+						},
+						delAll: function() {
+							var checkStatus = table.checkStatus('demo')
+							var data = checkStatus.data
+							var delList = [];
+							console.log(checkStatus.data)
+							data.forEach(function(n, i) { 
+								delList.push(n.paper_id);
+							});
+							console.log(delList)
+							if (delList != '') {
+								layer.confirm('确定删除所选项吗？', function(index) {
+									$.ajax({
+										url: 'ContestPaper/DelAll',
+										type: 'post',
+										contentType: "application/json",
+										dataType: 'json',
+										data: JSON.stringify(delList),
+										success: function(da) {
+											console.log(da)
+											if (da.code == 0) {
+												layer.msg('删除成功');
+												table.reload('demo', {});
+											} else {
+												layer.msg('删除失败');
+											}
+										},
+										'error': function() {
+											layer.msg('系统错误');
+										}
+									})
+								})
+							} else {
+								layer.tips('请选择需要删除的行', $('#batchDel'), {
+									tips: [3, '#5fb878']
+								})
+							}
+						}
+					};
+
+
+					/*   //将搜索框的值随请求传到后台
+					   $('#keyword').keyup(function () {
+					   console.log('aa')
+					      active['reload'].call(this); 
+					  });  */
+
+
+					/*   $('#keyword').keyup(function () {
+					   console.log($('#keyword').val() )
+					         table.reload('demo', {             //table的id
+					             where: {
+					                 user_id: $('#keyword').val() 
+					             }
+					         });
+					  }); */
+
+
+
+				});
+
+			}
+		</script>
+	</body>
+
+
+
+</html>

@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.ProblemMapper" >
+  <resultMap id="BaseResultMap" type="com.code.model.Problem" >
+    <id column="problem_id" property="problemId" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="source" property="source" jdbcType="VARCHAR" />
+    <result column="sample_Program" property="sampleProgram" jdbcType="VARCHAR" />
+    <result column="time_limit" property="timeLimit" jdbcType="INTEGER" />
+    <result column="memory_limit" property="memoryLimit" jdbcType="INTEGER" />
+    <result column="paper_id" property="paperId" jdbcType="INTEGER" />
+    <result column="score" property="score" jdbcType="DECIMAL" />
+    <result column="pos" property="pos" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.code.model.ProblemWithBLOBs" extends="BaseResultMap" >
+    <result column="description" property="description" jdbcType="LONGVARCHAR" />
+    <result column="input" property="input" jdbcType="LONGVARCHAR" />
+    <result column="output" property="output" jdbcType="LONGVARCHAR" />
+    <result column="sample_input" property="sampleInput" jdbcType="LONGVARCHAR" />
+    <result column="sample_output" property="sampleOutput" jdbcType="LONGVARCHAR" />
+    <result column="hint" property="hint" jdbcType="LONGVARCHAR" />
+    
+  </resultMap>
+  
+  <resultMap type="com.code.model.OneProblem" id="problemSolutionResultMap">
+ 
+ 	<id column="problem_id" property="problemId"/>
+ 	
+	<!-- <association property="problem" javaType="com.code.model.Problem">
+        <id column="problem_id" property="problemId" jdbcType="INTEGER" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="source" property="source" jdbcType="VARCHAR" />
+		<result column="sample_Program" property="sampleProgram" jdbcType="VARCHAR" />
+	    <result column="time_limit" property="timeLimit" jdbcType="INTEGER" />
+	    <result column="memory_limit" property="memoryLimit" jdbcType="INTEGER" />
+	    <result column="paper_id" property="paperId" jdbcType="INTEGER" />
+	    <result column="score" property="score" jdbcType="DECIMAL" />
+	    <result column="pos" property="pos" jdbcType="INTEGER" />
+    </association> -->
+
+	<association property="problem" javaType="com.code.model.ProblemWithBLOBs" >
+		<id column="problem_id" property="problemId" jdbcType="INTEGER" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="source" property="source" jdbcType="VARCHAR" />
+		<result column="sample_Program" property="sampleProgram" jdbcType="VARCHAR" />
+	    <result column="time_limit" property="timeLimit" jdbcType="INTEGER" />
+	    <result column="memory_limit" property="memoryLimit" jdbcType="INTEGER" />
+	    <result column="paper_id" property="paperId" jdbcType="INTEGER" />
+	    <result column="score" property="score" jdbcType="DECIMAL" />
+	    <result column="pos" property="pos" jdbcType="INTEGER" />
+        <result column="description" property="description" jdbcType="LONGVARCHAR" />
+	    <result column="input" property="input" jdbcType="LONGVARCHAR" />
+	    <result column="output" property="output" jdbcType="LONGVARCHAR" />
+	    <result column="sample_input" property="sampleInput" jdbcType="LONGVARCHAR" />
+	    <result column="sample_output" property="sampleOutput" jdbcType="LONGVARCHAR" />
+	    <result column="hint" property="hint" jdbcType="LONGVARCHAR" />
+	    </association>
+  </resultMap>
+	    
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    problem_id, title, source, sample_Program, time_limit, memory_limit, paper_id, score, 
+    pos
+  </sql>
+  <sql id="Blob_Column_List" >
+    description, input, output, sample_input, sample_output, hint
+  </sql>
+  
+  <select id="getProblemAndSolutionByPaperId" resultMap="problemSolutionResultMap" parameterType="java.lang.Integer" >
+    select
+    problem.problem_id problemId,
+    problem.*
+    from
+    problem
+    where
+    problem.paper_id = #{paper_id}
+   </select>
+  
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.code.model.ProblemExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from problem
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.code.model.ProblemExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from problem
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from problem
+    where problem_id = #{problemId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from problem
+    where problem_id = #{problemId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.code.model.ProblemExample" >
+    delete from problem
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.code.model.ProblemWithBLOBs" >
+    insert into problem (problem_id, title, source, 
+      sample_Program, time_limit, memory_limit, 
+      paper_id, score, pos, 
+      description, input, output, 
+      sample_input, sample_output, hint
+      )
+    values (#{problemId,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, 
+      #{sampleProgram,jdbcType=VARCHAR}, #{timeLimit,jdbcType=INTEGER}, #{memoryLimit,jdbcType=INTEGER}, 
+      #{paperId,jdbcType=INTEGER}, #{score,jdbcType=DECIMAL}, #{pos,jdbcType=INTEGER}, 
+      #{description,jdbcType=LONGVARCHAR}, #{input,jdbcType=LONGVARCHAR}, #{output,jdbcType=LONGVARCHAR}, 
+      #{sampleInput,jdbcType=LONGVARCHAR}, #{sampleOutput,jdbcType=LONGVARCHAR}, #{hint,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.code.model.ProblemWithBLOBs" >
+    insert into problem
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="problemId != null" >
+        problem_id,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="source != null" >
+        source,
+      </if>
+      <if test="sampleProgram != null" >
+        sample_Program,
+      </if>
+      <if test="timeLimit != null" >
+        time_limit,
+      </if>
+      <if test="memoryLimit != null" >
+        memory_limit,
+      </if>
+      <if test="paperId != null" >
+        paper_id,
+      </if>
+      <if test="score != null" >
+        score,
+      </if>
+      <if test="pos != null" >
+        pos,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="input != null" >
+        input,
+      </if>
+      <if test="output != null" >
+        output,
+      </if>
+      <if test="sampleInput != null" >
+        sample_input,
+      </if>
+      <if test="sampleOutput != null" >
+        sample_output,
+      </if>
+      <if test="hint != null" >
+        hint,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="problemId != null" >
+        #{problemId,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null" >
+        #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="sampleProgram != null" >
+        #{sampleProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="timeLimit != null" >
+        #{timeLimit,jdbcType=INTEGER},
+      </if>
+      <if test="memoryLimit != null" >
+        #{memoryLimit,jdbcType=INTEGER},
+      </if>
+      <if test="paperId != null" >
+        #{paperId,jdbcType=INTEGER},
+      </if>
+      <if test="score != null" >
+        #{score,jdbcType=DECIMAL},
+      </if>
+      <if test="pos != null" >
+        #{pos,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="input != null" >
+        #{input,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="output != null" >
+        #{output,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="sampleInput != null" >
+        #{sampleInput,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="sampleOutput != null" >
+        #{sampleOutput,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="hint != null" >
+        #{hint,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.code.model.ProblemExample" resultType="java.lang.Integer" >
+    select count(*) from problem
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update problem
+    <set >
+      <if test="record.problemId != null" >
+        problem_id = #{record.problemId,jdbcType=INTEGER},
+      </if>
+      <if test="record.title != null" >
+        title = #{record.title,jdbcType=VARCHAR},
+      </if>
+      <if test="record.source != null" >
+        source = #{record.source,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sampleProgram != null" >
+        sample_Program = #{record.sampleProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="record.timeLimit != null" >
+        time_limit = #{record.timeLimit,jdbcType=INTEGER},
+      </if>
+      <if test="record.memoryLimit != null" >
+        memory_limit = #{record.memoryLimit,jdbcType=INTEGER},
+      </if>
+      <if test="record.paperId != null" >
+        paper_id = #{record.paperId,jdbcType=INTEGER},
+      </if>
+      <if test="record.score != null" >
+        score = #{record.score,jdbcType=DECIMAL},
+      </if>
+      <if test="record.pos != null" >
+        pos = #{record.pos,jdbcType=INTEGER},
+      </if>
+      <if test="record.description != null" >
+        description = #{record.description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.input != null" >
+        input = #{record.input,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.output != null" >
+        output = #{record.output,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.sampleInput != null" >
+        sample_input = #{record.sampleInput,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.sampleOutput != null" >
+        sample_output = #{record.sampleOutput,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.hint != null" >
+        hint = #{record.hint,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update problem
+    set problem_id = #{record.problemId,jdbcType=INTEGER},
+      title = #{record.title,jdbcType=VARCHAR},
+      source = #{record.source,jdbcType=VARCHAR},
+      sample_Program = #{record.sampleProgram,jdbcType=VARCHAR},
+      time_limit = #{record.timeLimit,jdbcType=INTEGER},
+      memory_limit = #{record.memoryLimit,jdbcType=INTEGER},
+      paper_id = #{record.paperId,jdbcType=INTEGER},
+      score = #{record.score,jdbcType=DECIMAL},
+      pos = #{record.pos,jdbcType=INTEGER},
+      description = #{record.description,jdbcType=LONGVARCHAR},
+      input = #{record.input,jdbcType=LONGVARCHAR},
+      output = #{record.output,jdbcType=LONGVARCHAR},
+      sample_input = #{record.sampleInput,jdbcType=LONGVARCHAR},
+      sample_output = #{record.sampleOutput,jdbcType=LONGVARCHAR},
+      hint = #{record.hint,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update problem
+    set problem_id = #{record.problemId,jdbcType=INTEGER},
+      title = #{record.title,jdbcType=VARCHAR},
+      source = #{record.source,jdbcType=VARCHAR},
+      sample_Program = #{record.sampleProgram,jdbcType=VARCHAR},
+      time_limit = #{record.timeLimit,jdbcType=INTEGER},
+      memory_limit = #{record.memoryLimit,jdbcType=INTEGER},
+      paper_id = #{record.paperId,jdbcType=INTEGER},
+      score = #{record.score,jdbcType=DECIMAL},
+      pos = #{record.pos,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.code.model.ProblemWithBLOBs" >
+    update problem
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null" >
+        source = #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="sampleProgram != null" >
+        sample_Program = #{sampleProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="timeLimit != null" >
+        time_limit = #{timeLimit,jdbcType=INTEGER},
+      </if>
+      <if test="memoryLimit != null" >
+        memory_limit = #{memoryLimit,jdbcType=INTEGER},
+      </if>
+      <if test="paperId != null" >
+        paper_id = #{paperId,jdbcType=INTEGER},
+      </if>
+      <if test="score != null" >
+        score = #{score,jdbcType=DECIMAL},
+      </if>
+      <if test="pos != null" >
+        pos = #{pos,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="input != null" >
+        input = #{input,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="output != null" >
+        output = #{output,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="sampleInput != null" >
+        sample_input = #{sampleInput,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="sampleOutput != null" >
+        sample_output = #{sampleOutput,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="hint != null" >
+        hint = #{hint,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where problem_id = #{problemId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.code.model.ProblemWithBLOBs" >
+    update problem
+    set title = #{title,jdbcType=VARCHAR},
+      source = #{source,jdbcType=VARCHAR},
+      sample_Program = #{sampleProgram,jdbcType=VARCHAR},
+      time_limit = #{timeLimit,jdbcType=INTEGER},
+      memory_limit = #{memoryLimit,jdbcType=INTEGER},
+      paper_id = #{paperId,jdbcType=INTEGER},
+      score = #{score,jdbcType=DECIMAL},
+      pos = #{pos,jdbcType=INTEGER},
+      description = #{description,jdbcType=LONGVARCHAR},
+      input = #{input,jdbcType=LONGVARCHAR},
+      output = #{output,jdbcType=LONGVARCHAR},
+      sample_input = #{sampleInput,jdbcType=LONGVARCHAR},
+      sample_output = #{sampleOutput,jdbcType=LONGVARCHAR},
+      hint = #{hint,jdbcType=LONGVARCHAR}
+    where problem_id = #{problemId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.code.model.Problem" >
+    update problem
+    set title = #{title,jdbcType=VARCHAR},
+      source = #{source,jdbcType=VARCHAR},
+      sample_Program = #{sampleProgram,jdbcType=VARCHAR},
+      time_limit = #{timeLimit,jdbcType=INTEGER},
+      memory_limit = #{memoryLimit,jdbcType=INTEGER},
+      paper_id = #{paperId,jdbcType=INTEGER},
+      score = #{score,jdbcType=DECIMAL},
+      pos = #{pos,jdbcType=INTEGER}
+    where problem_id = #{problemId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.SolutionMapper" >
+  <resultMap id="BaseResultMap" type="com.code.model.Solution" >
+    <id column="solution_id" property="solutionId" jdbcType="INTEGER" />
+    <result column="problem_id" property="problemId" jdbcType="INTEGER" />
+    <result column="contest_status_id" property="contestStatusId" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="INTEGER" />
+    <result column="memory" property="memory" jdbcType="INTEGER" />
+    <result column="in_date" property="inDate" jdbcType="TIMESTAMP" />
+    <result column="result" property="result" jdbcType="SMALLINT" />
+    <result column="language" property="language" jdbcType="TINYINT" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="pass_rate" property="passRate" jdbcType="DECIMAL" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="judgetime" property="judgetime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.code.model.SolutionWithBLOBs" extends="BaseResultMap" >
+    <result column="error" property="error" jdbcType="LONGVARCHAR" />
+    <result column="source" property="source" jdbcType="LONGVARCHAR" />
+    <result column="compileinfo" property="compileinfo" jdbcType="LONGVARCHAR" />
+    <result column="runtimeinfo" property="runtimeinfo" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    solution_id, problem_id, contest_status_id, time, memory, in_date, result, language, 
+    ip, pass_rate, status, judgetime
+  </sql>
+  <sql id="Blob_Column_List" >
+    error, source, compileinfo, runtimeinfo
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.code.model.SolutionExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from solution
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.code.model.SolutionExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from solution
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from solution
+    where solution_id = #{solutionId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from solution
+    where solution_id = #{solutionId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.code.model.SolutionExample" >
+    delete from solution
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.code.model.SolutionWithBLOBs" >
+    insert into solution (solution_id, problem_id, contest_status_id, 
+      time, memory, in_date, 
+      result, language, ip, 
+      pass_rate, status, judgetime, 
+      error, source, compileinfo, 
+      runtimeinfo)
+    values (#{solutionId,jdbcType=INTEGER}, #{problemId,jdbcType=INTEGER}, #{contestStatusId,jdbcType=INTEGER}, 
+      #{time,jdbcType=INTEGER}, #{memory,jdbcType=INTEGER}, #{inDate,jdbcType=TIMESTAMP}, 
+      #{result,jdbcType=SMALLINT}, #{language,jdbcType=TINYINT}, #{ip,jdbcType=VARCHAR}, 
+      #{passRate,jdbcType=DECIMAL}, #{status,jdbcType=INTEGER}, #{judgetime,jdbcType=TIMESTAMP}, 
+      #{error,jdbcType=LONGVARCHAR}, #{source,jdbcType=LONGVARCHAR}, #{compileinfo,jdbcType=LONGVARCHAR}, 
+      #{runtimeinfo,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.code.model.SolutionWithBLOBs" >
+    insert into solution
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="solutionId != null" >
+        solution_id,
+      </if>
+      <if test="problemId != null" >
+        problem_id,
+      </if>
+      <if test="contestStatusId != null" >
+        contest_status_id,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="memory != null" >
+        memory,
+      </if>
+      <if test="inDate != null" >
+        in_date,
+      </if>
+      <if test="result != null" >
+        result,
+      </if>
+      <if test="language != null" >
+        language,
+      </if>
+      <if test="ip != null" >
+        ip,
+      </if>
+      <if test="passRate != null" >
+        pass_rate,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="judgetime != null" >
+        judgetime,
+      </if>
+      <if test="error != null" >
+        error,
+      </if>
+      <if test="source != null" >
+        source,
+      </if>
+      <if test="compileinfo != null" >
+        compileinfo,
+      </if>
+      <if test="runtimeinfo != null" >
+        runtimeinfo,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="solutionId != null" >
+        #{solutionId,jdbcType=INTEGER},
+      </if>
+      <if test="problemId != null" >
+        #{problemId,jdbcType=INTEGER},
+      </if>
+      <if test="contestStatusId != null" >
+        #{contestStatusId,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=INTEGER},
+      </if>
+      <if test="memory != null" >
+        #{memory,jdbcType=INTEGER},
+      </if>
+      <if test="inDate != null" >
+        #{inDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="result != null" >
+        #{result,jdbcType=SMALLINT},
+      </if>
+      <if test="language != null" >
+        #{language,jdbcType=TINYINT},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="passRate != null" >
+        #{passRate,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="judgetime != null" >
+        #{judgetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="error != null" >
+        #{error,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="source != null" >
+        #{source,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="compileinfo != null" >
+        #{compileinfo,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="runtimeinfo != null" >
+        #{runtimeinfo,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.code.model.SolutionExample" resultType="java.lang.Integer" >
+    select count(*) from solution
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update solution
+    <set >
+      <if test="record.solutionId != null" >
+        solution_id = #{record.solutionId,jdbcType=INTEGER},
+      </if>
+      <if test="record.problemId != null" >
+        problem_id = #{record.problemId,jdbcType=INTEGER},
+      </if>
+      <if test="record.contestStatusId != null" >
+        contest_status_id = #{record.contestStatusId,jdbcType=INTEGER},
+      </if>
+      <if test="record.time != null" >
+        time = #{record.time,jdbcType=INTEGER},
+      </if>
+      <if test="record.memory != null" >
+        memory = #{record.memory,jdbcType=INTEGER},
+      </if>
+      <if test="record.inDate != null" >
+        in_date = #{record.inDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.result != null" >
+        result = #{record.result,jdbcType=SMALLINT},
+      </if>
+      <if test="record.language != null" >
+        language = #{record.language,jdbcType=TINYINT},
+      </if>
+      <if test="record.ip != null" >
+        ip = #{record.ip,jdbcType=VARCHAR},
+      </if>
+      <if test="record.passRate != null" >
+        pass_rate = #{record.passRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.judgetime != null" >
+        judgetime = #{record.judgetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.error != null" >
+        error = #{record.error,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.source != null" >
+        source = #{record.source,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.compileinfo != null" >
+        compileinfo = #{record.compileinfo,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.runtimeinfo != null" >
+        runtimeinfo = #{record.runtimeinfo,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update solution
+    set solution_id = #{record.solutionId,jdbcType=INTEGER},
+      problem_id = #{record.problemId,jdbcType=INTEGER},
+      contest_status_id = #{record.contestStatusId,jdbcType=INTEGER},
+      time = #{record.time,jdbcType=INTEGER},
+      memory = #{record.memory,jdbcType=INTEGER},
+      in_date = #{record.inDate,jdbcType=TIMESTAMP},
+      result = #{record.result,jdbcType=SMALLINT},
+      language = #{record.language,jdbcType=TINYINT},
+      ip = #{record.ip,jdbcType=VARCHAR},
+      pass_rate = #{record.passRate,jdbcType=DECIMAL},
+      status = #{record.status,jdbcType=INTEGER},
+      judgetime = #{record.judgetime,jdbcType=TIMESTAMP},
+      error = #{record.error,jdbcType=LONGVARCHAR},
+      source = #{record.source,jdbcType=LONGVARCHAR},
+      compileinfo = #{record.compileinfo,jdbcType=LONGVARCHAR},
+      runtimeinfo = #{record.runtimeinfo,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update solution
+    set solution_id = #{record.solutionId,jdbcType=INTEGER},
+      problem_id = #{record.problemId,jdbcType=INTEGER},
+      contest_status_id = #{record.contestStatusId,jdbcType=INTEGER},
+      time = #{record.time,jdbcType=INTEGER},
+      memory = #{record.memory,jdbcType=INTEGER},
+      in_date = #{record.inDate,jdbcType=TIMESTAMP},
+      result = #{record.result,jdbcType=SMALLINT},
+      language = #{record.language,jdbcType=TINYINT},
+      ip = #{record.ip,jdbcType=VARCHAR},
+      pass_rate = #{record.passRate,jdbcType=DECIMAL},
+      status = #{record.status,jdbcType=INTEGER},
+      judgetime = #{record.judgetime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.code.model.SolutionWithBLOBs" >
+    update solution
+    <set >
+      <if test="problemId != null" >
+        problem_id = #{problemId,jdbcType=INTEGER},
+      </if>
+      <if test="contestStatusId != null" >
+        contest_status_id = #{contestStatusId,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=INTEGER},
+      </if>
+      <if test="memory != null" >
+        memory = #{memory,jdbcType=INTEGER},
+      </if>
+      <if test="inDate != null" >
+        in_date = #{inDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="result != null" >
+        result = #{result,jdbcType=SMALLINT},
+      </if>
+      <if test="language != null" >
+        language = #{language,jdbcType=TINYINT},
+      </if>
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="passRate != null" >
+        pass_rate = #{passRate,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="judgetime != null" >
+        judgetime = #{judgetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="error != null" >
+        error = #{error,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="source != null" >
+        source = #{source,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="compileinfo != null" >
+        compileinfo = #{compileinfo,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="runtimeinfo != null" >
+        runtimeinfo = #{runtimeinfo,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where solution_id = #{solutionId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.code.model.SolutionWithBLOBs" >
+    update solution
+    set problem_id = #{problemId,jdbcType=INTEGER},
+      contest_status_id = #{contestStatusId,jdbcType=INTEGER},
+      time = #{time,jdbcType=INTEGER},
+      memory = #{memory,jdbcType=INTEGER},
+      in_date = #{inDate,jdbcType=TIMESTAMP},
+      result = #{result,jdbcType=SMALLINT},
+      language = #{language,jdbcType=TINYINT},
+      ip = #{ip,jdbcType=VARCHAR},
+      pass_rate = #{passRate,jdbcType=DECIMAL},
+      status = #{status,jdbcType=INTEGER},
+      judgetime = #{judgetime,jdbcType=TIMESTAMP},
+      error = #{error,jdbcType=LONGVARCHAR},
+      source = #{source,jdbcType=LONGVARCHAR},
+      compileinfo = #{compileinfo,jdbcType=LONGVARCHAR},
+      runtimeinfo = #{runtimeinfo,jdbcType=LONGVARCHAR}
+    where solution_id = #{solutionId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.code.model.Solution" >
+    update solution
+    set problem_id = #{problemId,jdbcType=INTEGER},
+      contest_status_id = #{contestStatusId,jdbcType=INTEGER},
+      time = #{time,jdbcType=INTEGER},
+      memory = #{memory,jdbcType=INTEGER},
+      in_date = #{inDate,jdbcType=TIMESTAMP},
+      result = #{result,jdbcType=SMALLINT},
+      language = #{language,jdbcType=TINYINT},
+      ip = #{ip,jdbcType=VARCHAR},
+      pass_rate = #{passRate,jdbcType=DECIMAL},
+      status = #{status,jdbcType=INTEGER},
+      judgetime = #{judgetime,jdbcType=TIMESTAMP}
+    where solution_id = #{solutionId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="./设计问卷 － 专业的在线问卷调查平台_files/NewDefault.css" rel="stylesheet" type="text/css">
+    <link id="linkBaseUrl" rel="stylesheet" type="text/css" href="./设计问卷 － 专业的在线问卷调查平台_files/q.css">
+    
+    <link href="./设计问卷 － 专业的在线问卷调查平台_files/iconFont.css" rel="stylesheet">
+    <link href="./设计问卷 － 专业的在线问卷调查平台_files/designnew.css" rel="stylesheet" type="text/css">
+    <link type="text/css" rel="stylesheet" href="./设计问卷 － 专业的在线问卷调查平台_files/default.css">
+    <link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+    <link rel="stylesheet" href="kindeditor/plugins/code/prettify.css" />
+
+    <script charset="utf-8" src="kindeditor/kindeditor-all.js"></script>
+    <script charset="utf-8" src="kindeditor/lang/zh-CN.js"></script>
+    <script charset="utf-8" src="kindeditor/plugins/code/prettify.js"></script>
+    <script src="assets/vendor/jquery/jquery.min.js"></script>
+    <style> 
+        .black_overlay{ 
+            display: none; 
+            position: absolute; 
+            top: 0%; 
+            left: 0%; 
+            width: 100%; 
+            height: 100%; 
+            background-color: black; 
+            z-index:1001;             /*设置离用户的距离*/
+            -moz-opacity: 0.6;          /*设置透明度*/
+            opacity:.60;              /*设置离透明度**/
+            filter: alpha(opacity=60);       /*设置透明度**/
+        } 
+        .white_content_title { 
+            display: none; 
+            position: absolute; 
+            top: 25%;
+            left:26%;
+            width: 48%; 
+            height: 50%; 
+            background-color: white; 
+            z-index:1002; 
+            overflow: auto; 
+            border-radius: 15px;
+        } 
+        .white_content_question{ 
+            display: none; 
+            position: absolute; 
+            top: 20%;
+            left:20%;
+            width: 60%; 
+            height: 60%; 
+            background-color: white; 
+            z-index:1002; 
+            overflow: auto; 
+            border-radius: 15px;
+        } 
+        .selectAswer{
+            font-size: 16px;
+            padding-left: 11%;
+            margin-top: 10px;
+        }
+        .questionBorder{
+            border-bottom: 1px solid;
+            border-color: #DEDEDE;
+            cursor: pointer;
+        }
+        .quesAswer{
+            font-size: 15px;
+            margin-left: 11%;
+            margin-top: 10px;
+        }
+        .file-box{
+		    display: inline-block;
+		    position: relative;
+		    margin-left: 2px;
+		    width: 25px;
+		    height: 18px;
+		    overflow: hidden;
+		    color:#fff;
+		    background-image: url(./img/图片.png);
+		}
+
+		.file-btn{
+		    position: absolute;
+		    width: 100%;
+		    height: 100%;
+		    top: 0;
+		    left: 0;
+		    outline: none;
+		    background-color: transparent;
+		    filter:alpha(opacity=0);
+		    -moz-opacity:0;
+		    -khtml-opacity: 0;
+		    opacity: 0;
+		}
+		.white_content_question1{ 
+            display: none; 
+            position: absolute; 
+            top: 20%;
+            left:20%;
+            width: 60%; 
+            height: 48%; 
+            background-color: white; 
+            z-index:1002; 
+            overflow: auto; 
+            border-radius: 15px;
+        }
+        .topic{
+            font-size: 17px;
+            font-weight: bold;
+            padding-right: 15%;
+            padding-left: 10%;
+            line-height: 23px;
+        }
+    </style> 
+    <title></title>
+</head>
+<body style="background: #f5f5f5; margin: 0px; padding: 0px;">
+     <div class="ss-cont clearfix" id="ss-cont" style="position: absolute;top: 50%;left: 50%;margin-top: -350px;margin-left: -569px" >
+         <div id="topnav" class="overflowBarStyle" style="height: 655px; visibility: visible;position: relative;top: 0px;">
+            <ul class="tabQTypet" id="divNormal">
+                <li class="open">
+                    <div style="text-align: left;" class="classifyTitle">
+                        <i class="iconfont"></i><span>选择题</span>
+                    </div>                              
+                    <ul class="navlist">
+                        <li><a id="hrefChoice" href="javascript:void(0);" onclick="addSelect()"><i class="iconfont"></i><span>单选</span></a></li>
+                        <li><a href="javascript:void(0);" id="hrefMultiChoice" onclick="addMulti()"><i class="iconfont"></i><span>多选</span></a></li>
+                    </ul>
+                </li>
+               
+                <li class="open">
+                    <div style="text-align: left;" class="classifyTitle">
+                    <i class="iconfont down"></i></i><span>填空题</span>
+                    </div>
+                    <ul class="navlist">
+                        <li><a href="javascript:void(0);" id="fillBlank" onclick="addFilBlank()"><i class="iconfont"></i><span>填空题</span></a></li>
+                    </ul>
+                </li>
+                <li class="open">
+                    <div style="text-align: left;" class="classifyTitle">
+                        <i class="iconfont"></i><span>判断题</span>
+                    </div>                              
+                    <ul class="navlist">
+                        <li><a id="judge" href="javascript:void(0);" onclick="addJudge()"><i class="iconfont"></i><span>判断题</span></a></li>
+                    </ul>
+                </li>
+                <li class="open">
+                    <div style="text-align: left;" class="classifyTitle">
+                        <i class="iconfont"></i><span>大题</span>
+                    </div>                              
+                    <ul class="navlist">
+                        <li><a id="questionAnswer" href="javascript:void(0);" onclick="addqa()"><i class="iconfont"></i><span>问答题</span></a></l>
+                        <li><a id="program" href="javascript:void(0);" onclick="addProgram()" ><i class="iconfont"></i><span>编程题</span></a></li>
+                    </ul>
+                </li>
+                <li class="open">
+                    <div style="text-align: left;" class="classifyTitle">
+                        <i class="iconfont"></i><span>完成</span>
+                    </div>                              
+                    <ul class="navlist">
+                        <li><a id="program" href="javascript:void(0);" onclick="submitPaper()" ><i class="iconfont"></i><span>提交试卷</span></a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="survey editContainBox" id="sur" style="height: 700px;margin-top: 0px;">
+            <div id="paperTitle">
+                <div id="divId" class="surveyhead" style="margin-top: 18px; width: 800px; cursor: pointer; padding: 10px 0px; background: rgb(255, 255, 255);" title="编辑试卷题目和附加信息">
+                <h1 id="test_title" style="cursor: pointer;">请添加试卷题目</h1>
+                <div id="test_desc" class="surveydescription" style="cursor: pointer;">请添加试卷附加信息</div>
+                </div>
+            </div>
+            <div id="testContent">
+                <form id='form'>
+                </form>
+            </div>
+        </div>
+     </div>
+
+     <div id="paperTitleEditor" class="white_content_title" style="">
+     	<div style="margin-top: 50px;text-align: left;position: relative;">
+     		<strong style="display: block;float: left;margin-left: 70px;"><label style="font-size: 15px">标题：</label></strong><input style="border-radius: 4px;border-width: 1px;float: left;width: 60%;height: 25px" type="text" id="editor_title" value="请添加试卷题目">
+     	</div><br>
+     	<div style="margin-top: 30px;text-align: left;position: relative;height: 50%;">
+     		<strong style="display: block;float: left;margin-left: 40px;top: 50%;position: relative;"><label style="position: relative;font-size: 15px;height: 50%">附加信息：</label></strong><textarea style="float: left;height: 100%;width: 70%;border-radius: 5px" id="title_state">请添加试卷附加信息</textarea>
+     	</div><br>
+     	<div  style="text-align: left;"><span style="margin-left: 120px;font-size: 15px;color: red;"> 提示：试卷附加信息不能超过10000个字符</span></div>
+     	<div><button id="button1" style="background-color: #f17819;border-width: 0;width: 60px;height: 40px;border-radius: 5px;color: #ffffff;margin-top: 10px;outline:none;cursor:pointer;">确定</button></div>
+     </div>
+
+
+ </div>
+
+	 <div id="background_fade" class="black_overlay" style=""></div>
+</body>
+
+<script>
+	var options;
+	var kk ;
+	var editor1;
+    var kkk = new Array;
+    var kkk_select = new Array;
+    var kkk_multi = new Array;
+    var kkk_fill = new Array;
+    var kkk_judge = new Array;
+    var kkk_qa = new Array;
+
+
+	KindEditor.ready(function(K) {
+		kk = K;
+		options = {
+			cssPath : 'kindeditor/plugins/code/prettify.css',
+			uploadJson : 'upload/fileUpload',
+			afterCreate : function() {
+				var self = this;
+				K.ctrl(document, 13, function() {
+					self.sync();
+				});
+				K.ctrl(self.edit.doc, 13, function() {
+					self.sync();
+				});
+			},
+			items: [ 'image', 'multiimage','|', 'undo', 'redo', '|', 'preview', 'print', 'template', 'code', 'cut', 'copy', 'paste', 'plainpaste', 'wordpaste', '|', 'justifyleft', 'justifycenter', 'justifyright', 'justifyfull', 'insertorderedlist', 'insertunorderedlist', 'indent', 'outdent', 'subscript', 'superscript', 'quickformat', 'selectall', '|', '/', 'formatblock', 'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', '|', 'table', 'hr', 'emoticons', 'pagebreak', 'anchor', 'link', 'unlink', '|', 'about'],
+
+		};
+        
+
+	});
+
+	var optionInsertPg = function(obj,optionListType){
+		var num = obj.parentNode.parentNode.children[0].innerHTML;
+		var tr = document.createElement('tr');
+		var obj = obj.parentNode.parentNode;
+		tr.innerHTML = '<td style="padding-left: 15px;">' + (parseInt(num) + 1) + '</td><td ><input type="file"></td><td ><input type="file"></td>' + '<td style="width: 410px;"><img  title="添加一组数据" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;" onclick="optionInsertPg(this,' + optionListType.id + ')"><img  title="删除当前这一组数据(至少保留一组数据)" src="./img/减号.png" style="margin-left: 4px;cursor: pointer;" onclick="optionDeletePg(this,'+ optionListType.id + ')"></td>'
+		if (optionListType.children.length <= 20) {
+			if (obj.nextSibling) {
+				optionListType.insertBefore(tr,obj.nextSibling);
+			}else{
+				optionListType.appendChild(tr);
+			}
+		}
+	}
+
+
+	var optionDeletePg = function(obj,optionListType){
+		var obj = obj.parentNode.parentNode;
+		if(optionListType.children.length > 2){
+			optionListType.removeChild(obj);
+		}
+	}
+
+     
+
+</script>
+
+<script type="text/javascript">
+        
+        var paperTitle = document.getElementById('paperTitle');
+        var paperTitleEditor = document.getElementById('paperTitleEditor');
+        var background_fade = document.getElementById('background_fade');
+
+        //点击显示试卷标题编辑区域
+        var popup = function(){
+            paperTitleEditor.style.display = 'block';
+            background_fade.style.display = 'block';
+        }
+
+        var EventUtil = {
+            addHandle: function(element, type, handler){
+                if(element.addEventListener){
+                    element.addEventListener(type, handler, false);
+                }else if (element.attachEvent) {
+                    element.attachEvent("on"+type, handler);
+                }else{
+                    element["on"+type] = handler;
+                }
+            }
+        }
+        EventUtil.addHandle(paperTitle, 'click', popup);
+
+        var button1 = document.getElementById('button1');
+        var test_title = document.getElementById('test_title');
+        var test_desc = document.getElementById('test_desc');
+
+        //点击隐藏试卷标题编辑区域
+        var hid = function(){
+            paperTitleEditor.style.display = 'none';
+            background_fade.style.display = 'none';
+            test_title.innerHTML = document.getElementById('editor_title').value;
+            test_desc.innerHTML = document.getElementById('title_state').value;
+        }
+
+        EventUtil.addHandle(button1, 'click', hid); 
+
+        //点击显示编辑区域
+        var popup_editor = function(questionEditorArea,h1Id){
+        	var obj;
+            questionEditorArea.style.display = 'block';
+            background_fade.style.display = 'block';
+            if(h1Id.id.search('编程') > -1){
+            	obj = questionEditorArea.children[10].children[0].children[0].children[0].children[1];
+            	h1Id.setAttribute('title', obj.value+'分');
+            }else{
+            	obj = questionEditorArea.children[2].children[1].children[0].children[0].children[1];
+            	h1Id.setAttribute('title', obj.value+'分');
+            }
+            
+        }
+        
+        var count = 0;
+        var count_select = 0;
+        var count_multi = 0;
+        var count_fill = 0;
+        var count_judge = 0;
+        var count_qa = 0;
+        var count_program = 0;
+
+        var count_select1 = 0;
+        var count_multi1 = 0;
+        var count_fill1 = 0;
+        var count_judge1 = 0;
+        var count_qa1 = 0;
+        var count_program1 = 0;
+
+        var multistate = "(多选)";
+        var form = document.getElementById('form');
+
+        //添加单选题
+        var addSelect = function(){
+            count++;
+            count_select++;
+            count_select1++;
+
+            var selectTitleNumber = count_select;
+            var div1Id = '单选内框'+count_select;
+            var labeltext = count + ".";
+            var h1Id = '单选题目'+count_select;
+            var radioNameId = '单选答案'+count_select;
+            var selectEditorId = '单选编辑'+count_select;
+            var selectEditorTitleId = 'selectEditorTitleId'+count_select;
+            //var selectSelectFilesId = '单选图片选择'+count_select;
+            var optionListSelect = 'optionListSelect'+count_select;
+
+            //var selectHeight = 350;
+
+            var div1 = document.createElement('div');
+            var label = document.createElement('label');
+            var h1 = document.createElement('p');
+            var div2 = document.createElement('div');
+
+            var divEditor = document.createElement('div');
+
+            div1.setAttribute('id', div1Id);
+            div1.setAttribute('style','padding-top: 60px;position: relative;padding-bottom: 60px;border-bottom: 1px solid;border-color: #DEDEDE;');
+            div1.setAttribute('onclick','popup_editor('+ selectEditorId +','+h1Id+')');
+            label.innerHTML = labeltext;
+            label.setAttribute('style','display: block;float: left;font-size: 17px; font-weight: bold;padding-left:7%');
+            h1.innerHTML = "单选题";
+            h1.className = 'topic';
+            h1.setAttribute('id', h1Id);
+            div2.setAttribute('style','position: absolute;top: 50%;right: 30px;margin-top: -50px;');
+            div2.innerHTML = '<p style="margin-bottom: 15px;"><a href="javascript:void(0);" id="up" onclick=""><img src="./img/上移.png" onmouseover="overUpButton(this)" onmouseout="outUpButton(this)" onclick="upButton(this)"></a></p><p><a href="javascript:void(0);" id="delete" onclick=""><img src="./img/删除.png" onmouseover="overDeleteButton(this)" onmouseout="outDeleteButton(this)" onclick="deleteButton(this)"></a></p><p style="margin-top: 15px;"><a href="javascript:void(0);" id="down" onclick=""><img src="./img/下移.png" onmouseover="overDownButton(this)" onmouseout="outDownButton(this)" onclick="downButton(this)"></a></p>';
+
+            divEditor.setAttribute('id',selectEditorId);
+            divEditor.className = 'white_content_question';
+            divEditor.innerHTML = '<div class="div_title_attr_question"></div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目内容：</p> <textarea id="'+selectEditorTitleId+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 10px;"> <p style="font-weight: bold;text-align: left;margin-left: 10px;font-size: 14px;">单选题</p> <div> <div style="margin-top: 15px; text-align: left;margin-left: 10px;font-size: 14px;"> <span> <b>题目分数：</b> <select onchange="titleFraction(this,'+h1Id+')" style="width: 52px;padding-left: 5px;"> <option value="0.5">0.5</option> <option value="1">1</option> <option value="1.5">1.5</option> <option value="2">2</option> <option value="2.5">2.5</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> <option value="11">11</option> <option value="12">12</option> <option value="13">13</option> <option value="14">14</option> <option value="15">15</option> <option value="16">16</option> <option value="17">17</option> <option value="18">18</option> <option value="19">19</option> <option value="20">20</option> </select>&nbsp;</span> </div> </div> </div> <div style="clear: both;"></div> <div class="container" style="position: relative;"> <div style="padding-top: 10px;"></div> <div style="clear: both; width: 100%;"> <div class="selScrrol" style="text-align: center;"> <table class="tableoption" cellspacing="0" cellpadding="0" width="98%"> <tbody id = "'+optionListSelect+'"> <tr> <td style="width: 410px; padding: 3px 5px;"> <span> <a href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">选项文字</a> </span> </td> <td align="center" style="width: 60px; padding: 3px 5px;"> <span> <span>正确答案</span> </span> </td> <td align="left" style="padding: 3px 5px 3px 15px;"> <span>上移&nbsp;&nbsp;下移</span> </td> </tr> <tr> <td style="width: 410px;"> <input type="text" class="choicetxt choicetxt" tabindex="1" style="width: 335px; border: 1px solid rgb(205, 205, 205);"> <img onclick="optionInsert(this,'+optionListSelect+')" title="在此选项下面插入一个新的选项,不能超过6个选项" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;"> <img onclick="optionDelete(this,'+optionListSelect+')" title="删除当前选项（最少保留2个选项）" src="./img/减号.png" style="margin-left: 1px;cursor: pointer;"> </td> <td align="center"> <span>&nbsp;<input onchange="selectCorrectAnswer(this)" mark="0" correct="0" type="radio" name="编辑单选选项_'+count_select+'" tabindex="-1" class="checkbox"></span> </td> <td align="left" style="padding-left: 15px;"> <img onclick="optionUd(this,'+optionListSelect+')" title="将当前选项上移一个位置" src="./img/选项或填空上移.png" style="cursor: pointer;"> <img onclick="optionDown(this,'+optionListSelect+')" title="将当前选项下移一个位置" src="./img/选项或填空下移.png" style="margin-left: 1px;cursor: pointer;"> </td> </tr> <tr> <td style="width: 410px;"> <input type="text" class="choicetxt choicetxt" tabindex="1"  style="width: 335px; border: 1px solid rgb(205, 205, 205);"> <img onclick="optionInsert(this,'+optionListSelect+')" title="在此选项下面插入一个新的选项，不能超过6个选项" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;"> <img onclick="optionDelete(this,'+optionListSelect+')" title="删除当前选项（最少保留2个选项）" src="./img/减号.png" style="margin-left: 1px;cursor: pointer;"> </td> <td align="center"> <span>&nbsp;<input onchange="selectCorrectAnswer(this)" mark="0" correct="0" type="radio" name="编辑单选选项_'+count_select+'" tabindex="-1" class="checkbox"></span> </td> <td align="left" style="padding-left: 15px;"> <img onclick="optionUd(this,'+optionListSelect+')" title="将当前选项上移一个位置" src="./img/选项或填空上移.png" style="cursor: pointer;"> <img onclick="optionDown(this,'+optionListSelect+')" title="将当前选项下移一个位置" src="./img/选项或填空下移.png" style="margin-left: 1px;cursor: pointer;"> </td> </tr> </tbody> </table> </div> </div> </div> <div style="margin-top: 36px;"> <input type="button"value="完成编辑" class="submitbutton" style="width: 92%;" onclick="hid_editor_select('+selectEditorId+','+optionListSelect+','+div1Id+','+count_select+')"> </div><div class="div_title_attr_question" style="margin-top: 0px;height: 15px;"></div>';
+
+            div1.appendChild(label);
+            div1.appendChild(h1);
+            div1.appendChild(div2);
+            form.appendChild(div1);
+
+            document.body.appendChild(divEditor);
+
+            kkk_select[count_select] = kk.create('#'+selectEditorTitleId, options);
+        }
+
+        var hid_editor_select = function(questionEditorArea,optionListSelect,div1Id,count_select_num){
+            var optionAnswer = optionListSelect.children;
+            var optionAnswerDelete;
+            var i = 1;
+            var obj;
+            var divList = div1Id.children;
+            if (divList[3]) {
+                while(divList[3]){
+                    div1Id.removeChild(divList[3]);
+                }
+            }
+            while(optionAnswer[i]){
+                var optonId = "单选选项" + i;
+                var p = document.createElement('p');
+                p.className = 'selectAswer';
+                p.innerHTML = String.fromCharCode(64+i)+ '&nbsp;.' + optionAnswer[i].children[0].children[0].value;
+                div1Id.appendChild(p);
+                i++;
+            }
+
+            i = 1;
+            while(optionAnswer[i]){
+                if (parseInt(optionAnswer[i].children[1].children[0].children[0].getAttribute('mark')) != 1) {
+                    optionAnswer[i].children[1].children[0].children[0].correct = 0;
+                    divList[2+i].setAttribute('title','错误');
+                    i++;
+                }else{
+                    obj = optionAnswer[i].children[1].children[0].children[0];
+                    optionAnswer[i].children[1].children[0].children[0].correct = 1;
+                    divList[2+i].setAttribute('title','正确');
+                    i++;
+                    obj.setAttribute('mark','0');
+                }
+            }
+
+            div1Id.children[1].innerHTML = kkk_select[count_select_num].fullHtml();
+            div1Id.parentNode.style.height = (120 + parseInt(div1Id.offsetHeight)) + 'px';
+            questionEditorArea.style.display = 'none';
+            background_fade.style.display = 'none';
+        }
+
+        var optionInsert = function(obj,optionListSelect){
+            var tr = document.createElement('tr');
+            var obj = obj.parentNode.parentNode;
+            tr.innerHTML = '<td style="width: 410px;"> <input type="text" class="choicetxt choicetxt" tabindex="1"  style="width: 335px; border: 1px solid rgb(205, 205, 205);"> <img onclick="optionInsert(this,'+optionListSelect.id+')" title="在此选项下面插入一个新的选项，不能超过6个选项" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;"> <img onclick="optionDelete(this,'+optionListSelect.id+')" title="删除当前选项（最少保留2个选项）" src="./img/减号.png" style="margin-left: 1px;cursor: pointer;"> </td> <td align="center"> <span>&nbsp;<input onchange="selectCorrectAnswer(this)" correct="0" type="radio" mark="0" name="编辑单选选项_'+count_select+'" tabindex="-1" class="checkbox"></span> </td> <td align="left" style="padding-left: 15px;"> <img onclick="optionUd(this,'+optionListSelect.id+')" title="将当前选项上移一个位置" src="./img/选项或填空上移.png" style="cursor: pointer;"> <img onclick="optionDown(this,'+optionListSelect.id+')" title="将当前选项下移一个位置" src="./img/选项或填空下移.png" style="margin-left: 1px;cursor: pointer;"> </td>'; 
+            if (optionListSelect.children.length <= 6) {
+                if (obj.nextSibling) {
+                    optionListSelect.insertBefore(tr,obj.nextSibling);
+                }else{
+                    optionListSelect.appendChild(tr);
+                }
+            }
+        }
+
+        //添加多选题
+        var addMulti = function(){
+            count++;
+            count_multi++;
+            count_multi1++;
+            var multiTitleNumber = count_multi;
+            var div1Id = '多选内框'+count_multi;
+            var labeltext = count + ".";
+            var h1Id = '多选题目'+count_multi;
+            var radioNameId = '多选答案'+count_multi;
+            var multiEditorId = '多选编辑'+count_multi;
+            var multiEditorTitleId = 'multiEditorTitleId'+count_multi;
+            //var multiSelectFilesId = '多选图片选择'+count_multi;
+            var optionListMulti = 'optionListMulti'+count_multi;
+
+
+            var div1 = document.createElement('div');
+            var label = document.createElement('label');
+            var h1 = document.createElement('p');
+            var div2 = document.createElement('div');
+
+            var divEditor = document.createElement('div');
+            
+            div1.setAttribute('id', div1Id);
+            div1.setAttribute('style','padding-top: 60px;position: relative;padding-bottom: 60px;border-bottom: 1px solid;border-color: #DEDEDE;');
+            div1.setAttribute('onclick','popup_editor('+ multiEditorId +','+h1Id+')');
+            label.innerHTML = labeltext;
+            label.setAttribute('style','display: block;float: left;font-size: 17px; font-weight: bold;padding-left:7%');
+            h1.innerHTML = "多选题";
+            h1.className = 'topic';
+            h1.setAttribute('id', h1Id);
+            div2.setAttribute('style','position: absolute;top: 50%;right: 30px;margin-top: -50px;');
+            div2.innerHTML = '<p style="margin-bottom: 15px;"><a href="javascript:void(0);" id="up" onclick=""><img src="./img/上移.png" onmouseover="overUpButton(this)" onmouseout="outUpButton(this)" onclick="upButton(this)"></a></p><p><a href="javascript:void(0);" id="delete" onclick=""><img src="./img/删除.png" onmouseover="overDeleteButton(this)" onmouseout="outDeleteButton(this)" onclick="deleteButton(this)"></a></p><p style="margin-top: 15px;"><a href="javascript:void(0);" id="down" onclick=""><img src="./img/下移.png" onmouseover="overDownButton(this)" onmouseout="outDownButton(this)" onclick="downButton(this)"></a></p>';
+
+            divEditor.setAttribute('id',multiEditorId);
+            divEditor.className = 'white_content_question';
+            divEditor.innerHTML = '<div class="div_title_attr_question"></div> <div> <div class="container" style="margin-top: 20px;"><p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目内容：</p><textarea id="'+multiEditorTitleId+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea>    </div>  </div> <div class="container" style="margin-top: 10px;"> <p style="font-weight: bold;text-align: left;margin-left: 10px;font-size: 14px;">多选题</p> <div> <div style="margin-top: 15px; text-align: left;margin-left: 10px;font-size: 14px;"> <span> <b>题目分数：</b> <select onchange="titleFraction(this,'+h1Id+')" style="width: 52px;padding-left: 5px;"> <option value="0.5">0.5</option> <option value="1">1</option> <option value="1.5">1.5</option> <option value="2">2</option> <option value="2.5">2.5</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> <option value="11">11</option> <option value="12">12</option> <option value="13">13</option> <option value="14">14</option> <option value="15">15</option> <option value="16">16</option> <option value="17">17</option> <option value="18">18</option> <option value="19">19</option> <option value="20">20</option> </select>&nbsp;</span> </div> </div> </div> <div style="clear: both;"></div> <div class="container" style="position: relative;"> <div style="padding-top: 10px;"></div> <div style="clear: both; width: 100%;"> <div class="selScrrol" style="text-align: center;"> <table class="tableoption" cellspacing="0" cellpadding="0" width="98%"> <tbody id = "'+optionListMulti+'"> <tr> <td style="width: 410px; padding: 3px 5px;"> <span> <a href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">选项文字</a> </span> </td> <td align="center" style="width: 60px; padding: 3px 5px;"> <span> <span>正确答案</span> </span> </td> <td align="left" style="padding: 3px 5px 3px 15px;"> <span>上移&nbsp;&nbsp;下移</span> </td> </tr> <tr> <td style="width: 410px;"> <input type="text" class="choicetxt choicetxt" tabindex="1" style="width: 335px; border: 1px solid rgb(205, 205, 205);"> <img onclick="optionInsertMulti(this,'+optionListMulti+')" title="在此选项下面插入一个新的选项，不能超过6个选项" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;"> <img onclick="optionDelete(this,'+optionListMulti+')" title="删除当前选项（最少保留2个选项）" src="./img/减号.png" style="margin-left: 1px;cursor: pointer;"> </td> <td align="center"> <span>&nbsp;<input onchange="multiCorrectAnswer(this)" mark="0" correct="0" type="checkbox" name="编辑多选选项_'+count_multi+'" tabindex="-1" class="checkbox"></span> </td> <td align="left" style="padding-left: 15px;"> <img onclick="optionUd(this,'+optionListMulti+')" title="将当前选项上移一个位置" src="./img/选项或填空上移.png" style="cursor: pointer;"> <img onclick="optionDown(this,'+optionListMulti+')" title="将当前选项下移一个位置" src="./img/选项或填空下移.png" style="margin-left: 1px;cursor: pointer;"> </td> </tr> <tr> <td style="width: 410px;"> <input type="text" class="choicetxt choicetxt" tabindex="1"  style="width: 335px; border: 1px solid rgb(205, 205, 205);"> <img onclick="optionInsertMulti(this,'+optionListMulti+')" title="在此选项下面插入一个新的选项，不能超过6个选项" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;"> <img onclick="optionDelete(this,'+optionListMulti+')" title="删除当前选项（最少保留2个选项）" src="./img/减号.png" style="margin-left: 1px;cursor: pointer;"> </td> <td align="center"> <span>&nbsp;<input onchange="multiCorrectAnswer(this)" mark="0" correct="0" type="checkbox" name="编辑多选选项_'+count_multi+'" tabindex="-1" class="checkbox"></span> </td> <td align="left" style="padding-left: 15px;"> <img onclick="optionUd(this,'+optionListMulti+')" title="将当前选项上移一个位置" src="./img/选项或填空上移.png" style="cursor: pointer;"> <img onclick="optionDown(this,'+optionListMulti+')" title="将当前选项下移一个位置" src="./img/选项或填空下移.png" style="margin-left: 1px;cursor: pointer;"> </td> </tr> </tbody> </table> </div> </div> </div> <div style="margin-top: 36px;"> <input type="button"value="完成编辑" class="submitbutton" style="width: 92%;" onclick="hid_editor_multi('+multiEditorId+','+optionListMulti+','+div1Id+','+count_multi+')"> </div><div class="div_title_attr_question" style="margin-top: 0px;height: 15px;"></div>';
+
+            div1.appendChild(label);
+            div1.appendChild(h1);
+            div1.appendChild(div2);
+            form.appendChild(div1);
+
+            document.body.appendChild(divEditor);
+
+            kkk_multi[count_multi] = kk.create('#'+multiEditorTitleId, options);
+        }
+
+        var hid_editor_multi = function(questionEditorArea,optionListMulti,div1Id,count_multi_num){
+            var optionAnswer = optionListMulti.children;
+            var optionAnswerDelete;
+            var i = 1;
+            var divList = div1Id.children;
+            if (divList[3]) {
+                while(divList[3]){
+                    div1Id.removeChild(divList[3]);
+                }
+            }
+            while(optionAnswer[i]){
+                var optonId = "多选选项" + i;
+                var p = document.createElement('p');
+                p.className = 'selectAswer';
+                p.innerHTML = String.fromCharCode(64+i)+ '&nbsp;.' + optionAnswer[i].children[0].children[0].value;
+                div1Id.appendChild(p);
+                i++;
+            }
+
+            i = 1;
+            while(optionAnswer[i]){
+                if (parseInt(optionAnswer[i].children[1].children[0].children[0].getAttribute('mark')) != 1) {
+                    optionAnswer[i].children[1].children[0].children[0].correct = 0;
+                    divList[2+i].setAttribute('title','错误');
+                    i++;
+                }else{
+                    optionAnswer[i].children[1].children[0].children[0].correct = 1;
+                    divList[2+i].setAttribute('title','正确');
+                    i++;
+                }
+            }
+
+            div1Id.children[1].innerHTML = kkk_multi[count_multi_num].fullHtml();
+            div1Id.parentNode.style.height = (120 + parseInt(div1Id.offsetHeight)) + 'px';
+            questionEditorArea.style.display = 'none';
+            background_fade.style.display = 'none';
+        }
+
+        var optionInsertMulti = function(obj,optionListMulti){
+            var tr = document.createElement('tr');
+            var obj = obj.parentNode.parentNode;
+            tr.innerHTML = '<td style="width: 410px;"> <input type="text" class="choicetxt choicetxt" tabindex="1"  style="width: 335px; border: 1px solid rgb(205, 205, 205);"> <img onclick="optionInsertMulti(this,'+optionListMulti.id+')" title="在此选项下面插入一个新的选项，不能超过6个选项" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;"> <img onclick="optionDelete(this,'+optionListMulti.id+')" title="删除当前选项（最少保留2个选项）" src="./img/减号.png" style="margin-left: 1px;cursor: pointer;"> </td> <td align="center"> <span>&nbsp;<input onchange="multiCorrectAnswer(this)" mark="0" correct="0" type="checkbox" name="编辑多选选项_'+count_multi+'" tabindex="-1" class="checkbox"></span> </td> <td align="left" style="padding-left: 15px;"> <img onclick="optionUd(this,'+optionListMulti.id+')" title="将当前选项上移一个位置" src="./img/选项或填空上移.png" style="cursor: pointer;"> <img onclick="optionDown(this,'+optionListMulti.id+')" title="将当前选项下移一个位置" src="./img/选项或填空下移.png" style="margin-left: 1px;cursor: pointer;"> </td>'; 
+            if (optionListMulti.children.length <= 6) {
+                if (obj.nextSibling) {
+                    optionListMulti.insertBefore(tr,obj.nextSibling);
+                }else{
+                    optionListMulti.appendChild(tr);
+                }
+            }
+        }
+
+
+        //添加填空题
+        var addFilBlank = function(){
+            count++;
+            count_fill++;
+            count_fill1++;
+
+            var fillTitleNumber = count_fill;
+            //var divId = '填空'+count_fill;
+            var div1Id = '填空内框'+count_fill;
+            var labeltext = count + ".";
+            var h1Id = '填空题目'+count_fill;
+            var radioNameId = '填空答案'+count_fill;
+            var fillEditorId = '填空编辑'+count_fill;
+            var fillEditorTitleId = 'fillEditorTitleId'+count_fill;
+            //var fillSelectFilesId = '填空图片选择'+count_fill;
+            var fillTitleEditorId = '填空答案编辑'+count_fill;
+            var mayFillEditorId = "需求编辑区域"+count_fill;
+            var optionListFill = 'optionListFill'+count_fill;
+
+            var div1 = document.createElement('div');
+            var label = document.createElement('label');
+            var h1 = document.createElement('p');
+            var div2 = document.createElement('div');
+
+            var divEditor = document.createElement('div');
+            
+            div1.setAttribute('id', div1Id);
+            div1.setAttribute('style','padding-top: 60px;position: relative;padding-bottom: 60px;border-bottom: 1px solid;border-color: #DEDEDE;');
+            div1.setAttribute('onclick','popup_editor('+ fillEditorId +','+h1Id+')');
+            label.innerHTML = labeltext;
+            label.setAttribute('style','display: block;float: left;font-size: 17px; font-weight: bold;padding-left:7%');
+            h1.innerHTML = "填空题";
+            h1.className = 'topic';
+            h1.setAttribute('id',h1Id);
+
+            div2.setAttribute('style','position: absolute;top: 50%;right: 30px;margin-top: -50px;');
+            div2.innerHTML = '<p style="margin-bottom: 15px;"><a href="javascript:void(0);" id="up" onclick=""><img src="./img/上移.png" onmouseover="overUpButton(this)" onmouseout="outUpButton(this)" onclick="upButton(this)"></a></p><p><a href="javascript:void(0);" id="delete" onclick=""><img src="./img/删除.png" onmouseover="overDeleteButton(this)" onmouseout="outDeleteButton(this)" onclick="deleteButton(this)"></a></p><p style="margin-top: 15px;" onclick="deleteButton(this)"><a href="javascript:void(0);" id="down" onclick=""><img src="./img/下移.png" onmouseover="overDownButton(this)" onmouseout="outDownButton(this)" onclick="downButton(this)"></a></p>';
+
+            divEditor.setAttribute('id',fillEditorId);
+            divEditor.className = 'white_content_question';
+            divEditor.innerHTML = '<div class="div_title_attr_question"></div> <div><div class="container" style="margin-top: 20px;"><p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目内容：</p><textarea id="'+fillEditorTitleId+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea>    </div></div> <div class="container" style="margin-top: 10px;"> <p style="font-weight: bold;text-align: left;margin-left: 10px;font-size: 14px;">填空题</p> <div> <div style="margin-top: 15px; text-align: left;margin-left: 10px;font-size: 14px;"> <span> <b>题目分数：</b> <select onchange="titleFraction(this,'+h1Id+')" style="width: 52px;padding-left: 5px;"> <option value="0.5">0.5</option> <option value="1">1</option> <option value="1.5">1.5</option> <option value="2">2</option> <option value="2.5">2.5</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> <option value="11">11</option> <option value="12">12</option> <option value="13">13</option> <option value="14">14</option> <option value="15">15</option> <option value="16">16</option> <option value="17">17</option> <option value="18">18</option> <option value="19">19</option> <option value="20">20</option> </select>&nbsp;</span> </div> </div> </div> <div style="clear: both;"></div> <div class="container" style="position: relative;"> <div style="padding-top: 10px;"></div> <div style="clear: both; width: 100%;"> <div class="selScrrol" style="text-align: center;"> <table class="tableoption" cellspacing="0" cellpadding="0" width="98%"> <tbody id = "'+optionListFill+'"> <tr> <td style="width: 410px; padding: 3px 5px;"> <span> <a href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">填空答案</a> </span> </td> <td align="left" style="padding: 3px 5px 3px 15px;"> <span>上移&nbsp;&nbsp;下移</span> </td> </tr> </tbody> </table> </div> </div> </div> <div style="margin-top:5px;text-align:left;margin-left:36px;"><span><img src="./img/添加.png"/><a  style=" margin-left:5px;color: #6B6B6B;text-decoration: none;font-size: 15px;" href="javascript:void(0);" onclick="optionInsertFill(this,'+optionListFill+','+fillEditorTitleId+','+count_fill+')">添加填空</a></span></div><div style="margin-top: 14px;"> <input type="button"value="完成编辑" class="submitbutton" style="width: 92%;" onclick="hid_editor_fill('+fillEditorId+','+optionListFill+','+div1Id+','+count_fill+')"> </div><div class="div_title_attr_question" style="margin-top: 0px;height: 15px;"></div>';
+
+            div1.appendChild(label);
+            div1.appendChild(h1);
+            div1.appendChild(div2);
+            form.appendChild(div1);
+
+            document.body.appendChild(divEditor);
+
+            kkk_fill[count_fill] = kk.create('#'+fillEditorTitleId, options);
+        }
+
+        var hid_editor_fill = function(questionEditorArea,optionListFill,div1Id,count_fill_num){
+            var optionAnswer = optionListFill.children;
+            var optionAnswerDelete;
+            var i = 1;
+            var divList = div1Id.children;
+            if (divList[3]) {
+                while(divList[3]){
+                    div1Id.removeChild(divList[3]);
+                }
+            }
+            while(optionAnswer[i]){
+                var optonId = "填空答案" + i;
+                var p = document.createElement('p');
+                var span = document.createElement('span');
+                p.className = 'selectAswer';
+                span.style.borderBottom = "1px solid";
+                span.style.width = "150px";
+                span.style.display = "block";
+                span.style.textAlign = "center";
+                span.style.marginTop = "40px";
+                span.innerHTML =optionAnswer[i].children[0].children[0].value;
+                p.appendChild(span);
+                div1Id.appendChild(p);
+                i++;
+            }
+
+            div1Id.children[1].innerHTML = kkk_fill[count_fill_num].fullHtml();
+            div1Id.parentNode.style.height = (120 + parseInt(div1Id.offsetHeight)) + 'px';
+            questionEditorArea.style.display = 'none';
+            background_fade.style.display = 'none';
+        }
+
+        var optionInsertFill = function(obj,optionListFill,fillEditorTitleId,count_fill_num){
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<tr> <td style="width: 410px;"> <input type="text" class="choicetxt choicetxt" tabindex="1" style="width: 335px; border: 1px solid rgb(205, 205, 205);"> <img onclick="optionDelete2(this,'+optionListFill.id+')" src="./img/减号.png" style="margin-left: 1px;cursor: pointer;"> </td> <td align="left" style="padding-left: 15px;"> <img onclick="optionUd(this,'+optionListFill.id+')" title="将当前选项上移一个位置" src="./img/选项或填空上移.png" style="cursor: pointer;"> <img onclick="optionDown(this,'+optionListFill.id+')" title="将当前选项下移一个位置" src="./img/选项或填空下移.png" style="margin-left: 1px;cursor: pointer;"> </td> </tr>';
+            if (optionListFill.children.length <= 5) {
+                optionListFill.appendChild(tr);
+                kkk_fill[count_fill_num].insertHtml('___________');
+            }
+        }
+
+        
+        //添加啊判断题
+        var addJudge = function(){
+            count++;
+            count_judge++;
+            count_judge1++;
+            var judgeTitleNumber = count_judge;
+            //var divId = '判断'+count_judge;
+            var labeltext = count + ".";
+            var div1Id = '判断内框'+count_judge;
+            var h1Id = '判断题目'+count_judge;
+            var judgeEditorId = '判断编辑'+count_judge;
+            var judgeEditorTitleId = 'judgeEditorTitleId'+count_judge;
+
+            var div1 = document.createElement('div');
+            var label = document.createElement('label');
+            var h1 = document.createElement('p');
+            var div2 = document.createElement('div');
+
+            var divEditor = document.createElement('div');
+
+            div1.setAttribute('id', div1Id);
+            div1.setAttribute('style','padding-top: 60px;position: relative;padding-bottom: 60px;border-bottom: 1px solid;border-color: #DEDEDE;');
+            div1.setAttribute('onclick','popup_editor('+ judgeEditorId +','+h1Id+')');
+            label.innerHTML = labeltext;
+            label.setAttribute('style','display: block;float: left;font-size: 17px; font-weight: bold;padding-left:7%');
+            h1.innerHTML = "判断题";
+            h1.setAttribute('style','font-size: 17px; font-weight: bold;padding-right: 15%;padding-left: 10%;line-height: 23px;position: relative;');
+            h1.setAttribute('answer','');
+            h1.setAttribute('id', h1Id);
+            h1.setAttribute('title','');
+
+            div2.setAttribute('style','position: absolute;top: 50%;right: 30px;margin-top: -50px;');
+            div2.innerHTML = '<p style="margin-bottom: 15px;"><a href="javascript:void(0);" id="up" onclick=""><img src="./img/上移.png" onmouseover="overUpButton(this)" onmouseout="outUpButton(this)" onclick="upButton(this)"></a></p><p><a href="javascript:void(0);" id="delete" onclick=""><img src="./img/删除.png" onmouseover="overDeleteButton(this)" onmouseout="outDeleteButton(this)" onclick="deleteButton(this)"></a></p><p style="margin-top: 15px;"><a href="javascript:void(0);" id="down" onclick=""><img src="./img/下移.png" onmouseover="overDownButton(this)" onmouseout="outDownButton(this)" onclick="downButton(this)"></a></p>';
+
+            divEditor.setAttribute('id',judgeEditorId);
+            divEditor.className = 'white_content_question';
+            divEditor.innerHTML = '<div class="div_title_attr_question"></div> <div><div class="container" style="margin-top: 20px;"><p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目内容：</p><textarea id="'+judgeEditorTitleId+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea>    </div></div> <div class="container" style="margin-top: 10px;"> <p style="font-weight: bold;text-align: left;margin-left: 10px;font-size: 14px;">判断题</p> <div> <div style="margin-top: 15px; text-align: left;margin-left: 10px;font-size: 14px;"> <span> <b>题目分数：</b> <select onchange="titleFraction(this,'+h1Id+')" style="width: 52px;padding-left: 5px;"> <option value="0.5">0.5</option> <option value="1">1</option> <option value="1.5">1.5</option> <option value="2">2</option> <option value="2.5">2.5</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> <option value="11">11</option> <option value="12">12</option> <option value="13">13</option> <option value="14">14</option> <option value="15">15</option> <option value="16">16</option> <option value="17">17</option> <option value="18">18</option> <option value="19">19</option> <option value="20">20</option> </select>&nbsp;</span> </div> </div> </div>  <div style="clear: both;"></div> <div class="container" style="position: relative;"> <div style="padding-top: 10px;"></div> <div style="clear: both; width: 100%;"> <div class="selScrrol" style="text-align: center;"> <table class="tableoption" cellspacing="0" cellpadding="0" width="98%"> <tbody> <tr> <td style="width: 410px; padding: 3px 5px;"><span><a href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;font-size: 14px;">选项文字<i class="design-icon design-ctext"></i></a></span></td> <td align="center" style="width: 60px; padding: 3px 5px;font-size: 14px;"><span><span>正确答案</span></span></td> </tr> <tr> <td style="width: 410px;padding-left: 10px;font-size: 14px;">选项一：对</td> <td align="center"><span>&nbsp;<input type="radio" tabindex="-1" name="edJudge_'+count_judge+'" class="checkbox" onclick="judgeCorrectAnswer('+h1Id+',1)"></span></td> <tr> <td style="width: 410px;padding-left: 10px;font-size: 14px;">选项二：错</td> <td align="center"><span>&nbsp;<input type="radio" tabindex="-1" name="edJudge_'+count_judge+'" class="checkbox" onclick="judgeCorrectAnswer('+h1Id+',2)"></span></td> </tr> </tbody> </table> </div> </div> </div> <div style="margin-top: 36px;"> <input type="button"value="完成编辑" class="submitbutton" style="width: 92%;" onclick="hid_editor_judge('+judgeEditorId+','+div1Id+','+count_judge+')"> </div><div class="div_title_attr_question" style="margin-top: 0px;height: 15px;"></div>';
+
+            //div.appendChild(div1);
+            div1.appendChild(label);
+            div1.appendChild(h1);
+            div1.appendChild(div2);
+            form.appendChild(div1);
+
+            document.body.appendChild(divEditor);
+
+            kkk_judge[count_judge] = kk.create('#'+judgeEditorTitleId, options);
+
+        }
+
+        var hid_editor_judge = function(questionEditorArea,div1Id,count_judge_num){
+            div1Id.children[1].innerHTML = kkk_judge[count_judge_num].fullHtml();
+            div1Id.parentNode.style.height = (120 + parseInt(div1Id.offsetHeight)) + 'px';
+            questionEditorArea.style.display = 'none';
+            background_fade.style.display = 'none';
+        }
+
+        var judgeCorrectAnswer = function(h1Id,select){
+            if (select == 1) {
+                h1Id.setAttribute('answer','正确');
+            }else{
+                h1Id.setAttribute('answer','错误');
+            }
+        }
+        
+        //添加问答题
+        var addqa = function(){
+            count++;
+            count_qa++;
+            count_qa1++;
+
+            var qaTitleNumber = count_qa;
+            //var divId = '问答'+count_qa;
+            var labeltext = count + ".";
+            var div1Id = '问答内框'+count_qa;
+            var h1Id = '问答题目'+count_qa;
+            var qaAnswer = '问答答案'+count_qa;
+            var qaEditorId = '问答编辑'+count_qa;
+            var qaEditorTitleId = 'qaEditorTitleId'+count_qa; 
+
+            //var div = document.createElement('div');
+            var div1 = document.createElement('div');
+            var label = document.createElement('label');
+            var h1 = document.createElement('p');
+            var div2 = document.createElement('div');
+
+            var divEditor = document.createElement('div');
+            
+            div1.setAttribute('id', div1Id);
+            div1.setAttribute('style','padding-top: 60px;position: relative;padding-bottom: 60px;border-bottom: 1px solid;border-color: #DEDEDE;');
+            div1.setAttribute('onclick','popup_editor('+ qaEditorId +','+h1Id+')');
+            label.innerHTML = labeltext;
+            label.setAttribute('style','display: block;float: left;font-size: 17px; font-weight: bold;padding-left:7%');
+            h1.innerHTML = "问答题";
+            h1.className = 'topic';
+            h1.setAttribute('id' ,h1Id);
+
+            div2.setAttribute('style','position: absolute;top: 50%;right: 30px;margin-top: -50px;');
+            div2.innerHTML = '<p style="margin-bottom: 15px;"><a href="javascript:void(0);" id="up" onclick=""><img src="./img/上移.png" onmouseover="overUpButton(this)" onmouseout="outUpButton(this)" onclick="upButton(this)"></a></p><p><a href="javascript:void(0);" id="delete" onclick=""><img src="./img/删除.png" onmouseover="overDeleteButton(this)" onmouseout="outDeleteButton(this)" onclick="deleteButton(this)"></a></p><p style="margin-top: 15px;"><a href="javascript:void(0);" id="down" onclick=""><img src="./img/下移.png" onmouseover="overDownButton(this)" onmouseout="outDownButton(this)" onclick="downButton(this)"></a></p>';
+
+            divEditor.setAttribute('id',qaEditorId);
+            divEditor.className = 'white_content_question1';
+            divEditor.innerHTML = '<div class="div_title_attr_question"></div> <div><div class="container" style="margin-top: 20px;"><p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目内容：</p><textarea id="'+qaEditorTitleId+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea>    </div></div>  <div class="container" style="margin-top: 10px;"> <p style="font-weight: bold;text-align: left;margin-left: 10px;font-size: 14px;">问答题</p> <div> <div style="margin-top: 15px; text-align: left;margin-left: 10px;font-size: 14px;"> <span> <b>题目分数：</b> <select onchange="titleFraction(this,'+h1Id+')" style="width: 52px;padding-left: 5px;"> <option value="0.5">0.5</option> <option value="1">1</option> <option value="1.5">1.5</option> <option value="2">2</option> <option value="2.5">2.5</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> <option value="11">11</option> <option value="12">12</option> <option value="13">13</option> <option value="14">14</option> <option value="15">15</option> <option value="16">16</option> <option value="17">17</option> <option value="18">18</option> <option value="19">19</option> <option value="20">20</option> </select>&nbsp;</span> </div> </div> </div>  <div style="margin-top: 36px;"> <input type="button"value="完成编辑" class="submitbutton" style="width: 92%;" onclick="hid_editor_qa('+qaEditorId+','+div1Id+','+count_qa+')"> </div><div class="div_title_attr_question" style="margin-top: 0px;height: 15px;"></div>';
+            //div.appendChild(div1);
+            div1.appendChild(label);
+            div1.appendChild(h1);
+            div1.appendChild(div2);
+            form.appendChild(div1);
+
+            document.body.appendChild(divEditor);
+            kkk_qa[count_qa] = kk.create('#'+qaEditorTitleId, options);
+        }
+
+        var hid_editor_qa = function(questionEditorArea,div1Id,count_qa_num){
+            div1Id.children[1].innerHTML = kkk_qa[count_qa_num].fullHtml();
+            div1Id.parentNode.style.height = (120 + parseInt(div1Id.offsetHeight)) + 'px';
+            questionEditorArea.style.display = 'none';
+            background_fade.style.display = 'none';
+        }
+
+        //添加编程题
+        var addProgram = function(){
+            count++;
+            count_program++;
+            count_program1++;
+
+            kkk[count_program] = new Array();
+
+            var pgTitleNumber = count_program;
+            var labeltext = count + ".";
+            var h1Id = '编程题目'+count_program;
+            var div1Id = '编程内框'+count_program;
+            var pgEditorId = '编程编辑'+count_program;
+            var program_title = "program_title_"+count_program;
+            var program_description = "program_description_"+count_program;
+            var program_input = "program_input_"+count_program;
+            var program_output = "program_output_"+count_program;   
+            var program_sample_input = "program_sampke_input_"+count_program; 
+            var program_sample_output = "program_sample_output_"+count_program;    
+            var program_hint = "program_hint_"+count_program; 
+            var program_complete = "program_complete"+count_program; 
+
+
+            var div1 = document.createElement('div');
+            var label = document.createElement('label');
+            var h1 = document.createElement('p');
+            var div2 = document.createElement('div');
+            var div2_1= document.createElement('div');
+            var div2_2= document.createElement('div');
+            var div2_3= document.createElement('div');
+            var div2_4= document.createElement('div');
+            var div2_5= document.createElement('div');
+            var div2_6= document.createElement('div');
+            var h1_1= document.createElement('h1');
+            var h1_2= document.createElement('h1');
+            var h1_3= document.createElement('h1');
+            var h1_4= document.createElement('h1');
+            var h1_5= document.createElement('h1');
+            var h1_6= document.createElement('h1');
+            var memory = document.createElement('p');
+            var time = document.createElement('p');
+            var span1 = document.createElement('span');
+            var span2 = document.createElement('span');
+            var span3 = document.createElement('span');
+            var span4 = document.createElement('span');
+            var span5 = document.createElement('span');
+            var span6 = document.createElement('span');
+
+
+            var divEditor = document.createElement('div');
+
+            div1.setAttribute('onclick','popup_editor('+ pgEditorId +','+h1Id+')');
+            div1.setAttribute('style','padding-top: 60px;position: relative;padding-bottom: 60px;border-bottom: 1px solid;border-color: #DEDEDE;');
+            div1.setAttribute('id',div1Id);
+            label.innerHTML = labeltext;
+            label.style.marginTop = '65px';
+            label.setAttribute('style','display: block;float: left;font-size: 17px; font-weight: bold;padding-left:7%');
+            h1.innerHTML = "编程题";
+            h1.setAttribute('style','font-size: 17px; font-weight: bold;padding-right: 15%;padding-left: 10%;line-height: 23px;');
+            h1.setAttribute('id' ,h1Id);
+            div2_1.className = 'selectAswer';
+            div2_2.className = 'selectAswer';
+            div2_3.className = 'selectAswer';
+            div2_4.className = 'selectAswer';
+            div2_5.className = 'selectAswer';
+            div2_6.className = 'selectAswer'; 
+
+            h1_1.innerHTML = "题目内容：";
+            h1_1.className = 'topic';
+            h1_1.style.marginTop = "30px";
+
+            h1_2.innerHTML = "输入格式：";
+            h1_2.className = 'topic';
+            h1_2.style.marginTop = "30px";
+
+            h1_3.innerHTML = "输出格式：";
+            h1_3.className = 'topic';
+            h1_3.style.marginTop = "30px";
+
+            h1_4.innerHTML = "输入样例：";
+            h1_4.className = 'topic';
+            h1_4.style.marginTop = "30px";
+
+            h1_5.innerHTML = "输出样例：";
+            h1_5.className = 'topic';
+            h1_5.style.marginTop = "30px";
+
+            h1_6.innerHTML = "提示：";
+            h1_6.className = 'topic';
+            h1_6.style.marginTop = "30px";
+
+            memory.className = 'topic';
+            memory.style.marginTop = '30px';
+
+            span1.innerHTML = "内存限制：";
+            span5.innerHTML = "&nbsp;MB";
+
+            time.className = 'topic';
+            time.style.marginTop = '20px';
+
+            span3.innerHTML = "时间限制：";
+            span6.innerHTML = "&nbsp;秒";
+
+
+            div2.setAttribute('style','position: absolute;top: 50%;right: 30px;margin-top: -50px;');
+            div2.innerHTML = '<p style="margin-bottom: 15px;"><a href="javascript:void(0);" id="up" onclick=""><img src="./img/上移.png" onmouseover="overUpButton(this)" onmouseout="outUpButton(this)" onclick="upButton(this)"></a></p><p><a href="javascript:void(0);" id="delete" onclick=""><img src="./img/删除.png" onmouseover="overDeleteButton(this)" onmouseout="outDeleteButton(this)" onclick="deleteButton(this)"></a></p><p style="margin-top: 15px;"><a href="javascript:void(0);" id="down" onclick=""><img src="./img/下移.png" onmouseover="overDownButton(this)" onmouseout="outDownButton(this)" onclick="downButton(this)"></a></p>';
+
+            divEditor.setAttribute('id',pgEditorId);
+            divEditor.className = 'white_content_question';
+            divEditor.innerHTML = '<div class="div_title_attr_question"></div> <div class="container" style="margin-top: 20px;text-align: left;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目标题：</p> <textarea id="'+program_title+'" cols="50" rows="8" style="width: 700px; height: 100px;"></textarea> </div> <div class="container" style="margin-top: 20px;width: 100%"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目内容：</p> <textarea id="'+program_description+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输入格式：</p> <textarea id="'+program_input+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输出格式：</p> <textarea id="'+program_output+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输入样例：</p> <textarea id="'+program_sample_input+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输出样例：</p> <textarea id="'+program_sample_output+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align:left;font-size:16px;padding-bottom: 10px;">提示：</p> <textarea id="'+program_hint+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;text-align: left;"><span style="font-weight: bold;text-align: left;font-size:15px;padding-bottom: 10px;">内存限制：</span><input type="text" style="line-height: 20px;width: 50px;text-align: center;">&nbsp;<span style="text-align: left;font-size:13px;padding-bottom: 10px;">MB</span>      </div> <div class="container" style="margin-top: 20px;text-align: left;"><span style="font-weight: bold;text-align: left;font-size:15px;padding-bottom: 10px;">时间限制：</span><input type="text" style="line-height: 20px;width: 50px;text-align: center;">&nbsp;<span style="text-align: left;font-size:13px;padding-bottom: 10px;">秒</span></div><div class="container" style="margin-top: 20px;"> <div> <div style="margin-top: 15px; text-align: left;font-size: 15px;"> <span> <b>题目分数：</b> <select onchange="titleFraction(this,'+h1Id+')" style="width: 52px;padding-left: 5px;"> <option value="0.5" selected="selected">0.5</option> <option value="1">1</option> <option value="1.5">1.5</option> <option value="2">2</option> <option value="2.5">2.5</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> </select> </span> </div> </div> </div> <div style="clear: both;"></div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输入/输出数据：</p> <div style="clear: both; width: 100%;"> <div class="selScrrol" style="text-align: center;"> <table class="tableoption" cellspacing="0" cellpadding="0" width="98%"> <tbody id="optionListSelectPg"> <tr> <td style="width: 410px; padding: 3px 5px;"><span><a title="第几组数据" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">组号<i class="design-icon design-ctext"></i></a></span></td> <td style="width: 410px; padding: 3px 5px;"><span><a title="输入数据" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">输入数据<i class="design-icon design-ctext"></i></a></span></td> <td style="width: 410px; padding: 3px 5px;"><span><a title="输出数据" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">输出数据<i class="design-icon design-ctext"></i></a></span></td> <td style="width: 410px; padding: 3px 5px;"><span><a title="操作" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">操作<i class="design-icon design-ctext"></i></a></span></td> </tr> <tr> <td style="padding-left: 15px;">1</td> <td ><input type="file"></td> <td ><input type="file"></td> <td style="width: 410px;"> <img  title="添加一组数据" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;" onclick="optionInsertPg(this,optionListSelectPg)"> <img  title="删除当前这一组数据(至少保留一组数据)" src="./img/减号.png" style="margin-left: 1px;cursor: pointer;" onclick="optionDeletePg(this,optionListSelectPg)"> </td> </tr> </tbody> </table> </div> </div> </div> <div style="margin-top: 36px;"> <input onclick="hid_editor_program('+pgEditorId+','+div1Id+','+count_program+')" id="'+program_complete+'" type="button"value="完成编辑" class="submitbutton" style="width: 92%;"> </div> <div class="div_title_attr_question"></div>'; 
+            div1.appendChild(label);
+            div1.appendChild(h1);
+            div1.appendChild(div2);
+
+            div1.appendChild(h1_1);
+            div1.appendChild(div2_1);
+            div1.appendChild(h1_2);
+            div1.appendChild(div2_2);
+            div1.appendChild(h1_3);
+            div1.appendChild(div2_3);
+            div1.appendChild(h1_4);
+            div1.appendChild(div2_4);
+            div1.appendChild(h1_5);
+            div1.appendChild(div2_5);
+            div1.appendChild(h1_6);
+            div1.appendChild(div2_6);
+            div1.appendChild(memory);
+            div1.appendChild(time);
+            memory.appendChild(span1);
+            memory.appendChild(span2);
+            memory.appendChild(span5);
+            time.appendChild(span3);
+            time.appendChild(span4);
+            time.appendChild(span6);
+
+            form.appendChild(div1);
+
+            document.body.appendChild(divEditor);
+            
+            kkk[count_program][0] = kk.create('#'+program_description, options);
+            kkk[count_program][1] = kk.create('#'+program_input, options);    
+            kkk[count_program][2] = kk.create('#'+program_output, options);   
+            kkk[count_program][3] = kk.create('#'+program_sample_input, options);
+            kkk[count_program][4] = kk.create('#'+program_sample_output, options);    
+            kkk[count_program][5] = kk.create('#'+program_hint, options);
+        }
+
+        var hid_editor_program = function(pgEditorId,div1Id,count_program_num){
+            var title_program;
+            div1Id.children[1].innerHTML = pgEditorId.children[1].children[1].value.replace(/\n/g,'<br>');
+            for (var i = 0; i < 6; i++) {
+                div1Id.children[4+i*2].innerHTML = kkk[count_program_num][i].fullHtml();
+            }
+            div1Id.parentNode.style.height = (120 + parseInt(div1Id.offsetHeight)) + 'px';
+            div1Id.children[div1Id.children.length-2].children[1].innerHTML = pgEditorId.children[8].children[1].value;
+            div1Id.children[div1Id.children.length-1].children[1].innerHTML = pgEditorId.children[9].children[1].value;
+            pgEditorId.style.display = 'none';
+            background_fade.style.display = 'none';
+        }
+
+
+	    var optionDelete = function(obj,optionListType){
+	        var obj = obj.parentNode.parentNode;
+	        if(optionListType.children.length > 3){
+	        	optionListType.removeChild(obj);
+	        }
+	    }
+
+	    var optionDelete2 = function(obj,optionListType){
+	        var obj = obj.parentNode.parentNode;
+	        if(optionListType.children.length > 1){
+	        	optionListType.removeChild(obj);
+	        }
+	    }
+
+	    var optionUd = function(obj,optionListType){
+	    	var obj = obj.parentNode.parentNode;
+	    	if (obj.previousSibling.previousSibling.previousSibling){
+	    		optionListType.insertBefore(obj, obj.previousSibling);
+	    	}
+	    }
+
+	    var optionDown = function(obj,optionListType){
+	    	var obj = obj.parentNode.parentNode;
+	    	if (obj.nextSibling){
+	    		if (obj.nextSibling.nextSibling) {
+	    			optionListType.insertBefore(obj, obj.nextSibling.nextSibling);
+	    		}else{
+	    			optionListType.appendChild(obj);
+	    		}
+	    	}
+	    }
+
+	    var selectCorrectAnswer = function(obj){
+        	obj.setAttribute('mark','1');
+        }
+
+        var multiCorrectAnswer = function(obj){ 	
+        	if (obj.getAttribute('mark') == 1) {
+        		obj.setAttribute('mark','0');
+        	}else{
+        		obj.setAttribute('mark','1');
+        	}
+        }
+
+
+        var titleFraction = function(obj,h1Id){
+            h1Id.setAttribute('title', obj.value+'分');
+        }
+
+        var overDeleteButton = function(obj){
+             obj.src = './img/删除1.png';
+        }
+        var outDeleteButton = function(obj){
+             obj.src = './img/删除.png';
+        }
+
+        var overUpButton = function(obj){
+            obj.src = './img/上移1.png';
+        }
+        var outUpButton = function(obj){
+            obj.src = './img/上移.png';
+        }
+
+        var overDownButton = function(obj){
+            obj.src = './img/下移1.png';
+        }
+
+        var outDownButton = function(obj){
+            obj.src = './img/下移.png';
+        }
+
+        var deleteButton = function(obj){
+        	canclebubble(event);
+        	var parent = obj.parentNode.parentNode.parentNode.parentNode.parentNode;
+        	var question = obj.parentNode.parentNode.parentNode.parentNode;
+            var titleId = question.id;
+            document.body.removeChild(document.getElementById(titleId.replace(/内框/,"编辑")));
+        	parent.removeChild(question);
+        	for (var i =  0; i < parent.children.length; i++) {
+                 parent.children[i].children[0].innerHTML = (i+1) + ".";
+        	}
+        	count--;
+        	if (question.id.match('/单选/g')) {
+        		count_select1--;
+        	}else if(question.id.match('/多选/g')){
+        		count_multi1--;
+        	}else if (question.id.match('/填空/g')) {
+        		count_fill1--;
+        	}else if (question.id.match('/判断/g')) {
+                count_judge1--;
+        	}else if (question.id.match('/问答/g')) {
+                count_qa1--;
+        	}else{
+                count_program1--;
+        	}
+        }
+
+        var upButton = function(obj){
+        	canclebubble(event);
+            var parent = obj.parentNode.parentNode.parentNode.parentNode.parentNode;
+            var question = obj.parentNode.parentNode.parentNode.parentNode;
+            if (question.previousSibling.previousSibling) {
+                question.children[0].innerHTML = (parseInt(question.children[0].innerHTML.substr(0,question.children[0].innerHTML.indexOf('.')))-1) + ".";
+                question.previousSibling.children[0].innerHTML = (parseInt(question.previousSibling.children[0].innerHTML.substr(0,question.previousSibling.children[0].innerHTML.indexOf('.')))+1) + ".";
+                parent.insertBefore(question,question.previousSibling);
+            }
+        }
+
+
+        var downButton = function(obj){
+            canclebubble(event);
+            var parent = obj.parentNode.parentNode.parentNode.parentNode.parentNode;
+            var question = obj.parentNode.parentNode.parentNode.parentNode;
+            if (question.nextSibling) {
+                if (question.nextSibling.nextSibling) {
+                    question.children[0].innerHTML = (parseInt(question.children[0].innerHTML.substr(0,question.children[0].innerHTML.indexOf('.')))+1) + ".";
+                    question.nextSibling.children[0].innerHTML = (parseInt(question.nextSibling.children[0].innerHTML.substr(0,question.nextSibling.children[0].innerHTML.indexOf('.')))-1) + ".";
+                    parent.insertBefore(question,question.nextSibling.nextSibling);
+                }else{
+                    question.children[0].innerHTML = (parseInt(question.children[0].innerHTML.substr(0,question.children[0].innerHTML.indexOf('.')))+1) + ".";
+                    question.nextSibling.children[0].innerHTML = (parseInt(question.nextSibling.children[0].innerHTML.substr(0,question.nextSibling.children[0].innerHTML.indexOf('.')))-1) + ".";
+                    parent.appendChild(question);
+                }
+            }
+        } 
+
+    
+
+        function canclebubble(event){
+		    var event = event||window.event;        //兼容火狐
+		    if(event.stopPropagation){
+		        event.stopPropagation();            //标准浏览器
+		    }else{
+		        event.cancaleBubble==true;          //老ie
+		    }
+		} 
+
+        var submitPaper = function(){
+            if(window.confirm('你确定要取消交易吗？')){
+            
+            var selectList = new Array;
+            var i=1;
+            while(i <= count_select){
+                var typeTitle = document.getElementById('单选内框'+i);
+                if (typeTitle) {
+                    selectList[i] = new Array;
+                    selectList[i][0] = typeTitle.children[0].innerHTML.substr(0,typeTitle.children[0].innerHTML.indexOf('.'));
+                    selectList[i][1] = kkk_select[i].fullHtml();
+                    selectList[i][2] = typeTitle.children[1].title;
+                    var j = 3
+                    var z = 0;
+                    while(j < typeTitle.children.length) {
+                        selectList[i][j] = typeTitle.children[j].innerHTML.substr(8);
+                        if (typeTitle.children[j].title == '正确') {
+                            z = j-2;
+                        }
+                        j++;
+                    }
+                    selectList[i][j] = z; 
+                }
+                i++;
+            }
+            console.log(selectList);
+
+            var multiList = new Array;
+            i = 1;
+            while(i <= count_multi){
+                var typeTitle = document.getElementById('多选内框'+i);
+                if (typeTitle) {
+                    multiList[i] = new Array;
+                    multiList[i][0] = typeTitle.children[0].innerHTML.substr(0,typeTitle.children[0].innerHTML.indexOf('.'));
+                    multiList[i][1] = kkk_multi[i].fullHtml();
+                    multiList[i][2] = typeTitle.children[1].title;
+                    var j = 3
+                    var z = "";
+                    while(j < typeTitle.children.length) {
+                        multiList[i][j] = typeTitle.children[j].innerHTML.substr(8);
+                        if (typeTitle.children[j].title == '正确') {
+                            z = z + (j-2);
+                        }
+                        j++;
+                    }
+                    multiList[i][j] = z; 
+                }
+                i++;
+            }
+            console.log(multiList);
+
+            var fillList = new Array;
+            i = 1;
+            while(i <= count_fill){
+                var typeTitle = document.getElementById('填空内框'+i);
+                if (typeTitle) {
+                    fillList[i] = new Array;
+                    fillList[i][0] = typeTitle.children[0].innerHTML.substr(0,typeTitle.children[0].innerHTML.indexOf('.'));
+                    fillList[i][1] = kkk_fill[i].fullHtml();
+                    fillList[i][2] = typeTitle.children[1].title;
+                    var j = 3
+                    while(j < typeTitle.children.length) {
+                        fillList[i][j] = typeTitle.children[j].children[0].innerHTML;
+                        j++;
+                    }
+                }
+                i++;
+            }
+            console.log(fillList);
+
+            var judgeList = new Array;
+            i = 1;
+            while(i <= count_judge){
+                var typeTitle = document.getElementById('判断内框'+i);
+                if (typeTitle) {
+                    judgeList[i] = new Array;
+                    judgeList[i][0] = typeTitle.children[0].innerHTML.substr(0,typeTitle.children[0].innerHTML.indexOf('.'));
+                    judgeList[i][1] = kkk_judge[i].fullHtml();
+                    judgeList[i][2] = typeTitle.children[1].title;
+                    judgeList[i][3] = typeTitle.children[1].getAttribute('answer');
+                }
+                i++;
+            }
+            console.log(judgeList);
+
+            var qaList = new Array;
+            i = 1;
+            while(i <= count_qa){
+                var typeTitle = document.getElementById('问答内框'+i);
+                if (typeTitle) {
+                    qaList[i] = new Array;
+                    qaList[i][0] = typeTitle.children[0].innerHTML.substr(0,typeTitle.children[0].innerHTML.indexOf('.'));
+                    qaList[i][1] = kkk_qa[i].fullHtml();
+                    qaList[i][2] = typeTitle.children[1].title;
+                }
+                i++;
+            }
+            console.log(qaList);
+
+            var programList = new Array;
+            i = 1;
+            while(i <= count_program){
+                var typeTitle = document.getElementById('编程内框'+i);
+                if (typeTitle) {
+                    programList[i] = new Array;
+                    programList[i][0] = typeTitle.children[0].innerHTML.substr(0,typeTitle.children[0].innerHTML.indexOf('.'));
+                    programList[i][1] = typeTitle.children[1].innerHTML;
+                    var j = 0;
+                    while(kkk[i][j]){
+                        programList[i][2+j] = kkk[i][j].fullHtml();
+                        j++;
+                    }
+                    programList[i][8] = typeTitle.children[typeTitle.children.length-2].children[1].innerHTML;
+                    programList[i][9] = typeTitle.children[typeTitle.children.length-1].children[1].innerHTML;
+                    programList[i][10] = typeTitle.children[1].title;
+                }
+                i++;
+            }
+            console.log(programList);
+
+            var programJson = new Array;
+            var anotherJson = new Array;
+            i = 1;
+            var ii = 0;
+            while(i <= count_program){
+                if (programList[i]) {
+                    programJson[ii] = { //编程题对象
+                        "problem": {  
+                            "description": programList[i][2],  //编程题描述
+                            "sampleInput": programList[i][5],  //样例输入
+                            "source": "",
+                            "title": programList[i][1],   //题目标题
+                            "output": programList[i][4],  //输出格式
+                            "sampleProgram": "",
+                            "timeLimit": programList[i][9], //时间限制(s)
+                            "input": programList[i][3], //输入格式
+                            "score": parseFloat(programList[i][10]),  //分数
+                            "pos": parseInt(programList[i][0]), //这一题在试卷中 是第几题
+                            "hint": programList[i][7],  //提示
+                            "memoryLimit": parseInt(programList[i][8]),  //内存限制
+                            "sampleOutput": programList[i][6] //样例输出
+                        },
+                        "solution": null,
+                    };
+                    i++;
+                    ii++;
+                }else{
+                    i++;
+                    continue;
+                }
+            }
+
+            i = 1;
+            var ii = 0;
+            while(i <= count_select){
+                var answerList = selectList[i][selectList[i].length-1];
+                if (selectList[i]) {
+                    var optionList = new Array;
+
+                    for(var j = 0; j < selectList[i].length-4;j++){
+                        optionList[j] = {  //选项对象
+                            "pos": j+1,  //该选项是第几个选项
+                            "content": selectList[i][j+3]  //选项内容
+                        };
+                    }
+                    
+
+                    anotherJson[ii]= {  //选择填空题
+                        "answer": [  //答案对象
+                            {  //答案列表
+                            "pos": 0, //当为填空题时有效 这个答案是第几个空的答案
+                            "content": selectList[i][answerList + 2] //答案内容
+                        }],
+                        "simproblem": {  //选择填空题对象
+                            "score": parseFloat(selectList[i][2]),  //分数
+                            "blanks": 0, //空格 当题目是填空题的时候有效 标记有几个空
+                            "pos": parseInt(selectList[i][0]), //这一题 在试卷中是第几题
+                            "type": 1,  //type 1-单选题 2-多选题 3-判断题 4-填空题
+                            "content": selectList[i][1],  //题目内容  如果是选择题 那么三条下划线'___'就是填空的位置        a___b___
+                        },
+                        "simsolution": null,
+                        "option": optionList
+                    };
+                    i++;
+                    ii++;
+                }else{
+                    i++;
+                    continue;
+                }
+            }
+
+            i = 1;
+            while(i <= count_multi){
+
+                if (multiList[i]) {
+                    var optionList = new Array;
+                    var answer_option = new Array;
+                    var answerList = multiList[i][multiList[i].length-1].split('');
+
+                    for(var j = 0; j < multiList[i].length-4;j++){
+                        optionList[j] = {  //选项对象
+                            "pos": j+1,  //该选项是第几个选项
+                            "content": multiList[i][j+3]  //选项内容
+                        };
+                    }
+
+                    for(var j = 0; j < answerList.length;j++){
+                        answer_option[j] = {  //答案列表
+                            "pos": 0, //当为填空题时有效 这个答案是第几个空的答案
+                            "content": multiList[i][2 + parseInt(answerList[j])] //答案内容
+                        };
+                    }
+                    
+                    anotherJson[ii]= {  //选择填空题
+                        "answer": answer_option,  //答案对象
+                        "simproblem": {  //选择填空题对象
+                            "score": parseFloat(multiList[i][2]),  //分数
+                            "blanks": 0, //空格 当题目是填空题的时候有效 标记有几个空
+                            "pos": parseInt(multiList[i][0]), //这一题 在试卷中是第几题
+                            "type": 2,  //type 1-单选题 2-多选题 3-判断题 4-填空题
+                            "content": multiList[i][1],  //题目内容  如果是选择题 那么三条下划线'___'就是填空的位置        a___b___
+                        },
+                        "simsolution": null,
+                        "option": optionList
+                    };
+                    i++;
+                    ii++;
+                }else{
+                    i++;
+                    continue;
+                }
+            }
+
+            i = 1;
+            while(i <= count_fill){
+
+                if (fillList[i]) {
+                    var fill_answer = new Array;
+
+                    for(var j = 0; j < (fillList[i].length-3);j++){
+                        fill_answer[j] = {  //答案列表
+                            "pos": j, //当为填空题时有效 这个答案是第几个空的答案
+                            "content": fillList[i][3 + j] //答案内容
+                        };
+                    }
+                    
+                    anotherJson[ii]= {  //选择填空题
+                        "answer": fill_answer,  //答案对象
+                        "simproblem": {  //选择填空题对象
+                            "score": parseFloat(fillList[i][2]),  //分数
+                            "blanks": (fillList[i].length-3), //空格 当题目是填空题的时候有效 标记有几个空
+                            "pos": parseInt(fillList[i][0]), //这一题 在试卷中是第几题
+                            "type": 4,  //type 1-单选题 2-多选题 3-判断题 4-填空题
+                            "content": fillList[i][1],  //题目内容  如果是选择题 那么三条下划线'___'就是填空的位置        a___b___
+                        },
+                        "simsolution": null,
+                        "option": []
+                    };
+                    i++;
+                    ii++;
+                }else{
+                    i++;
+                    continue;
+                }
+            }
+
+            i = 1;
+            while(i <= count_judge){
+                if (judgeList[i]) {
+                    anotherJson[ii]= {  //选择填空题
+                        "answer": [{  //答案列表
+                            "pos": 0, //当为填空题时有效 这个答案是第几个空的答案
+                            "content": judgeList[i][3] //答案内容
+                        }],  //答案对象
+                        "simproblem": {  //选择填空题对象
+                            "score": parseFloat(judgeList[i][2]),  //分数
+                            "blanks": 0, //空格 当题目是填空题的时候有效 标记有几个空
+                            "pos": parseInt(judgeList[i][0]), //这一题 在试卷中是第几题
+                            "type": 3,  //type 1-单选题 2-多选题 3-判断题 4-填空题
+                            "content": judgeList[i][1],  //题目内容  如果是选择题 那么三条下划线'___'就是填空的位置        a___b___
+                        },
+                        "simsolution": null,
+                        "option": [
+                        {  //选项对象
+                            "pos": 1,  //该选项是第几个选项
+                            "content": '正确'  //选项内容
+                        },
+                        {  //选项对象
+                            "pos": 2,  //该选项是第几个选项
+                            "content": '错误'  //选项内容
+                        }
+                        ] 
+                    };
+                    i++;
+                    ii++;
+                }else{
+                    i++;
+                    continue;
+                }
+            }
+            
+            var titlePaper = document.getElementById("test_title").innerHTML;
+            
+            var submitTitle = 
+            {
+                "prob": programJson,
+                "contestpaper": {
+                "teacher": "123",
+                "title": titlePaper,
+                },
+                "simp": anotherJson
+            }
+
+            $.ajax({
+                type: "POST",
+                contentType: "application/json; charset=utf-8",  //设置头
+                data: JSON.stringify(submitTitle),  //序列化
+                url: "Teacher/addNewpaper",
+                dataType: "text",
+                success: function (da) {  
+                var dt = JSON.parse(da);
+                if(dt.success > 0){
+                    alert(dt.msg);
+                }else{
+                    alert(dt.msg);
+                }
+
+                },
+                error: function(da){
+                    alert("未知错误，无法先服务器发送请求");
+                }
+                }
+                )
+            }
+
+        }
+    </script>
+</html>

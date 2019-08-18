@@ -1,0 +1,220 @@
+<html class="x-admin-sm">
+    <head>
+        <meta charset="UTF-8">
+        <title>欢迎页面-X-admin2.2</title>
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+        <link rel="stylesheet" href="lib/layui/css/layui.css">
+        <link rel="stylesheet" href="css/font.css">
+        <link rel="stylesheet" href="css/xadmin.css"> 
+		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+        <script src="./lib/layui/layui.all.js" charset="utf-8"></script>
+        <script type="text/javascript" src="./js/xadmin.js"></script>
+        <!--[if lt IE 9]>
+          <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+          <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+		
+		</head>
+		
+		<body>
+		<div class="row" id="divParams">
+        <div class="panel col-md-12">
+            <br />
+            <div class="demoTable">
+                关键字：
+                <div class="layui-inline">
+                    <input name="id" class="layui-input" id="keyword" placeholder="id/名字/班级/邮箱地址">
+                </div>
+                <button class="layui-btn" data-type="reload" id="search">搜索</button>
+            </div>
+            
+            <div class="layui-card-body layui-table-body layui-table-main">
+            <table class="layui-table" id="demo" lay-filter="demo"></table>
+            </div>
+        </div>
+    </div>
+    <script id="dateTpl" type="text/html">
+        {{#  var fn = function(){
+        return moment(d.ApplyDate).format("YYYY-MM-DD");
+         }; if(true){ }}
+        {{ fn() }}
+        {{#  } }}
+ 
+    </script>
+	
+	<script type="text/html" id="header">
+            <a class="layui-btn layui-btn-normal" lay-event="add">添加用户</a>
+    </script>
+    
+	 <script type="text/html" id="demotool">
+            <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+        
+	
+	<script>
+        $(document).ready(function () {
+ 
+            initTable();
+        });
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+            //时间选择器
+            laydate.render({
+                elem: '#timearea'
+                , range: true
+            });
+ 
+        });
+        
+		
+        function initTable() {
+            var timeArea = $("#timearea").val();
+            var startTime = "";
+            var endTime = "";
+            if (timeArea) {
+                startTime = timeArea.split(" - ")[0];//开始时间
+                endTime = timeArea.split(" - ")[1];//结束时间
+            }
+            layui.use('table', function () {
+                var table = layui.table;
+                //执行渲染
+                table.render({
+                    id: 'demo',
+                    elem: '#demo' //指定原始表格元素选择器（推荐id选择器）
+                    , height: 315 //容器高度
+                    ,toolbar: '#header'
+                    , cols: [[{ checkbox: true }
+                        , { field: 'user_id', title: '用户id', width: 180, sort: true}
+                        , { field: 'realName', title: '姓名', width: 180, sort: true}
+                        , { field: 'email', title: '邮箱地址', width: 200, sort: true}
+						, { field: 'level', title: '身份', width: 130 , sort: true}
+                        , { field: 'name', title: '班级', width: 130, sort: true}
+                        , { field: 'registerTime', title: '注册时间', width: 260, sort: true }
+                        , {title: '操作', toolbar: '#demotool', 'fixed': 'right', width: 200}
+                    ]], 
+                    url: 'User/GetAllUsers',
+                    method: 'post', 
+                    limits: [10, 20, 30, 50, 100]
+                    , limit: 10, //默认采用10
+                    loading: true,
+                    page: true
+ 
+                });
+                
+ 
+        table.on('toolbar(demo)', function (obj) { 
+            if (obj.event === 'add') {
+                layer.open({
+                    type: 2,
+                    title: "新增",
+                    shadeClose: false, //点击遮罩关闭层
+                    area: ['40%', '70%'],
+                    content: "adduser.do" 
+                });  
+            }
+        });
+        
+        
+        table.on('tool(demo)', function (obj) { 
+            if (obj.event == "edit") {
+                //新增
+                console.log("edit")
+                layer.open({
+                    type: 2,
+                    title: "新增",
+                    shadeClose: false, //点击遮罩关闭层
+                    area: ['40%', '70%'],
+                    content: "edituser.do?id=" + obj.data.user_id 
+                });  
+ 
+            }  
+            else if (obj.event === 'del') {
+                //删除
+                delinventory(obj.data.user_id);
+            }
+        });
+        
+        //删除用户函数
+        function delinventory(id) {
+            layer.confirm('是否删除?', function (index) {
+                $.ajax({
+                    url: "User/DeleteUser?id=" + id,
+                    type: "post",
+                    success: function (result) {
+
+                        if (!result.code) {
+                            layer.msg("删除成功!", {time: 1000});
+                            active.reload();
+                        }
+                        else
+                        {
+                        layer.msg(result.msg, {time: 2000});
+                        return false;
+                        }
+                        
+                    }
+                });
+                layer.close(index);
+            })
+        }  
+
+        
+        
+        active = {
+            reload: function () {
+                var uuid = $("#uuid").val();
+                //执行重载
+                table
+                    .reload('demo', {
+                        page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                        , where: {
+                           Keyword : $('#keyword').val()
+                        }
+                    });
+            }
+        };
+        
+         //搜索
+        $('#search').on('click', function () {
+           var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        }); 
+        
+
+      /*   //将搜索框的值随请求传到后台
+         $('#keyword').keyup(function () {
+         console.log('aa')
+            active['reload'].call(this); 
+        });  */
+        
+        
+       /*   $('#keyword').keyup(function () {
+          console.log($('#keyword').val() )
+                table.reload('demo', {             //table的id
+                    where: {
+                        user_id: $('#keyword').val() 
+                    }
+                });
+         }); */
+    
+                
+           
+            });
+            
+        }
+        
+         
+ 
+ 
+ 
+    </script>
+	</body>
+    
+	
+   
+</html>

@@ -1,0 +1,50 @@
+<link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+<link rel="stylesheet" href="kindeditor/plugins/code/prettify.css" />
+<script charset="utf-8" src="kindeditor/kindeditor-all.js"></script>
+<script charset="utf-8" src="kindeditor/lang/zh-CN.js"></script>
+<script charset="utf-8" src="kindeditor/plugins/code/prettify.js"></script>
+	<script>
+	    var options;
+		var kk ;
+		var editor1;
+		
+		KindEditor.ready(function(K) {
+		kk = K;
+		options = {
+				cssPath : 'kindeditor/plugins/code/prettify.css',
+				uploadJson : 'upload/fileUpload',
+				afterCreate : function() {
+					var self = this;
+					K.ctrl(document, 13, function() {
+						self.sync();
+					});
+					K.ctrl(self.edit.doc, 13, function() {
+						self.sync();
+					});
+				},
+				items: [ 'image', 'multiimage','|', 'undo', 'redo', '|', 'preview', 'print', 'template', 'code', 'cut', 'copy', 'paste', 'plainpaste', 'wordpaste', '|', 'justifyleft', 'justifycenter', 'justifyright', 'justifyfull', 'insertorderedlist', 'insertunorderedlist', 'indent', 'outdent', 'subscript', 'superscript', 'quickformat', 'selectall', '|', '/', 'formatblock', 'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', '|', 'table', 'hr', 'emoticons', 'pagebreak', 'anchor', 'link', 'unlink', '|', 'about'],
+				
+				};
+				
+			
+
+		});
+		
+	function test()
+	{
+	console.log(editor1.fullHtml())
+	}
+	
+	function test1()
+	{
+	editor1 = kk.create('#content1', options);
+	}
+	
+	</script>
+<body>
+	<textarea id="content1" cols="100" rows="8"
+		style="width: 700px; height: 200px; visibility: hidden;"></textarea>
+		
+		<button onclick="test1()">添加ful富文本组件</button>
+		<button onclick="test()">打印html内容</button>
+		
