@@ -163,7 +163,7 @@ public void test() throws IOException
 		SimsolutionExample simsolutionExample = new SimsolutionExample(); 
 		SimsolutionExample.Criteria simsolutionCriteria = simsolutionExample.createCriteria();
 		simsolutionCriteria.andStatusEqualTo(new Integer(0));
-		List<Simsolution> simsolutions = simsolutionDao.selectByExample(simsolutionExample);  //未批改的题目
+		List<Simsolution> simsolutions = simsolutionDao.selectByExampleWithBLOBs(simsolutionExample);  //未批改的题目
 		if(simsolutions.size()>0)
 		{
 			for(Simsolution simsolution : simsolutions)
@@ -174,7 +174,7 @@ public void test() throws IOException
 				AnswerExample answerExample = new AnswerExample();
 				AnswerExample.Criteria answerCriteria = answerExample.createCriteria();
 				answerCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());  //找到这题的答案
-				List<Answer> answers = answerDao.selectByExample(answerExample);
+				List<Answer> answers = answerDao.selectByExampleWithBLOBs(answerExample);
 				if(answers.size()>0){
 					BigDecimal bd = new BigDecimal(0);  //分数
 
@@ -203,11 +203,12 @@ public void test() throws IOException
 						}
 					}
 					else if(type==2){ //多选题
-						JSONArray arr = JSONArray.fromObject(simsolution.getAnswer());
+						String answerString =  simsolution.getAnswer();
+						String[] arr = answerString.split("§§§");
 					    boolean flag = true;
 					    for(int i=0;i<answers.size();i++)  //必须选对所有选项
-					    {
-					    	if(!arr.contains(answers.get(i).getContent())){
+					    {  
+					    	if(!arr[i].equals(answers.get(i).getContent())){
 					    		flag = false;
 					    		break;
 					    	}
@@ -218,18 +219,13 @@ public void test() throws IOException
 					}
 					else if(type==4)  //填空题 对应的空必须等于正确答案
 					{
-						JSONArray arr = JSONArray.fromObject(simsolution.getAnswer());
+						String answerString =  simsolution.getAnswer();
+						String[] arr = answerString.split("§§§");
 						double count = 0;
 						for(int i=0;i<simproblem.getBlanks().intValue();i++)  //第i+1个空
-						{
-							for(int j=0;j<answers.size();j++){
-								if(answers.get(j).getPos().intValue()==i+1 && arr.get(i)!=null && answers.get(j).getContent().equals(arr.get(i))){
-									count++;  //答对一个空
-									break;
-								}
-							}
+							if(answers.get(i).getContent().equals(arr[i])) count++;
 							
-						}
+						
 						
 					bd = new BigDecimal(simproblem.getScore().doubleValue() * (count/simproblem.getBlanks().intValue())); //根据对的空 给分
 						
@@ -260,7 +256,7 @@ public void test() throws IOException
 		short result = 1;
 		solutionCriteria.andResultGreaterThan(result);  //result大于1 即评判完成的题目
 		solutionCriteria.andStatusEqualTo(new Integer(0));  //未完成批改
-		List<Solution> solutions = solutionDao.selectByExample(solutionExample);
+		List<SolutionWithBLOBs> solutions = solutionDao.selectByExampleWithBLOBs(solutionExample);
 		for(Solution solution : solutions)
 		{
 			Problem problem = problemDao.selectByPrimaryKey(solution.getProblemId()); //找对应题目
@@ -287,7 +283,7 @@ public void test() throws IOException
 			simsolutionCriteria = simsolutionExample.createCriteria();
 			simsolutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
 			simsolutionCriteria.andStatusEqualTo(new Integer(0)); //未批改
-            simsolutions = simsolutionDao.selectByExample(simsolutionExample);	
+            simsolutions = simsolutionDao.selectByExampleWithBLOBs(simsolutionExample);	
             if(simsolutions.size()>0)  //存在未批改
             	continue;
             
@@ -295,7 +291,7 @@ public void test() throws IOException
             solutionCriteria = solutionExample.createCriteria();
             solutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
             solutionCriteria.andStatusEqualTo(new Integer(0));
-            solutions = solutionDao.selectByExample(solutionExample);
+            solutions = solutionDao.selectByExampleWithBLOBs(solutionExample);
             if(solutions.size()>0) continue;
             
             contestStatus.setStatus(new Integer(2));  //这次考试已经批改完成了
@@ -323,7 +319,7 @@ public void test() throws IOException
            SimproblemExample simproblemExample = new SimproblemExample();  
            SimproblemExample.Criteria simproblemExampleCriteria = simproblemExample.createCriteria();
            simproblemExampleCriteria.andPaperIdEqualTo(contest.getPaperId());
-           List<Simproblem> simproblems = simproblemDao.selectByExample(simproblemExample); //该试卷所有填空选择题
+           List<Simproblem> simproblems = simproblemDao.selectByExampleWithBLOBs(simproblemExample); //该试卷所有填空选择题
            
            if(simproblems.size()>0)
            {
@@ -336,19 +332,19 @@ public void test() throws IOException
         		   simsolutionExample = new SimsolutionExample();
         		   simsolutionCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());
         		   simsolutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
-        		   simsolutions = simsolutionDao.selectByExample(simsolutionExample);
+        		   simsolutions = simsolutionDao.selectByExampleWithBLOBs(simsolutionExample);
         		   if(simsolutions.size()>0)
         			   oneProblem.setSimsolution(simsolutions.get(0)); //作答情况
         		   
         		   OptionsExample optionExample = new OptionsExample();
         		   OptionsExample.Criteria optionExampleCriteria = optionExample.createCriteria();
         		   optionExampleCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());
-        		   List<Options> options = optionDao.selectByExample(optionExample);
+        		   List<Options> options = optionDao.selectByExampleWithBLOBs(optionExample);
         		   oneProblem.setOption(options);
         		   AnswerExample answerExample = new AnswerExample();
         		   AnswerExample.Criteria answerExampleCriteria = answerExample.createCriteria();
         		   answerExampleCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());
-        		   List<Answer> answers = answerDao.selectByExample(answerExample);
+        		   List<Answer> answers = answerDao.selectByExampleWithBLOBs(answerExample);
         		   oneProblem.setAnswer(answers);
         		   
         		   oneProblems.add(oneProblem);
@@ -400,6 +396,11 @@ public void test() throws IOException
 
 
 
+public void tt()
+{
+	List<Simsolution> list = simsolutionDao.selectByExampleWithBLOBs(new SimsolutionExample());
+	System.out.println(JSONArray.fromObject(list).toString());
+}
 
 
 

@@ -1072,7 +1072,7 @@ function submitpaper()
 			 		 json[cur++] = $('#' + id + '_text').html()
 			 	} 
 			 }
-			 solution[index] = JSON.stringify(json.join("§§§")) 
+			 solution[index] = json.join("§§§")
 		 }
 		 else if(type==3)  //判断
 		 {
@@ -1088,7 +1088,7 @@ function submitpaper()
 				 var id = 'q' + index + '_' +j;
 				 json[j-1] = $('#' + id).val()
 			 } 
-			 solution[index] = JSON.stringify(json.join("§§§"))
+			 solution[index] = json.join("§§§")  
 		 }
 		 else{ //简答 
 			 solution[index] = $('#q' + index).val()
