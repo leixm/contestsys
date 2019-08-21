@@ -1,11 +1,7 @@
-/** 
- * @author lxm
- * @create_date 2019.5.3
- * @description 编程题类
- * */
 package com.code.model;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 public class Problem {
     private Integer problemId;
@@ -26,6 +22,17 @@ public class Problem {
 
     private Integer pos;
 
+    //格式是<1/in,url>  1表示组号  in表示输入输出  url是绝对路径
+    private Map<String,String> fileMap;
+    
+    public Map<String, String> getFileMap() {
+		return fileMap;
+	}
+
+	public void setFileMap(Map<String, String> fileMap) {
+		this.fileMap = fileMap;
+	}
+			
     public Integer getProblemId() {
         return problemId;
     }
