@@ -1,3 +1,8 @@
+/** 
+ * @author zzs
+ * @create_date 2019.8.1
+ * @description 教师相关业务服务接口
+ **/
 package com.app.service;
 
 import java.math.BigDecimal;
@@ -12,6 +17,40 @@ import com.code.model.Response;
 import com.code.model.User;
 
 public interface TeacherService {
+	/**
+	 * @author zzs
+	 * @param contest:Contest实体
+	 * @param class:班级名称
+	 * @description 添加一场考试
+	 * @return 状态响应
+	 */
+	public Response addContest(Contest contest,String className);
+	
+	/**
+	 * @author zzs
+	 * @param user:用户实例
+	 * @description 查询老师出的所有卷子 
+	 * @return 状态响应
+	 */
+	public Response selAllpaper(User user);
+	
+	/**
+	 * @author zzs
+	 * @param newpaper:OnePaper实例
+	 * @param user:用户实例
+	 * @param oneSimps:List<OneSimproblem>实例
+	 * @description 添加新的试卷
+	 * @return 状态响应
+	 */
+	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps);
+	
+	/**
+	 * @author zzs
+	 * @param user:用户实例
+	 * @description 教师查询所有考试Status
+	 * @return 状态响应
+	 */
+	public Response selContestStatus(User user);
 	
 	/**
 	 * 查询属于某个教师的所有contest对象
@@ -19,27 +58,6 @@ public interface TeacherService {
 	 * @return	属于同个教师的所有contest
 	 */
 	public Response selAllContest(User user);
-	
-	/**
-	 * 查询老师出的所有卷子
-	 * @param user
-	 * @return 属于同个userId的所有的卷子
-	 */
-	public Response selAllpaper(User user);
-	
-	/**
-	 * 添加新的试卷
-	 * @param newpaper 从Response获取到的OnePaper 
-	 * @return 1添加成功     0添加失败
-	 */
-	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps);
-	
-	/**
-	 * 教师查询所有考试Status
-	 * @return Response
-	 * 
-	 */
-	public Response selContestStatus(User user);
 	
 	/**
 	 * 查询计算所有班级某场考试的平均分
@@ -65,11 +83,6 @@ public interface TeacherService {
 	 */
 	public Response selClasslowestScore(User user,Class cla,Contest contest);
 	
-	/**
-	 * 添加一门新的考试  
-	 * @return 0添加考试失败  1添加考试成功  -1权限不足
-	 */
-	public Response addContest(Contest contest,String className);
 	
 	/**
 	 * 导出年级成绩表
@@ -83,8 +96,26 @@ public interface TeacherService {
 	 * 查询全级学生分数
 	 * @param user
 	 * @param contest
-	 * @return
+	 * @return 成绩实体Map对象集合
 	 */
 	public List<Map<String,Object>>  selGradeScore(User user,Contest contest);
+	
+	/**
+	 * 根据搜索条件模糊查询出学生成绩表
+	 * @param 1、班级名称
+	 * @param 2、学生学号
+	 * @param 3、学生名字
+	 * @param 4、考试名称
+	 * @return 成绩实体Map对象集合
+	 */
+	public List<Map<String,Object>> selStuScore(String className,String stuId,String stuName,String contestName,String pageSize,String pageNumber); 
+	
+	/**
+	 * 根据搜索条件模糊查询出学生成绩表
+	 * @param cstatusid: 所更新成绩对应的表的主键id
+	 * @param score: 用户重新更新的成绩
+	 * @return 更新操作返回的状态
+	 */
+	public int updateScore(String cStatusId,String score); 
 	
 }

@@ -73,7 +73,6 @@
 							
 								<c:forEach var="obj" items="${classes}" varStatus="s">
 									<option value="${obj.class_id}" <c:if test='${obj.class_id==user.classId}'> selected='selected'</c:if> >${obj.name}</option>
- 
 								</c:forEach>
 
 							</select>
@@ -146,7 +145,8 @@
                     
                 });
 
-            });</script>
+            });
+        </script>
         <script>var _hmt = _hmt || []; (function() {
                 var hm = document.createElement("script");
                 hm.src = "https://hm.baidu.com/hm.js?b393d153aeb26b46e9431fabaf0f6190";
@@ -154,5 +154,4 @@
                 s.parentNode.insertBefore(hm, s);
             })();</script>
     </body>
-
 </html>
