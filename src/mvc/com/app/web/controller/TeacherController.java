@@ -1,3 +1,8 @@
+/** 
+ * @author zzs
+ * @create_date 2019.8.1
+ * @description 教师相关业务控制器
+ **/
 package com.app.web.controller;
 
 import java.io.BufferedInputStream;
@@ -33,18 +38,22 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.app.service.TeacherService;
 import com.app.tools.ExportExcelUtil;
 import com.code.model.Answer;
 import com.code.model.Contest;
+import com.code.model.LayResponse;
 import com.code.model.OnePaper;
 import com.code.model.OneProblem;
 import com.code.model.OneSimproblem;
 import com.code.model.Options;
 import com.code.model.Response;
 import com.code.model.ScoreExcel;
+import com.code.model.ScoreObject;
 import com.code.model.User;
+import com.github.pagehelper.PageInfo;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -379,8 +388,151 @@ public class TeacherController {
 	@ResponseBody
 	public String selAllContest(HttpServletRequest request,HttpServletResponse response) {
 		//User user = (User)request.getSession().getAttribute("user");
-		User user = new User();
-		user.setUserId("123");
+				User user = new User();
+				user.setUserId("123");
+		
 		return JSONObject.fromObject(teacherService.selAllContest(user)).toString();
+	}
+	
+	@RequestMapping(value="Teacher/ajax",produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String ajax(HttpServletRequest request,HttpServletResponse response) {
+			
+		//设置字符编码格式
+		//req.setCharacterEncoding("utf-8");
+		response.setCharacterEncoding("utf-8");
+		//首先获得客户端发送来的数据(keyword)
+		String keyword = request.getParameter("keyword");
+		//获得关键字之后进行处理，得到关联数据
+		List<String> listData = getData(keyword);
+		
+		//System.out.println(JSONArray.fromObject(listData));
+		//JSONArray.fromObject(listData);
+		//返回json格式
+		//resp.getWriter().write(JSONArray.fromObject(listData).toString());	
+		
+		/*JSONObject a = new JSONObject();
+		a.put("name", "你好");
+		JSONObject b = new JSONObject();
+		b.put("data", a);
+		*/
+		return JSONArray.fromObject(listData).toString();
+	}
+	
+	public List<String> getData(String keyword){
+		//定义一个容器,存放模拟数据
+		List<String> datas = new ArrayList<String>();
+			datas.add("ajax");
+			datas.add("ajax提交form表单");
+			datas.add("ajax教程");
+			datas.add("baidu");
+			datas.add("bt");
+			datas.add("byte");
+		List<String> list = new ArrayList<String>();
+		for (String data : datas) {
+			if(data.contains(keyword)){
+				list.add(data);
+			}
+		}
+		return list;
+	}
+	
+	/**
+	 * 根据搜索条件模糊查询出学生成绩表
+	 * @param request
+	 * @param response
+	 * @return 返回查询到的学生成绩等相关信息
+	 */
+	@RequestMapping(value="Teacher/selStuScore",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String selStuScore(HttpServletRequest request,HttpServletResponse response) {
+		String className = request.getParameter("classname"); 
+		String stuId = request.getParameter("stuid");
+		String stuName = request.getParameter("stuname");
+		String contestName = request.getParameter("contestname");
+		//判断是否非空后再来去掉前后空格，防止空指针
+		if(className!=null||"".equals(className)) {
+			className = className.trim();
+		}
+		if(stuId!=null||"".equals(stuId)) {
+			stuId = stuId.trim();	
+		}
+		if(stuName!=null||"".equals(stuName)) {
+			stuName = stuName.trim();
+		}
+		if(contestName!=null||"".equals(contestName)) {
+			contestName = contestName.trim();
+		}
+		//获取分页所需相关数据
+		String pageSize = request.getParameter("limit"); //一页多少个
+		String pageNumber = request.getParameter("page");	//第几页
+		List<Map<String,Object>> resultList = teacherService.selStuScore(className, stuId, stuName, contestName,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
+		//获取分页插件的数据只能通过PageInfo来获取
+		PageInfo pInfo = new PageInfo(resultList);
+		Long total = pInfo.getTotal();
+		
+		if(resultList.size() > 0) {
+			//返回规定格式给前端
+			LayResponse layResp = new LayResponse();
+			layResp.setCode(0);
+			layResp.setCount(total.intValue());
+			layResp.setData(resultList);
+			
+			return JSONObject.fromObject(layResp).toString();
+		}
+		return null;
+	}
+	
+	/**
+	 * @param cStatusId: 考试状态id————contest_status_id
+	 * @description 更新学生成绩信息
+	 * @return 视图、班级信息、学生信息
+	 */
+	@RequestMapping(value = "editScore.do", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public ModelAndView editScore(HttpServletRequest request, String stuid, String stuname, String classname, String contestname, String score, String cstatusid) {
+
+		ModelAndView mav = new ModelAndView();
+		ScoreObject scoreObj = new ScoreObject();
+		scoreObj.setClassName(classname);
+		scoreObj.setContestName(contestname);
+		scoreObj.setcStatusId(cstatusid);
+		scoreObj.setScore(score);
+		scoreObj.setStuId(stuid);
+		scoreObj.setStuName(stuname);
+		
+		mav.addObject("scoreobj",scoreObj);
+		mav.setViewName("score-edit.jsp");
+		return mav;
+	}
+	/**
+	 * @author zzs
+	 * @param cstatusid: 所更新成绩对应的表的主键id
+	 * @param score: 用户重新更新的成绩
+	 * @description 更新用户信息
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Teacher/updateScore", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String updateScore(HttpServletRequest request,String score,String cstatusid) {
+		LayResponse response = new LayResponse();
+		
+		response.setCode(1);  
+		if(!score.trim().isEmpty()&&!cstatusid.trim().isEmpty()){
+			//将新修改的成绩根据cstatusid存进对应的表
+			int result = teacherService.updateScore(cstatusid, score);
+			if(result > 0) {
+				response.setCode(0); //0代表成功 
+				response.setMsg("成绩更新成功");
+				return JSONObject.fromObject(response).toString();
+			}else {
+				response.setMsg("成绩更新失败");
+				return JSONObject.fromObject(response).toString();
+			}
+			
+		} else {
+			response.setMsg("成绩更新失败");
+			return JSONObject.fromObject(response).toString();
+		}
 	}
 }

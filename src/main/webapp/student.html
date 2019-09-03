@@ -56,20 +56,17 @@
  
     </script>
 
-		<script type="text/html" id="header">
-
-
-
+	<script type="text/html" id="header">
 			<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
-						<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加用户</button>
+			<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加用户</button>
 						
-						<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
-										<input name="id" class="layui-input" id="keyword" placeholder="id/名字/班级/邮箱地址">
-									</div>
-									<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
-</script>
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
+				<input name="id" class="layui-input" id="keyword" placeholder="id/名字/班级/邮箱地址">
+			</div>
+			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
+	</script>
 
-		<script type="text/html" id="demotool">
+	<script type="text/html" id="demotool">
 			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
     </script>
@@ -162,13 +159,13 @@
 							});
 						}
 						else if (obj.event === 'reload') {
-						console.log("执行搜索")
-						var type = $(this).data('type');
-						active[type] ? active[type].call(this) : '';
+							console.log("执行搜索")
+							var type = $(this).data('type');
+							active[type] ? active[type].call(this) : '';
 						}
 						else if (obj.event === 'delAll') {
-						var type = $(this).data('type');
-						active[type] ? active[type].call(this) : '';
+							var type = $(this).data('type');
+							active[type] ? active[type].call(this) : '';
 						}
 					});
 

@@ -1,3 +1,8 @@
+/** 
+ * @author zzs
+ * @create_date 2019.8.1
+ * @description 教师相关业务服务
+ **/
 package com.app.service.impl;
 
 import java.io.BufferedInputStream;
@@ -56,6 +61,8 @@ import com.code.model.Simsolution;
 import com.code.model.SimsolutionExample;
 import com.code.model.User;
 import com.code.model.UserExample;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
 @Service
 @Transactional
@@ -88,8 +95,11 @@ public class TeacherServiceImpl implements TeacherService{
 	private ContestStatusMapper contestStatusDao;
 	
 	/**
-	 * 添加一门新的考试  
-	 * @return 0添加考试失败  1添加考试成功  -1权限不足
+	 * @author zzs
+	 * @param contest:Contest实体
+	 * @param class:班级名称
+	 * @description 添加一场考试
+	 * @return 状态响应
 	 */
 	@Override
 	public Response addContest(Contest contest,String className) {
@@ -139,9 +149,10 @@ public class TeacherServiceImpl implements TeacherService{
 	
 	
 	/**
-	 * 查询老师出的所有卷子 
-	 * @param user
-	 * @return 属于同个userId的所有的卷子
+	 * @author zzs
+	 * @param user:用户实例
+	 * @description 查询老师出的所有卷子 
+	 * @return 状态响应
 	 */
 	@Override
 	public Response selAllpaper(User user) {
@@ -173,10 +184,14 @@ public class TeacherServiceImpl implements TeacherService{
 		return resp;
 	}
 	
+	
 	/**
-	 * 添加新的试卷
-	 * @param newpaper 从Response获取到的OnePaper 
-	 * @return 1添加成功     0添加失败
+	 * @author zzs
+	 * @param newpaper:OnePaper实例
+	 * @param user:用户实例
+	 * @param oneSimps:List<OneSimproblem>实例
+	 * @description 添加新的试卷
+	 * @return 状态响应
 	 */
 	@Override
 	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps) {
@@ -290,9 +305,10 @@ public class TeacherServiceImpl implements TeacherService{
 	}
 	
 	/**
-	 * 教师查询所有考试Status
-	 * @return Response
-	 * 
+	 * @author zzs
+	 * @param user:用户实例
+	 * @description 教师查询所有考试Status
+	 * @return 状态响应
 	 */
 	@Override
 	public Response selContestStatus(User user) {
@@ -576,7 +592,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * 查询计算所有每个班级某场考试的平均分(舍弃了0分)
 	 * @param cla 具体班级
 	 * @param contest 具体考试
-	 * @return
+	 * @return 状态响应
 	 */
 	@Override
 	public Response selClassAverageScore(User user,Class cla,Contest contest) {
@@ -612,7 +628,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * 查询计算所有每个班级某场考试的最高分分
 	 * @param cla 具体班级
 	 * @param contest 具体考试
-	 * @return 
+	 * @return 状态响应
 	 */
 	@Override
 	public Response selClassHighestScore(User user,Class cla, Contest contest) {
@@ -668,7 +684,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * 查询计算所有每个班级某场考试的最低分
 	 * @param cla 具体班级
 	 * @param contest 具体考试
-	 * @return
+	 * @return 状态响应
 	 */
 	@Override
 	public Response selClasslowestScore(User user,Class cla, Contest contest) {
@@ -798,4 +814,61 @@ public class TeacherServiceImpl implements TeacherService{
 		resp.setSuccess(-1);
 		return resp;
 	}
+
+	
+	/**
+	 * 根据搜索条件模糊查询出学生成绩表
+	 * @param 1、班级名称
+	 * @param 2、学生学号
+	 * @param 3、学生名字
+	 * @param 4、考试名称
+	 * @return 成绩实体Map对象集合
+	 */
+	@Override
+	public List<Map<String, Object>> selStuScore(String className, String stuId, String stuName, String contestName,String pageSize,String pageNumber) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
+		//分页所需相关参数的计算
+		int pageSizeInt = Integer.parseInt(pageSize);
+		int pageNumberInt = Integer.parseInt(pageNumber);
+        PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		resultList = contestStatusDao.selStuScoreBykeyword(className, stuId, stuName, contestName); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		return resultList;
+	}
+
+	/**
+	 * 根据搜索条件模糊查询出学生成绩表
+	 * @param cstatusid: 所更新成绩对应的表的主键id
+	 * @param score: 用户重新更新的成绩
+	 * @return 更新操作返回的状态
+	 */
+	@Override
+	public int updateScore(String cStatusId, String score) {
+		BigDecimal scoreDecimal = new BigDecimal(score);  
+		int cStatusIdInt = Integer.parseInt(cStatusId);
+		//返回更新数据总条数
+		return contestStatusDao.updateScore(cStatusIdInt, scoreDecimal);
+	}
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

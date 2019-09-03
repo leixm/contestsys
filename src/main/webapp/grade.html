@@ -52,28 +52,30 @@
     	</script>
 
 		<script type="text/html" id="header">
-			<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
-			<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加用户</button>
-			<button class="layui-btn" lay-event="exportExcel" data-type="exportExcel" onclick="exportExcel()"><i class="layui-icon layui-icon-download-circle" ></i>导出</button>
-			<div class="layui-input-inline">
-				<select id="contestTitle" class="valid" lay-filter="classId" οnchange="selContestTitle();" >
-					<option value="null" selected="selected"> 请选择班级  </option>
-						<c:forEach var="obj" items="${teachers}" >
-							<option value="${obj.class_id}">${obj.name}</option>
-						</c:forEach>
-				</select>
+			<div style="float: right; class="layui-inline layui-show-xs-block">
+				<!-- <button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加用户</button>
+				<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>	 --!>
+				<button class="layui-btn" lay-event="exportExcel" data-type="exportExcel" onclick="exportExcel()"><i class="layui-icon layui-icon-download-circle" ></i>导出</button>
 			</div>
 
-			<div id="showList"></div>
-			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
-					<input name="id" class="layui-input" id="keyword" placeholder="id/名字/班级/邮箱地址">
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
+					<input name="id" class="layui-input" id="stuid" placeholder="学号">
+			</div>
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
+					<input name="id" class="layui-input" id="stuname" placeholder="学生姓名">
+			</div>
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
+					<input name="id" class="layui-input" id="contestname" placeholder="考试名称">
+			</div>
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
+					<input name="id" class="layui-input" id="classname" placeholder="班级">
 			</div>
 			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
 		</script>
 
 		<script type="text/html" id="demotool">
 			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+            <!-- <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a> --!>
    		 </script>
 
 
@@ -81,6 +83,7 @@
 			$(document).ready(function() {
 				initTable();
 			});
+			
 			layui.use('laydate', function() {
 				var laydate = layui.laydate;
 				//时间选择器
@@ -90,8 +93,34 @@
 				});
 
 			});
-
-
+			
+		 /* layui.use(['form', 'layer', 'layedit'], function () {
+				$ = layui.jquery;
+				var form = layui.form;
+				var layer = layui.layer;
+				var layedit = layui.layedit;
+				$(function () {
+					$.ajax({
+					//提交数据的类型 POST GET
+					type: 'POST',
+					//提交的网址
+					url: 'Teacher/selAllContest',
+					//提交的数据
+					//返回数据的格式
+					datatype: 'json',//“xml”, “html”, “script”, “json”, “jsonp”, “text”.
+					//成功返回之后调用的函数
+						success: function (data) {
+							$.each(data, function (index, item) {
+							$('#contestTitle').append(new Option(data.name, data.name));// 下拉菜单里添加元素
+					});
+							layui.form.render('select');
+						}, error: function () {
+								alert('查询部门失败！！！')
+							}
+					});
+				});
+          }); */
+	     
 			function initTable() {
 				var timeArea = $("#timearea").val();
 				var startTime = "";
@@ -99,37 +128,38 @@
 				if (timeArea) {
 					startTime = timeArea.split(" - ")[0]; //开始时间
 					endTime = timeArea.split(" - ")[1]; //结束时间
-				}
-				
+			}
+			
 				
 			layui.use('table', function() {
 					var table = layui.table;
+					var laypage = layui.laypage;
 					//执行渲染 
-					table.render({
+					table.render({  
 						id: 'demo',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
-						height: '600', //容器高度
+						height: '700', //容器高度
 						toolbar: '#header',
 						cols: [
 							[{
-								checkbox: true
+								checkbox: true,
 							}, {
-								field: 'studentId',
+								field: 'stuid',
 								title: '学号',
 								width: 220,
 								sort: true
 							}, {
-								field: 'name',
+								field: 'stuname',
 								title: '姓名',
 								width: 120,
 								sort: true
 							}, {
-								field: 'contestTitle',
+								field: 'contestname',
 								title: '考试名称',
 								width: 250,
 								sort: true
 							}, {
-								field: 'className',
+								field: 'classname',
 								title: '班级',
 								width: 120,
 								sort: true
@@ -145,15 +175,14 @@
 								width: 150
 							}]
 						],
-						url: 'Teacher/selGradeScore',
+						url: 'Teacher/selStuScore',
 						method: 'post',
-						limits: [10, 20, 30, 50, 100],
-						limit: 10, //默认采用10
+						limits: [15, 30, 50, 100],
+						limit: 15, //默认采用10
 						loading: true,
 						page: true
 					});
-
-
+					
 					table.on('toolbar(demo)', function(obj) {
 						if (obj.event === 'add') {
 							layer.open({
@@ -179,14 +208,15 @@
 
 					table.on('tool(demo)', function(obj) {
 						if (obj.event == "edit") {
-							//新增
+							//编辑：对成绩的修改
 							console.log("edit")
 							layer.open({
 								type: 2,
-								title: "新增",
+								title: "编辑",
 								shadeClose: false, //点击遮罩关闭层
 								area: ['40%', '70%'],
-								content: "editstudent.do?id=" + obj.data.user_id
+								content: "editScore.do?cstatusid=" + obj.data.contest_status_id +"&stuid="+obj.data.stuid+"&stuname="+obj.data.stuname
+								+"&classname="+obj.data.classname+"&score="+obj.data.score+"&contestname="+obj.data.contestname
 							});
 
 						} else if (obj.event === 'del') {
@@ -195,7 +225,7 @@
 						}
 						
 					});
-
+					
 					//删除用户函数
 					function delinventory(id) {
 						layer.confirm('是否删除?', function(index) {
@@ -223,18 +253,20 @@
 					}
 
 
-
+					//查询操作
 					active = {
-					
 						reload: function() {
 							//执行重载
-							table
-								.reload('demo', {
+							table.reload('demo', {
 									page: {
 										curr: 1 //重新从第 1 页开始
 									},
+									//获取搜索框参数并传给后台
 									where: {
-										Keyword: $('#keyword').val()
+										classname: $('#classname').val(),
+										stuid: $('#stuid').val(),
+										stuname: $('#stuname').val(),
+										contestname: $('#contestname').val()
 									}
 								});
 						},
@@ -315,7 +347,6 @@
 					         });
 					  }); */
 				});
-
 			}
 			
 			function exportExcel() {
@@ -350,7 +381,7 @@
 				    data: null,
 				    url : "Teacher/selAllContest",
 				    success : function(data) {
-				    	alert("nihao");
+				    	console.log("sell");
 				    	//把返回的数据使用each进行遍历读取
 				    	$.each(data.reObj, function(i,n){
 				    		//获得div的id并把需要显示的值追加到div中
