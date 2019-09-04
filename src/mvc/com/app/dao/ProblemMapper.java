@@ -6,6 +6,7 @@ import com.code.model.ProblemExample;
 import com.code.model.ProblemWithBLOBs;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 public interface ProblemMapper {
     int countByExample(ProblemExample example);
@@ -37,4 +38,10 @@ public interface ProblemMapper {
     int updateByPrimaryKey(Problem record);
     
     List<OneProblem> getProblemAndSolutionByPaperId(Integer paperId);
+    
+    @Select("select max(problem_id) from problem")
+    int selMaxProbId();
+
+    @Select("select count(*) from problem")
+    int selProbCount();
 }

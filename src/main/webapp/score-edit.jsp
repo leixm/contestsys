@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+    <head> 
+    <%@page isELIgnored="false" %>
+		<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+		<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+		<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+        <meta charset="UTF-8">
+        <title>欢迎页面-X-admin2.2</title>
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+        <link rel="stylesheet" href="./css/font.css">
+        <link rel="stylesheet" href="./css/xadmin.css"> 
+		<link rel="stylesheet" href="lib/layui/css/layui.css">
+        <script type="text/javascript" src="./lib/layui/layui.js" charset="utf-8"></script>
+        <script type="text/javascript" src="./js/xadmin.js"></script>
+        <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+        <!--[if lt IE 9]>
+            <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+            <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]--></head>
+    <% request.setCharacterEncoding("UTF-8"); %>
+    <body> 
+        <div class="layui-fluid">
+            <div class="layui-row">
+                <form class="layui-form">
+                	<!-- 无用div控制布局作用 -->
+                	<div style="height: 30px">
+                	</div>
+                	
+					<div class="layui-form-item">
+                        <label for="userId" class="layui-form-label">学号</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="stuid" name="stuid" required="" lay-verify="number" autocomplete="on" class="layui-input" value="${scoreobj.stuId}" disabled="disabled">
+                    	</div>
+                        <div class="layui-form-mid layui-word-aux"></div>
+					</div>
+					
+                    <div class="layui-form-item">
+                        <label for="email" class="layui-form-label">姓名</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="stuname" name="stuname" required="" autocomplete="on" class="layui-input" value="${scoreobj.stuName}" disabled="disabled">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux"></div>
+                    </div>
+							
+                    <div class="layui-form-item">
+                        <label for="email" class="layui-form-label">考试名称</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="contestname" name="contestname" required="" autocomplete="on" class="layui-input" value="${scoreobj.contestName}" disabled="disabled"></div>
+                        <div class="layui-form-mid layui-word-aux"></div>
+                    </div>              
+
+                    <div class="layui-form-item">
+                        <label for="email" class="layui-form-label">班级</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="classname" name="classname" required="" autocomplete="on" class="layui-input" value="${scoreobj.className}" disabled="disabled"></div>
+                        <div class="layui-form-mid layui-word-aux"></div>
+                    </div>					
+            		
+                    <div class="layui-form-item">
+                        <label for="email" class="layui-form-label">
+                        	<span class="x-red">*</span>考试成绩
+                        </label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="score" name="score" required="" autocomplete="on" class="layui-input" value="${scoreobj.score}"></div>
+                        <div class="layui-form-mid layui-word-aux"></div>
+                    </div>		
+                         
+                    <div class="layui-form-item">
+                        <label for="L_repass" class="layui-form-label"></label>
+                        <button class="layui-btn" lay-filter="update" lay-submit="">更新</button>
+                    </div>
+                   
+                   <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <input type="text" style="display:none"  id="cstatusid" name="cstatusid" required="" autocomplete="on" class="layui-input" value="${scoreobj.cStatusId}"></div>
+                        <div class="layui-form-mid layui-word-aux"></div>
+                    </div>		
+                         
+                </form> 
+            </div>
+        </div>
+        <script>layui.use(['form', 'layer'],
+            function() {
+                $ = layui.jquery;
+                var form = layui.form,
+                layer = layui.layer;
+
+                //监听提交
+                form.on('submit(update)',
+                function(data) {
+                    $.ajax({
+								type: "POST",
+								url: "Teacher/updateScore",
+								dataType: 'json',
+								data: data.field,
+								async: false,
+								success: function(da) {
+									if (da.code == 0) {
+										layer.alert('更新成功', {
+												icon: 6
+											},
+											function() {
+												//关闭当前frame
+												xadmin.close();
+												// 可以对父窗口进行刷新 
+												xadmin.father_reload();
+											});
+									} else {
+										layer.alert(da.msg, {
+											icon: 5
+										});
+
+									}
+								}
+							})
+							return false;
+                    
+                    
+                });
+
+            });
+        </script>
+        <script>var _hmt = _hmt || []; (function() {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?b393d153aeb26b46e9431fabaf0f6190";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();</script>
+    </body>
+</html>

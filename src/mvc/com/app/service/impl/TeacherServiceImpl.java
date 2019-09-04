@@ -1,13 +1,25 @@
 /** 
- * @author lxm
- * @create_date 2019.5.3
- * @description 教师管理服务
- * */
+ * @author zzs
+ * @create_date 2019.8.1
+ * @description 教师相关业务服务
+ **/
 package com.app.service.impl;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,18 +51,18 @@ import com.code.model.OneProblem;
 import com.code.model.OneSimproblem;
 import com.code.model.Options;
 import com.code.model.OptionsExample;
-import com.code.model.Problem;
 import com.code.model.ProblemExample;
 import com.code.model.ProblemWithBLOBs;
 import com.code.model.Response;
+import com.code.model.ScoreExcel;
 import com.code.model.Simproblem;
 import com.code.model.SimproblemExample;
 import com.code.model.Simsolution;
 import com.code.model.SimsolutionExample;
-import com.code.model.SolutionWithBLOBs;
 import com.code.model.User;
 import com.code.model.UserExample;
-import com.itextpdf.text.log.SysoCounter;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
 @Service
 @Transactional
@@ -83,8 +95,11 @@ public class TeacherServiceImpl implements TeacherService{
 	private ContestStatusMapper contestStatusDao;
 	
 	/**
-	 * 添加一门新的考试  
-	 * @return 0添加考试失败  1添加考试成功  -1权限不足
+	 * @author zzs
+	 * @param contest:Contest实体
+	 * @param class:班级名称
+	 * @description 添加一场考试
+	 * @return 状态响应
 	 */
 	@Override
 	public Response addContest(Contest contest,String className) {
@@ -134,9 +149,10 @@ public class TeacherServiceImpl implements TeacherService{
 	
 	
 	/**
-	 * 查询老师出的所有卷子 
-	 * @param user
-	 * @return 属于同个userId的所有的卷子
+	 * @author zzs
+	 * @param user:用户实例
+	 * @description 查询老师出的所有卷子 
+	 * @return 状态响应
 	 */
 	@Override
 	public Response selAllpaper(User user) {
@@ -168,21 +184,32 @@ public class TeacherServiceImpl implements TeacherService{
 		return resp;
 	}
 	
+	
 	/**
-	 * 添加新的试卷
-	 * @param newpaper 从Response获取到的OnePaper 
-	 * @return 1添加成功     0添加失败
+	 * @author zzs
+	 * @param newpaper:OnePaper实例
+	 * @param user:用户实例
+	 * @param oneSimps:List<OneSimproblem>实例
+	 * @description 添加新的试卷
+	 * @return 状态响应
 	 */
 	@Override
 	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps) {
 		Response resp = new Response();
 		int maxSimpId;
+		int maxProbId;
+		
 		if(simpDao.selSimpCount()>0) {
 			maxSimpId = simpDao.selMaxSimpId();
 		}else {
 			maxSimpId = 1000;
 		}
 		
+		if(probDao.selProbCount()>0) {
+			maxProbId = probDao.selMaxProbId();
+		}else {
+			maxProbId = 1000;
+		}
 
 		//表示当前的paperId
 		int thisPaperId;
@@ -231,10 +258,35 @@ public class TeacherServiceImpl implements TeacherService{
 						}
 					}
 				}
+				
+				
 				if(oneProbs!=null) {
 					for(OneProblem prob:oneProbs) {
+						//此时的ProbId
+						int nowProbId = ++maxProbId;
+						prob.getProblem().setProblemId(nowProbId);
 						prob.getProblem().setPaperId(thisPaperId);
 						probDao.insertSelective(prob.getProblem());
+						//将插入的编程题的输入输出文件存放到服务器目录    格式：ProblemId-组号-in/out
+						for(Entry<String, String> entry :  prob.getProblem().getFileMap().entrySet()) {
+							String srcPath = entry.getValue();
+							
+							String dest1 = srcPath.substring(0,srcPath.lastIndexOf("uploadTemp"));
+							String destPath = dest1 + nowProbId +"/"+ entry.getKey() + ".txt";
+							
+							File srcFile = new File(srcPath);
+							File destFile = new File(destPath);
+							try {
+								copyFile(srcFile,destFile);
+							} catch (Exception e) {
+								e.printStackTrace();
+								resp.setMsg("程序输入输出文件复制失败");
+								resp.setSuccess(-1);
+								return resp;
+							}
+						}
+					 
+						
 					}
 				}
 				resp.setMsg("添加新的试卷成功");
@@ -253,9 +305,10 @@ public class TeacherServiceImpl implements TeacherService{
 	}
 	
 	/**
-	 * 教师查询所有考试Status
-	 * @return Response
-	 * 
+	 * @author zzs
+	 * @param user:用户实例
+	 * @description 教师查询所有考试Status
+	 * @return 状态响应
 	 */
 	@Override
 	public Response selContestStatus(User user) {
@@ -301,6 +354,7 @@ public class TeacherServiceImpl implements TeacherService{
 	
 	
 	//查权限
+	//返回权限的level值
 	private int checkLevelService(User user) {
 		UserExample userExample = new UserExample();
 		UserExample.Criteria criteria = userExample.createCriteria();
@@ -399,6 +453,7 @@ public class TeacherServiceImpl implements TeacherService{
 		
 		return list;
 	}
+	
 	//查选择题学生作答情况
 	private Simsolution selSimSolution(int simId) {
 		SimsolutionExample simsolu = new SimsolutionExample();
@@ -440,6 +495,380 @@ public class TeacherServiceImpl implements TeacherService{
 		}
 		return users;
 	}
+	
+	/***
+     * copy file
+     *
+     * @param src
+     * @param dest
+     * @throws IOException
+     */
+    private void copyFile(File src, File dest) throws Exception {
+        BufferedInputStream reader = null;
+        BufferedOutputStream writer = null;
+        //自动创建没有存在的目录
+        if(!dest.getParentFile().exists()) {
+        	dest.getParentFile().mkdirs();
+        }
+        
+        try {
+            reader = new BufferedInputStream(new FileInputStream(src));
+            writer = new BufferedOutputStream(new FileOutputStream(dest));
+            byte[] buff = new byte[reader.available()];
+            while ((reader.read(buff)) != -1) {
+                writer.write(buff);
+            }
+            
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            writer.flush();
+            writer.close();
+            reader.close();
+            
+            // 记录
+            String temp = "\ncopy:\n" + src + "\tsize:" + src.length()
+                    + "\nto:\n" + dest + "\tsize:" + dest.length()
+                    + "\n complate\n totoal:";
+            System.out.println(temp);
+        }
+    }
+	
+    //根据userId查询老师所任教班级对应的classid
+    private List<Integer> selTeacherClassId(User user) {
+    	List<Integer> userIds = new ArrayList<Integer>();
+    	if(user.getLevel() == 1) {
+			ClassExample classExample = new ClassExample();
+			ClassExample.Criteria criteria = classExample.createCriteria();
+			criteria.andTeacherEqualTo(user.getUserId());
+			List<Class> classes = classDao.selectByExample(classExample);
+			
+			if(classes.size()>0) {
+				for(Class cla : classes) {
+					userIds.add(cla.getClassId());
+				}
+			}
+			return userIds;
+		}else {
+			return null;
+		}
+    }
+    
+    //查询并返回某个班级的某场考试的分数集合
+    private List<BigDecimal> selAllScoresFromClassContest(User user,Class cla,Contest contest) {
+    	List<BigDecimal> scores = null;
+		
+		if(user.getLevel() == 1) {
+			//根据classId查询某个班级学生
+			UserExample userExample = new UserExample();
+			UserExample.Criteria criteria = userExample.createCriteria();
+			criteria.andClassIdEqualTo(cla.getClassId());
+			List<User> users = userDao.selectByExample(userExample);
+			if(users.size()>0) {
+				for(User stu : users) {
+					//根据学生id和contestid查询具体某场考试所有的考试情况
+					ContestStatusExample cStatusExample = new ContestStatusExample();
+					ContestStatusExample.Criteria criteria2 = cStatusExample.createCriteria();
+					criteria2.andContestIdEqualTo(contest.getContestId());
+					criteria2.andStudentEqualTo(stu.getUserId());
+					List<ContestStatus> cStatuses = contestStatusDao.selectByExample(cStatusExample);
+					//对考试情况进行分析,存分数进容器
+					if(cStatuses.size()>0) {
+						scores = new ArrayList<BigDecimal>();
+						for(ContestStatus cStatus : cStatuses) {
+							if(cStatus.getStatus()==1) {
+								scores.add(cStatus.getScore());
+							}
+						}
+					}
+				}
+			}
+		}
+		//没有权限查询返回null
+		return null;
+    }
+    
+    /**
+	 * 查询计算所有每个班级某场考试的平均分(舍弃了0分)
+	 * @param cla 具体班级
+	 * @param contest 具体考试
+	 * @return 状态响应
+	 */
+	@Override
+	public Response selClassAverageScore(User user,Class cla,Contest contest) {
+		Response resp = new Response();
+		List<BigDecimal> scores = null;
+		int num = 0;
+		BigDecimal sum = new BigDecimal(0.00);
+		//调用封装好的查询方法
+		scores = selAllScoresFromClassContest(user, cla, contest);
+		if(scores!=null) {
+			for(BigDecimal score : scores) {
+				//判断分数是否为0分
+				if(score.compareTo(BigDecimal.ZERO)!=0) {
+					sum.add(score);
+					num++;
+				}
+			}
+			//计算平均分保留两位小数
+			BigDecimal result = sum.divide(new BigDecimal(num), 2,BigDecimal.ROUND_HALF_UP);
+			//返回结果
+			resp.setMsg("成功查询此次考试班级平均分");
+			resp.setReObj(result);
+			resp.setSuccess(1);
+			return resp;
+		}
+		
+		resp.setMsg("没有权限查询");
+		resp.setSuccess(-1);
+		return resp;
+	}		
+	
+	/**
+	 * 查询计算所有每个班级某场考试的最高分分
+	 * @param cla 具体班级
+	 * @param contest 具体考试
+	 * @return 状态响应
+	 */
+	@Override
+	public Response selClassHighestScore(User user,Class cla, Contest contest) {
+		Response resp = new Response();
+		List<BigDecimal> scores = null;
+		
+		if(user.getLevel() == 1) {
+			//根据classId查询某个班级学生
+			UserExample userExample = new UserExample();
+			UserExample.Criteria criteria = userExample.createCriteria();
+			criteria.andClassIdEqualTo(cla.getClassId());
+			List<User> users = userDao.selectByExample(userExample);
+			if(users.size()>0) {
+				for(User stu : users) {
+					//根据学生id和contestid查询具体某场考试所有的考试情况
+					ContestStatusExample cStatusExample = new ContestStatusExample();
+					ContestStatusExample.Criteria criteria2 = cStatusExample.createCriteria();
+					criteria2.andContestIdEqualTo(contest.getContestId());
+					criteria2.andStudentEqualTo(stu.getUserId());
+					List<ContestStatus> cStatuses = contestStatusDao.selectByExample(cStatusExample);
+					//对考试情况进行分析,存分数进容器
+					if(cStatuses.size()>0) {
+						scores = new ArrayList<BigDecimal>();
+						for(ContestStatus cStatus : cStatuses) {
+							if(cStatus.getStatus()==1) {
+								scores.add(cStatus.getScore());
+							}
+						}
+					}
+					//获取容器分数最大值
+					BigDecimal highestScore = Collections.max(scores);
+					//保留两位小数
+					DecimalFormat df1 = new DecimalFormat("0.00");
+					String maxScore = df1.format(highestScore);
+					
+					resp.setReObj(maxScore);
+					resp.setMsg("成功查询此次考试班级最高分");
+					resp.setSuccess(1);
+					return resp;
+				}
+			}
+			
+		}else {
+			resp.setMsg("没有权限查询");
+			resp.setSuccess(-1);
+			return resp;
+		}
+		//程序走不到的
+		return resp;
+	}
+		
+	/**
+	 * 查询计算所有每个班级某场考试的最低分
+	 * @param cla 具体班级
+	 * @param contest 具体考试
+	 * @return 状态响应
+	 */
+	@Override
+	public Response selClasslowestScore(User user,Class cla, Contest contest) {
+		Response resp = new Response();
+		List<BigDecimal> scores = null;
+		//调用封装好的查询方法
+		scores = selAllScoresFromClassContest(user, cla, contest);
+		if(scores!=null) {
+			//获取容器分数最大值
+			BigDecimal lowestScore = Collections.min(scores);
+			//保留两位小数
+			DecimalFormat df1 = new DecimalFormat("0.00");
+			String minScore = df1.format(lowestScore);
+			resp.setReObj(minScore);
+			resp.setMsg("成功查询此次考试班级最高分");
+			resp.setSuccess(1);
+			return resp;
+		}
+		resp.setMsg("没有权限查询");
+		resp.setSuccess(-1);
+		return resp;
+	}
+
+	/**
+	 * 导出年级成绩表
+	 * @param user	具体老师
+	 * @param contest 具体考试
+	 * @return 导出结果
+	 */
+	@Override
+	public Response exportGradeScoreExcel(User user, Contest contest) {
+		Response resp = new Response();
+		//存放导出表格所需要的学生个人成绩信息
+		List<ScoreExcel> scoreExcelList = new ArrayList<>();
+		if(user.getLevel() == 1) {
+			//根据学生id和contestid查询具体某场考试所有的考试情况
+			ContestStatusExample cStatusExample = new ContestStatusExample();
+			ContestStatusExample.Criteria criteria = cStatusExample.createCriteria();
+			criteria.andContestIdEqualTo(contest.getContestId());
+			List<ContestStatus> cStatuses = contestStatusDao.selectByExample(cStatusExample);
+			//遍历考试的具体status
+			if(cStatuses.size()>0) {
+				for(ContestStatus cStatus : cStatuses) {
+					if(cStatus.getStatus()==1) {
+						//查询参加考试的学生
+						User student = userDao.selectByPrimaryKey(cStatus.getStudent());
+						if(student.getClassId()==null || "".equals(student.getClassId())) {
+							continue;
+						}
+						//查询参加考试学生属于的班级
+						Class cla = classDao.selectByPrimaryKey(student.getClassId());;
+						//创建bean存数据
+						ScoreExcel scoreExcel = new ScoreExcel();
+						scoreExcel.setStudentId(cStatus.getStudent());
+						scoreExcel.setClassName(cla.getName());
+						scoreExcel.setName(student.getRealname());
+						scoreExcel.setScore(cStatus.getScore().toString());
+						scoreExcelList.add(scoreExcel);
+					}else {
+						//成绩批改中
+						resp.setMsg("成绩批改中，无法导出成绩表");
+						resp.setSuccess(-1);
+						return resp;
+					}
+				}
+				
+				//返回结果
+				resp.setSuccess(1);
+				resp.setReObj(scoreExcelList);
+				return resp;
+			}
+		}
+		//没有权限查询返回null
+		resp.setSuccess(-1);
+		resp.setMsg("权限不足，无法进行操作");
+		return resp;
+	}
+
+	/**
+	 * 查询全级学生分数
+	 * @param user
+	 * @param contest
+	 * @return 返回带有某科学生成绩信息的list<Map<String,Object>>
+	 */
+	@Override
+	public List<Map<String,Object>>  selGradeScore(User user, Contest contest) {
+		//创建存数据键值对容器对象
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		Map<String,Object> dataMap;
+		
+		List<ScoreExcel> scoreExcelList =  (List<ScoreExcel>) exportGradeScoreExcel(user,contest).getReObj();
+		
+		if(scoreExcelList.size()>0) {
+			for(ScoreExcel scoreExcel : scoreExcelList) {
+				dataMap = new HashedMap();
+				dataMap.put("studentId", scoreExcel.getStudentId());
+				dataMap.put("name", scoreExcel.getName());
+				dataMap.put("className", scoreExcel.getClassName());
+				dataMap.put("score", scoreExcel.getScore());
+				dataMap.put("contestTitle", contest.getTitle());
+				list.add(dataMap);
+			}
+		}
+		
+		return list;
+	}
+
+	/**
+	 * 查询属于某个教师的所有contest对象
+	 * @param 教师
+	 * @return	属于同个教师的所有contest
+	 */
+	@Override
+	public Response selAllContest(User user) {
+		Response resp = new Response();
+		//查权限
+		int level = checkLevelService(user);
+		if(level==1) {
+			String id = user.getUserId();
+			List<Contest> allContest = contestDao.selAllContest(id);
+			resp.setSuccess(1);
+			resp.setReObj(allContest);
+			return resp;
+		}
+		
+		resp.setMsg("无查询权限");
+		resp.setSuccess(-1);
+		return resp;
+	}
 
 	
+	/**
+	 * 根据搜索条件模糊查询出学生成绩表
+	 * @param 1、班级名称
+	 * @param 2、学生学号
+	 * @param 3、学生名字
+	 * @param 4、考试名称
+	 * @return 成绩实体Map对象集合
+	 */
+	@Override
+	public List<Map<String, Object>> selStuScore(String className, String stuId, String stuName, String contestName,String pageSize,String pageNumber) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
+		//分页所需相关参数的计算
+		int pageSizeInt = Integer.parseInt(pageSize);
+		int pageNumberInt = Integer.parseInt(pageNumber);
+        PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		resultList = contestStatusDao.selStuScoreBykeyword(className, stuId, stuName, contestName); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		return resultList;
+	}
+
+	/**
+	 * 根据搜索条件模糊查询出学生成绩表
+	 * @param cstatusid: 所更新成绩对应的表的主键id
+	 * @param score: 用户重新更新的成绩
+	 * @return 更新操作返回的状态
+	 */
+	@Override
+	public int updateScore(String cStatusId, String score) {
+		BigDecimal scoreDecimal = new BigDecimal(score);  
+		int cStatusIdInt = Integer.parseInt(cStatusId);
+		//返回更新数据总条数
+		return contestStatusDao.updateScore(cStatusIdInt, scoreDecimal);
+	}
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

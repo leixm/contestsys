@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 public interface ContestMapper {
     int countByExample(ContestExample example);
@@ -37,6 +38,9 @@ public interface ContestMapper {
     List<Map<String,Object>> listAllByDate(String startTime,String endTime);
     
     List<Map<String,Object>> listAllByKeywordAndDate(String keyword,String startTime,String endTime);
+    
+    @Select("select * from contest where teacher = #{id}")
+    List<Contest> selAllContest(String id);
 
     
 }

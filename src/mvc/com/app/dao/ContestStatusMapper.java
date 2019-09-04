@@ -2,6 +2,8 @@ package com.app.dao;
 
 import com.code.model.ContestStatus;
 import com.code.model.ContestStatusExample;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -32,4 +34,7 @@ public interface ContestStatusMapper {
     
     List<Map<String,Object>> GetAllContestStudent(String id);
     
+    List<Map<String,Object>> selStuScoreBykeyword(@Param("classname") String className,@Param("stuid") String stuId,@Param("stuname") String stuName,@Param("contestname") String contestName);
+    
+    int updateScore(@Param("cstatusid") int cStatusId,@Param("score") BigDecimal score); 
 }
