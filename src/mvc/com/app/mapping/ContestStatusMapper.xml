@@ -219,7 +219,7 @@
   </update>
   
   <select id="selStuScoreBykeyword" resultType="map">
-  		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,a.score,a.contest_status_id
+  		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,date_format(c.startTime,'%Y-%m-%d') as contesttime,a.score,a.contest_status_id
 		from contest_status a 
 		left join user u on a.student = u.user_id 
 		left join class b on u.class_id=b.class_id
@@ -241,6 +241,7 @@
 				and c.title like "%"#{contestname}"%"
 			</if>
 		</where>
+		order by b.class_id
   </select>
   
   <update id="updateScore" >

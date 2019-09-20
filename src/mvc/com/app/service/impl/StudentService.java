@@ -6,6 +6,7 @@
 package com.app.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -35,5 +36,25 @@ public interface StudentService {
 	int insert(SolutionWithBLOBs record);
 	
 	int insert(Simsolution record);
-
+	
+	/**
+	 * 根据搜索条件模糊查询出学生成绩表
+	 * @param 1、班级名称
+	 * @param 2、学生学号
+	 * @param 3、学生名字
+	 * @param 4、考试名称
+	 * @return 成绩实体Map对象集合
+	 */
+	public List<Map<String,Object>> selOneStuScore(String className,String stuId,String stuName,String contestName,String pageSize,String pageNumber); 
+	
+	 /**
+	  * 根据条件更新学生用户的个人信息
+	  * @param stuId	检索用的学生id
+	  * @param stuName
+	  * @param stuEmail
+	  * @param newPwd 新密码
+	  * @return 更新是否成功
+	  */
+	public int updateStuInfo(String stuId,String stuName,String stuEmail,String newPwd);
+	
 }

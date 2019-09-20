@@ -101,7 +101,7 @@
 					<div class="right">
 						<div class="overlay"></div>
 						<div class="content text">
-							<h1 class="heading">欢迎使用学生考试系统</h1>
+							<h1 class="heading">欢迎使用学生在线考试系统</h1>
 						</div>
 					</div>
 					<div class="clearfix"></div>
@@ -137,16 +137,16 @@ console.log("User/Login?username=" + $("#username").val() + "&password=" + $("#p
      $.ajax({
      type: "POST",
      url: "User/Login?username=" + $("#username").val() + "&password=" + $("#password").val() + "&rancode=" + $("#rancode").val(),
+     async: false,
      success: function(data)
      {
         var da = JSON.parse(data);
         console.log(data) 
-        if(da.success > 0){
-
+        if(da.type == 3 || da.type == 4 ){ //老师或者管理员
             	window.location.href="index.html";
-
-        }
-        else{
+        }else if(da.type == 2){
+        		window.location.href="studentmodule_index.html";
+        }else{
         	document.getElementById('alert').style.display = 'block';
             document.getElementById('background_fade').style.display = 'block';
             document.getElementById('confirm_state').innerHTML = da.msg;

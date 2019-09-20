@@ -28,7 +28,7 @@ public class User {
 
     private Integer state;
 
-    public String getUserId() {
+	public String getUserId() {
         return userId;
     }
 

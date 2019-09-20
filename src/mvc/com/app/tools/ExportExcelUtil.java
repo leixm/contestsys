@@ -1,5 +1,6 @@
 package com.app.tools;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
@@ -40,16 +41,31 @@ public class ExportExcelUtil<T> {
 	//获取文件分割符
 	public static final String FILE_SEPARATOR = System.getProperties()
 			.getProperty("file.separator");
-
+	
+	/**
+	 * @param tableTitle 表格标题头
+	 * @param dataset 表格内容
+	 * @param out 指定服务器路径的输出流 如：OutputStream out = new FileOutputStream(docsPath + FILE_SEPARATOR + fileName);
+	 */
 	public void exportExcel(String tableTitle, Collection<T> dataset, OutputStream out) {
 		exportExcel(tableTitle, null, dataset, out, "yyyy-MM-dd");
 	}
-
+	/**
+	 * @param tableTitle 表格标题头
+	 * @param headers 列头，每一列数据的列头
+	 * @param dataset 表格内容
+	 * @param out 指定服务器路径的输出流 
+	 */
 	public void exportExcel(String tableTitle,String[] headers, Collection<T> dataset,
 			OutputStream out) {
 		exportExcel(tableTitle, headers, dataset, out, "yyyy-MM-dd");
 	}
-
+	/**
+	 * @param headers 列头，每一列数据的列头
+	 * @param dataset 表格内容
+	 * @param out 指定服务器路径的输出流 
+	 * @param pattern 如果有时间数据，设定输出格式。默认为"yyy-MM-dd"，可以自定义格式
+	 */
 	public void exportExcel(String[] headers, Collection<T> dataset,
 			OutputStream out, String pattern) {
 		exportExcel("未命名表格", headers, dataset, out, pattern);
@@ -68,7 +84,7 @@ public class ExportExcelUtil<T> {
 	 * @param out
 	 *            与输出设备关联的流对象，可以将EXCEL文档导出到本地文件或者网络中
 	 * @param pattern
-	 *            如果有时间数据，设定输出格式。默认为"yyy-MM-dd"
+	 *            如果有时间数据，设定输出格式。默认为"yyyy-MM-dd"
 	 */
 	@SuppressWarnings("unchecked")
 	public void exportExcel(String tableTitle, String[] headers,
@@ -156,8 +172,10 @@ public class ExportExcelUtil<T> {
 			HSSFRichTextString text = new HSSFRichTextString(tableTitle);
 			cell.setCellValue(text);
 		}
-		//合并单元格
-		CellRangeAddress region = new CellRangeAddress(0, 0, 0, 3);
+		//提供合并的起始列标,索引从0开始
+		int start = 0;
+		int end = headers.length-1;
+		CellRangeAddress region = new CellRangeAddress(0, 0, start, end); //合并单元格(给表头去用)
 		sheet.addMergedRegion(region);
 		// 产生表头行
 		HSSFRow row = sheet.createRow(1);

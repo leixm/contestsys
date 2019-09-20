@@ -87,7 +87,7 @@ public class UserService {
 		    		return 4;  //管理员
 		    	else if(user.getLevel()==1)
 		    		return 3;   //教师用户
-		    	else return 2; //普通用户
+		    	else return 2; //普通用户:学生
 	    	}
 	    	else return 1; //密码错误
 	    		

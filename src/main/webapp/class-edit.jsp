@@ -33,7 +33,10 @@
 				<%
 					System.out.println("aaa");
 				%>
-
+				<!-- 无用div控制布局作用 -->
+               	<div style="height: 30px">
+               	</div>
+                	
 
 				<div class="layui-form-item">
 					<label for="classId" class="layui-form-label"> <span

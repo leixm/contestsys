@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<style type="text/css">
+    	#mydiv{
+    	position: absolute;
+    	left:50%;
+    	top:50%;
+    	margin-left: -200px;
+    	margin-top: -120px;
+    	}
+    	.mouseOver{
+    		background: #708090;
+    		color:#FFFAFA;
+    	}
+    	.mouseOut{
+    		background: #FFFAFA;
+    		color:#000;
+    	}
+    </style>
+    <meta charset="utf-8">
+    <title>ajax</title>
+	<script type="text/javascript" src="./js/jquery-3.3.1.js"></script>    
+    <script type="text/javascript">
+
+		// 形成下拉框 类型名称
+		function getMoreContents() {
+			//首先获得用户输入
+	    	var content = document.getElementById("keyword");
+	    	if(content.value == ""){
+	    		//当输入框为空时，清空之前的数据
+	    		clearContent();
+	    		return;
+	    	}
+		    $.ajax({
+		        url : "Teacher/ajax?keyword="+escape(content.value),
+		        dataType : "json",
+		        tyoe:'get',
+		        success : function(data) {
+		        		setContent(data);
+		        }
+		    });
+		}
+ 
+ 
+ 		//当输入框失去焦点时，清空之前的数据
+   		function keywordBlur(){
+   			clearContent();
+   		}
+    	
+    	//设置关联数据的展示，参数代表服务器传递过来的关联数据
+    	function setContent(contents){
+    		//清空之前的数据
+    		clearContent();
+    		//设置位置
+    		setLocaltion();
+    		//首先获得关联数据的长度，以此来确定生成多少个<tr></tr>
+    		var size = contents.length;
+    		//设置内容
+    		for(var i =0;i < size;i++){
+    			var nextNode = contents[i];//代表json数据的第i个元素
+    			var tr = document.createElement("tr");
+    			var td = document.createElement("td");
+    			td.setAttribute("borde","0");
+    			td.setAttribute("gbcolor","#FFFAFA");
+    			tr.setAttribute("position","absolute");
+    			//为td绑定两个样式（鼠标进入和鼠标移出时事件）
+    			td.onmouseover = function(){
+    				this.className = 'mouseOver';
+    			};
+    			td.onmouseout = function(){
+    				this.className = 'mouseOut';
+    			};
+    			td.onclick = function(){
+    				//这个方法实现的是，当用鼠标点击一个关联数据时，关联数据自动填充到输入框中。
+    				
+    			};
+    			td.onmousedown = function(){
+	            	//当鼠标点击一个关联数据时，自动在输入框添加数据
+	            	document.getElementById("keyword").value =this.innerText;
+	
+	           };
+	           //鼠标悬浮于关联数据上时，自动添加到输入框中
+    			 /* td.onmouseover = function(){
+		             this.className = 'mouseOver';
+		             if(td.innerText != null)
+		             document.getElementById("keyword").value =this.innerText;
+				
+				} */
+    			
+    			
+    			//创建一个文本节点
+    			var text = document.createTextNode(nextNode);
+    			td.appendChild(text);
+    			tr.appendChild(td);
+    			document.getElementById("content_table_body").appendChild(tr);
+    		}
+    	}
+    		
+    	//清空之前的数据
+   		function clearContent(){
+   			var contentTableBody = document.getElementById("content_table_body");
+   			var size = contentTableBody.childNodes.length;
+   			//删除时，从下往上删
+   			for(var i = size-1;i>=0;i--){
+   				//指定删除第i个子节点
+   				contentTableBody.removeChild(contentTableBody.childNodes[i]);
+   			}
+   			//清除关联数据的外边框
+   			var popDiv = document.getElementById("popDiv").style.border="none";
+   		}
+   		
+		//设置显示关联信息的位置
+   		function setLocaltion(){
+   			//关联信息的显示位置要和输入框一致
+   			var content = document.getElementById("keyword");
+   			var width = content.offsetWidth;//输入框的长度
+   			var left = content["offsetLeft"];//到左边框的距离
+   			var top = content["offsetTop"]+content.offsetHeight;//到顶部的距离(加上输入框本身的高度)
+   			//获得显示数据的div
+   			var popDiv = document.getElementById("popDiv");
+   			popDiv.style.border = "gray 1px solid"; 
+   			popDiv.style.left = left+"px";
+   			popDiv.style.top = top+"px";
+   			popDiv.style.width = width+"px"; 
+   			document.getElementById("content-table").style.width = width+"px"; 
+   		}
+ 
+    </script>
+  </head>
+  
+  
+  <body>
+  	<div id="mydiv">
+   	<!-- 输入框 -->
+   	<input type="text" size="50" id="keyword" onkeyup="getMoreContents()" onblur="keywordBlur()" onfocus="getMoreContents()"/>
+   	<input type="button" value="百度一下" width="50px" />
+   	<!-- 下面是内容展示区域 -->
+   	<div id="popDiv" style="z-index:99999;position:absolute;">
+   		<table id="content-table" bgcolor="#FFFAFA" border="0" cellspacing="0" cellpadding="0">
+   			<tbody id="content_table_body">
+   				<!-- 动态查询出来的数据显示在这里 -->
+   			</tbody>
+   		</table>
+   	</div>
+   	<div>
+   		<input type="text" value="niahoa ya ">
+   		<div>
+   			<div class="choice-tab">
+                <ul class="moni-obj-tab">
+                    <li id ="li_1" class="active">版本功能列表</li>
+                    <li id ="li_2">关联工程列表及进度展现</li>
+                    <li id ="li_3">版本问题跟进情况展现</li>
+                    
+                </ul>
+            </div>
+   		</div>
+   	</div>	
+   </div>
+  </body>
+</html>
+
+
+
+
