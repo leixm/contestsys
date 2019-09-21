@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.app.tools.PathHelper;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -449,14 +450,14 @@ public class UserController {
 	public void fileUpload(HttpServletRequest request, HttpServletResponse response) {
 		System.out.println("file upload!");
 		// 文件保存目录路径
-		String savePath = request.getServletContext().getRealPath("/") + "upload/";
+		String savePath = PathHelper.getNormativePath(request,"upload/");
 
 		// 文件保存目录URL
 		String saveUrl = request.getContextPath() + "/upload/";
 
 		// 定义允许上传的文件扩展名
 		HashMap<String, String> extMap = new HashMap<String, String>();
-		extMap.put("image", "gif,jpg,jpeg,png,bmp");
+		extMap.put("image", "gif,jpg,jpeg,png,bmp,txt,json");
 
 		// 最大文件大小
 		long maxSize = 1000000;
@@ -481,7 +482,7 @@ public class UserController {
 				return;
 			}
 
-			String dirName = "image";
+			String dirName = "uploadFile";
 			if (!extMap.containsKey(dirName)) {
 				out.println(getError("目录名不正确。"));
 				return;

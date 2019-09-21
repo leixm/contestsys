@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JOptionPane;
 
+import com.app.tools.PathHelper;
+import com.code.model.*;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,19 +44,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.app.service.TeacherService;
 import com.app.tools.ExportExcelUtil;
-import com.code.model.Answer;
-import com.code.model.Contest;
-import com.code.model.LayResponse;
-import com.code.model.OnePaper;
-import com.code.model.OneProblem;
-import com.code.model.OneSimproblem;
-import com.code.model.Options;
-import com.code.model.Response;
-import com.code.model.ScoreExcel;
-import com.code.model.ScoreObject;
-import com.code.model.User;
 import com.github.pagehelper.PageInfo;
-
+import com.app.tools.RandomString;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -109,7 +100,7 @@ public class TeacherController {
 		
 		User user = new User();
 		String userId = "123";
-		
+		String basePath = PathHelper.getNormativePath(request);
 		//测试
 		user.setLevel(1);
 		user.setUserId(userId);
@@ -122,10 +113,11 @@ public class TeacherController {
         classMap.put("prob", OneProblem.class);
         classMap.put("option", Options.class);
         classMap.put("answer", Answer.class);
+        classMap.put("urls", UrlData.class);
         OnePaper newpaper=(OnePaper)JSONObject.toBean(jsonObject,OnePaper.class,classMap);
         System.out.println(resp);
         List<OneSimproblem> oneSimps = newpaper.getSimp();
-		return JSONObject.fromObject(teacherService.addNewpaper(newpaper,user,oneSimps)).toString();
+		return JSONObject.fromObject(teacherService.addNewpaper(newpaper,user,oneSimps,basePath)).toString();
 	}
 	
 	
@@ -236,7 +228,7 @@ public class TeacherController {
 	protected String exportGradeScoreExcel(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Response resp = new Response();
 		//路径
-		String docsPath = request.getSession().getServletContext().getRealPath("docs");
+		String docsPath = PathHelper.getNormativePath(request,"docs");
 		//固定头
 		String[] headers = {"学号", "姓名", "班级", "成绩"};
 		//从session获取信息
@@ -342,40 +334,44 @@ public class TeacherController {
 	 */
 	@RequestMapping(value="Teacher/upload",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
 	@ResponseBody
-	public String uploadProblem(@RequestParam MultipartFile[] files,HttpServletRequest request) {
-	    InputStream inputStream = null;    
-	    List<String> filePaths = new ArrayList<>();
+	public String uploadProblem(@RequestParam MultipartFile file,HttpServletRequest request) {
+	    InputStream inputStream = null;
+		Response response = new Response();
+		response.setSuccess(0);
 	    try {
 	    	User user = (User)request.getSession().getAttribute("user");
 	 
-	    	
-	    	for (int i = 0; i < files.length; i++) {
-	    		String filename = files[i].getOriginalFilename();
-	    		if(!( (filename.substring(filename.lastIndexOf('.') + 1 , filename.length()).equals("txt")))) 
+
+
+	    		String filename = file.getOriginalFilename();
+	    		if(!( (filename.substring(filename.lastIndexOf('.') + 1 , filename.length()).equals("txt"))))
 	    	    return "文件上传失败(只支持txt格式)";
-	    	}
-	        for (int i = 0; i < files.length; i++) {
-	            String filename = files[i].getOriginalFilename();
+
+
 	            //	获取到的是当前绝对项目路劲并且有/号  	“/”指代项目根目录，所以代码返回的是项目在容器中的实际发布运行的根路径
-	            String path = request.getServletContext().getRealPath("/uploadTemp/"+ filename);
-	            filePaths.add(path);
-	            File file = new File(path);
-	            File parentFile = file.getParentFile();
+				String ranString = RandomString.getRandomString(30);
+
+	            String path = PathHelper.getNormativePath(request,"/uploadTemp/"+ ranString);
+	            File newFile = new File(path);
+	            File parentFile = newFile.getParentFile();
 	            if(!parentFile.exists())
 	            	parentFile.mkdirs();
-	            inputStream = files[i].getInputStream();
-	            FileUtils.copyInputStreamToFile(inputStream, file);
-	        }
-	        
+	            inputStream = file.getInputStream();
+	            FileUtils.copyInputStreamToFile(inputStream, newFile);
+
+
 	        if(inputStream!=null){
 	            inputStream.close();
 	        }
-	        return JSONArray.fromObject(filePaths).toString();
-	        
+	        response.setMsg(ranString);
+	        response.setSuccess(1);
+			return JSONObject.fromObject(response).toString();
+
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	        return "文件上传失败！";
-	    } 
+			response.setMsg("上传失败");
+	        return JSONObject.fromObject(response).toString();
+	    }
 	}
 	
 	/**

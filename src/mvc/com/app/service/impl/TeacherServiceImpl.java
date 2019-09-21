@@ -93,7 +93,11 @@ public class TeacherServiceImpl implements TeacherService{
 	private ContestMapper contestDao;
 	@Autowired
 	private ContestStatusMapper contestStatusDao;
-	
+
+	// 输入文件和输出文件存放地址
+//	private String InputAndOutputDataDir = "F:/test_data";
+	private String InputAndOutputDataDir = "/home/judge/data";
+
 	/**
 	 * @author zzs
 	 * @param contest:Contest实体
@@ -194,7 +198,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * @return 状态响应
 	 */
 	@Override
-	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps) {
+	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps,String basePath) {
 		Response resp = new Response();
 		int maxSimpId;
 		int maxProbId;
@@ -269,13 +273,17 @@ public class TeacherServiceImpl implements TeacherService{
 						probDao.insertSelective(prob.getProblem());
 						//将插入的编程题的输入输出文件存放到服务器目录    格式：ProblemId-组号-in/out
 						for(Entry<String, String> entry :  prob.getProblem().getFileMap().entrySet()) {
-							String srcPath = entry.getValue();
-							
-							String dest1 = srcPath.substring(0,srcPath.lastIndexOf("uploadTemp"));
-							String destPath = dest1 + nowProbId +"/"+ entry.getKey() + ".txt";
-							
+							String filename = entry.getValue();
+							String groupId = entry.getKey().split("/")[0];
+							String suffix = entry.getKey().split("/")[1];
+							basePath = basePath.replace("\\","/");
+							String srcPath =  basePath + "uploadTemp/" +  filename;
+							String destPath = InputAndOutputDataDir + "/" + String.valueOf(nowProbId) + "/" + groupId + "." + suffix;
 							File srcFile = new File(srcPath);
 							File destFile = new File(destPath);
+							if(!destFile.getParentFile().exists())
+								destFile.getParentFile().mkdirs();
+
 							try {
 								copyFile(srcFile,destFile);
 							} catch (Exception e) {

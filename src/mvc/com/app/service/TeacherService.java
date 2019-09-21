@@ -42,7 +42,7 @@ public interface TeacherService {
 	 * @description 添加新的试卷
 	 * @return 状态响应
 	 */
-	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps);
+	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps,String basePath);
 	
 	/**
 	 * @author zzs

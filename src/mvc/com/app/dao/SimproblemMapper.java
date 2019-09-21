@@ -41,6 +41,6 @@ public interface SimproblemMapper {
     @Select("select count(*) from contestpaper")
     int selSimpCount();
     
-    @Select("select max(simproblem_id) from simproblem")
+    @Select("select ifnull(max(simproblem_id),0) from simproblem")
     int selMaxSimpId();
 }

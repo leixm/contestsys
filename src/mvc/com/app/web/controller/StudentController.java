@@ -7,6 +7,7 @@ package com.app.web.controller;
 
 import com.app.service.impl.*;
 import com.app.tools.FileHelper;
+import com.app.tools.PathHelper;
 import com.code.model.*;
 
 import net.sf.json.JSONObject;
@@ -91,7 +92,7 @@ public class StudentController {
 	        System.out.println(JSONObject.fromObject(onePaper).toString());
 	        model.addObject("paper",JSONObject.fromObject(onePaper).toString());
 	        FileHelper fh = new FileHelper();
-	        String path = request.getServletContext().getRealPath("");
+	        String path = PathHelper.getNormativePath(request);
 	        model.addObject("student", user);
 	        model.addObject("contestStatusId", contest_status_id);
 	        model.addObject("contest", contest);

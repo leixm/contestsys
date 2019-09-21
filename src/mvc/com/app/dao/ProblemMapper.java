@@ -39,7 +39,7 @@ public interface ProblemMapper {
     
     List<OneProblem> getProblemAndSolutionByPaperId(Integer paperId);
     
-    @Select("select max(problem_id) from problem")
+    @Select("select ifnull(max(problem_id),0) from problem")
     int selMaxProbId();
 
     @Select("select count(*) from problem")

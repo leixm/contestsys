@@ -1,6 +1,5 @@
 package com.app.tools;
 
-import static org.hamcrest.CoreMatchers.startsWith;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;

@@ -5,6 +5,8 @@
  * */
 package com.code.model;
 
+import java.util.List;
+
 public class OneProblem {
 	
 	private Integer problemId;
@@ -18,7 +20,6 @@ public class OneProblem {
 	private ProblemWithBLOBs problem;  //题目信息
 	
     private SolutionWithBLOBs solution; //作答信息
-	
 	public ProblemWithBLOBs getProblem() {
 		return problem;
 	}
