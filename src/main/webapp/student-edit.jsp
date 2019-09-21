@@ -25,7 +25,9 @@
         <div class="layui-fluid">
             <div class="layui-row">
                 <form class="layui-form">
-			<% System.out.println("aaa"); %>
+                <!-- 无用div控制布局作用 -->
+                	<div style="height: 30px">
+                	</div>
 					
 					<div class="layui-form-item">
                         <label for="userId" class="layui-form-label">
@@ -69,7 +71,7 @@
 							<span class="x-red">*</span>班级</label>
 						<div class="layui-input-inline">
 							<select id="class" name="classId" class="valid" lay-filter="class">
-							<option value="null"> 请选择班级  </option>
+								<option value="null"> 请选择班级  </option>
 							
 								<c:forEach var="obj" items="${classes}" varStatus="s">
 									<option value="${obj.class_id}" <c:if test='${obj.class_id==user.classId}'> selected='selected'</c:if> >${obj.name}</option>
@@ -152,6 +154,7 @@
                 hm.src = "https://hm.baidu.com/hm.js?b393d153aeb26b46e9431fabaf0f6190";
                 var s = document.getElementsByTagName("script")[0];
                 s.parentNode.insertBefore(hm, s);
-            })();</script>
+            })();
+        </script>
     </body>
 </html>

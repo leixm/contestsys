@@ -305,4 +305,21 @@
       state = #{state,jdbcType=INTEGER}
     where user_id = #{userId,jdbcType=VARCHAR}
   </update>
+  
+  <update id="updateStuInfoByStuId" >
+    update user
+	<set>
+	    <if test="stuname!=null and stuname!=''">
+	        realName = #{stuname},
+	    </if>
+    	<if test="stuemail!=null and stuemail!=''">
+	        email = #{stuemail},
+	    </if>
+	    <if test="newpwd!=null and newpwd!=''">
+	        password = #{newpwd},
+	    </if>
+    </set>
+    where user_id = #{stuid}
+  </update>
+  
 </mapper>

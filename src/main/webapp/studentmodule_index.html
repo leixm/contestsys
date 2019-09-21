@@ -20,15 +20,15 @@
           <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
         <script>
-              // 是否开启刷新记忆tab功能
-            	var is_remember = false;
+            // 是否开启刷新记忆tab功能
+            var is_remember = false;
         </script>
     </head>
     <body class="index">
         <!-- 顶部开始 -->
         <div class="container">
             <div class="logo"> 
-                <a href="./index.html">考试系统管理端</a></div>
+                <a href="./index.html">学生在线考试系统</a></div>
             <div class="left_open">
                 <a><i title="展开左侧栏" class="iconfont">&#xe699;</i></a>
             </div>
@@ -61,13 +61,13 @@
                     <dl class="layui-nav-child">
                         <!-- 二级菜单 -->
                         <dd>
-                            <a href="./login.html" >切换账号</a></dd>
+                            <a href="./login.html">切换账号</a></dd>
                         <dd>
                             <a href="./login.html">退出</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item to-index">
-                    <a href="./index.html">前台首页</a></li>
+                    <a href="./welcome.html">前台首页</a></li>
             </ul>
         </div>
         <!-- 顶部结束 -->
@@ -83,87 +83,68 @@
                             <i class="iconfont nav_right">&#xe697;</i></a>
                         <ul class="sub-menu">
                             <li>
-                                <a onclick="xadmin.add_tab('学生管理','student.html')">
+                                <a onclick="xadmin.add_tab('修改个人资料','studentmodule_stuInfo.jsp')">
                                     <i class="iconfont">&#xe6a7;</i>
-                                    <cite>学生管理</cite></a>
-                            </li>
-							
-							<li>
-							    <a onclick="xadmin.add_tab('教师管理','teacher.html')"> 
-							        <i class="iconfont">&#xe6a7;</i>
-							        <cite>教师管理</cite></a>
-							</li>
-							
-							<li>
-							    <a onclick="xadmin.add_tab('日志管理','log.html')"> 
-							        <i class="iconfont">&#xe6a7;</i>
-							        <cite>日志管理</cite></a>
-							</li> 
-							
-
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;">
-                            <i class="iconfont left-nav-li" lay-tips="测试管理">&#xe723;</i>
-                            <cite>测试管理</cite>
-                             <i class="iconfont nav_right">&#xe697;</i></a>
-                        <ul class="sub-menu">
-                            <li>
-                                <a onclick="xadmin.add_tab('考试管理','contest.html')">
-                                    <i class="iconfont">&#xe6a7;</i>
-                                    <cite>考试管理</cite></a>
-                            </li>
-                            
-                             <li>
-                                <a onclick="xadmin.add_tab('成绩管理','grade.html')">
-                                    <i class="iconfont">&#xe6a7;</i>
-                                    <cite>成绩管理</cite></a>
-                            </li>
-                            
-                             <li>
-                                <a onclick="xadmin.add_tab('考试统计','conteststatus.html')">
-                                    <i class="iconfont">&#xe6a7;</i>
-                                    <cite>考试统计</cite></a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;">
-                            <i class="iconfont left-nav-li" lay-tips="题库管理">&#xe6a2;</i>
-                            <cite>题库管理</cite>
-                            <i class="iconfont nav_right">&#xe697;</i></a>
-                        <ul class="sub-menu">
-                            <li>
-                                <a onclick="xadmin.add_tab('试卷管理','contestpaper.html')">
-                                    <i class="iconfont">&#xe6a7;</i> 
-                                    <cite>试卷管理</cite></a>
-                            </li>
-                            
-                            <li>  
-                                <a onclick="xadmin.add_tab('试卷管理','addnewpaper.html')">
-                                    <i class="iconfont">&#xe6a7;</i> 
-                                    <cite>组卷管理</cite></a>
-                            </li>
-                              
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;">
-                            <i class="iconfont left-nav-li" lay-tips="班级管理">&#xe726;</i>
-                            <cite>班级管理</cite>
-                            <i class="iconfont nav_right">&#xe697;</i></a>
-                        <ul class="sub-menu">
-                            <li>
-                                <a onclick="xadmin.add_tab('班级管理','class.html')">
-                                    <i class="iconfont">&#xe6a7;</i>
-                                    <cite>班级管理</cite></a>
+                                    <cite>修改个人资料</cite></a>
                             </li>
                         </ul>
                     </li>
                     
+                    <li>
+                        <a href="javascript:;">
+                            <i class="iconfont left-nav-li" lay-tips="试卷库">&#xe6a2;</i>
+                            <cite>试题库</cite>
+                            <i class="iconfont nav_right">&#xe697;</i></a>
+                        <ul class="sub-menu">
+                            <li>
+                                <a onclick="xadmin.add_tab('题库总览','contestpaper.html')">
+                                    <i class="iconfont">&#xe6a7;</i> 
+                                    <cite>题库总览</cite></a>
+                            </li>
+                            
+                            <li>  
+                                <a onclick="xadmin.add_tab('个人测验','addnewpaper.html')">
+                                    <i class="iconfont">&#xe6a7;</i> 
+                                    <cite>个人测验</cite></a>
+                            </li>
                         </ul>
                     </li>
+                    
+                    <li>
+                        <a href="javascript:;">
+                            <i class="iconfont left-nav-li" lay-tips="考试管理">&#xe726;</i>
+                            <cite>考试管理</cite>
+                            <i class="iconfont nav_right">&#xe697;</i></a>
+                        <ul class="sub-menu">
+                            <li>
+                                <a onclick="xadmin.add_tab('考试列表','class.html')">
+                                    <i class="iconfont">&#xe6a7;</i>
+                                    <cite>考试列表</cite></a>
+                            </li>
+                        </ul>
+                    </li>
+                   
+                    
+                    <li>
+                        <a href="javascript:;">
+                            <i class="iconfont left-nav-li" lay-tips="成绩管理">&#xe723;</i>
+                            <cite>成绩管理</cite>
+                             <i class="iconfont nav_right">&#xe697;</i></a>
+                        <ul class="sub-menu">
+                             <li>
+                                <a onclick="xadmin.add_tab('成绩概况','studentmodule_grade.html')">
+                                    <i class="iconfont">&#xe6a7;</i>
+                                    <cite>成绩概况</cite></a>
+                            </li>
+                            
+                             <li>
+                                <a onclick="xadmin.add_tab('成绩统计','teacher-add.jsp')">
+                                    <i class="iconfont">&#xe6a7;</i>
+                                    <cite>成绩统计</cite></a>
+                            </li>
+                        </ul>
+                    </li>
+                    
                 </ul>
             </div>
         </div>
@@ -199,8 +180,8 @@
 								type: "POST", 
 								url: "User/getUsername",
 								data: '',
-								async: false,
 								dataType: 'json', 
+								async: false,
 								success: function(data) {
 									$("#username").html(data.realname);
 								}
@@ -208,7 +189,6 @@
 		      }
         		
         </script>
-        
         <!-- 中部结束 -->
         <script>//百度统计可去掉
             var _hmt = _hmt || []; (function() {

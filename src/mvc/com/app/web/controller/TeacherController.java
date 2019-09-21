@@ -28,6 +28,7 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.io.FileUtils;
@@ -63,7 +64,7 @@ import net.sf.json.JSONObject;
 public class TeacherController {
 	@Resource
 	private TeacherService teacherService;
-	//导出excel用
+	//导出excel用  文件分隔符
 	public static final String FILE_SEPARATOR = System.getProperties()
 			.getProperty("file.separator");
 	
@@ -234,46 +235,77 @@ public class TeacherController {
 	@RequestMapping(value="Teacher/gradeScoreExcel",produces="text/html;charset=UTF-8")
 	@ResponseBody
 	protected String exportGradeScoreExcel(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Response resp = new Response();
-		//路径
+		LayResponse resp = new LayResponse();
+		resp.setCode(1); //默认设置失败code
+		User user = (User)request.getSession().getAttribute("user");
+		System.out.println("level------------"+user.getLevel());
+		if(user.getLevel()==0) {
+			resp.setMsg("该用户没有导出excel表格权限");
+			return JSONObject.fromObject(resp).toString();
+		}
+		/*----获取导出的数据集开始----*/
+		String className = request.getParameter("classname"); 
+		String stuId = request.getParameter("stuid");
+		String stuName = request.getParameter("stuname");
+		String contestName = request.getParameter("contestname");
+		//判断是否非空后再来去掉前后空格，防止空指针
+		if(className!=null||"".equals(className)) {
+			className = className.trim();
+		}
+		if(stuId!=null||"".equals(stuId)) {
+			stuId = stuId.trim();	
+		}
+		if(stuName!=null||"".equals(stuName)) {
+			stuName = stuName.trim();
+		}
+		if(contestName!=null||"".equals(contestName)) {
+			contestName = contestName.trim();
+		}
+		//设置空字段，防止进行分页查询，方便重用查询成绩方法
+		String pageSize = null;
+		String pageNumber = null;
+		//数据库查询返回的学生成绩结果集
+		List<Map<String,Object>> resultList = teacherService.selStuScore(className, stuId, stuName, contestName,pageSize,pageNumber); 
+		/*----获取导出的数据集结束----*/
+		
+		//自动创建文件夹docs
+		File file=new File(request.getSession().getServletContext().getRealPath("/")+"docs");
+		if(!file.exists()){//如果文件夹不存在
+			file.mkdir();//创建文件夹
+		}
+		//文件上传路径（注意要在服务器创建对应的docs文件夹，不然会出错）
 		String docsPath = request.getSession().getServletContext().getRealPath("docs");
 		//固定头
-		String[] headers = {"学号", "姓名", "班级", "成绩"};
+		String[] headers = {"学号", "姓名","考试名称", "班级", "成绩"};
 		//从session获取信息
 		/*User user = (User)request.getSession().getAttribute("user");
 		Contest contest = (Contest)request.getSession().getAttribute("contest");*/
-		//捏数据测试
-		User user = new User();
-		user.setLevel(1);
-		Contest contest = new Contest();
-		contest.setContestId(1014);
-		contest.setTitle("期中考试");
-		contest.setPaperId(129);
-		contest.setTeacher("123");
 		
-		//导出excel
-		List<ScoreExcel> dataset = new ArrayList<ScoreExcel>();
-		resp = teacherService.exportGradeScoreExcel(user, contest);
-		//判断是否能从impl层获取到数据
-		if(resp.getSuccess()==1) {
-			dataset = (List<ScoreExcel>) resp.getReObj();
-		}else {
-			return JSONObject.fromObject(resp).toString();
+		//存放导出表格所需要的学生个人成绩信息
+		List<ScoreExcel> scoreExcelList = new ArrayList<>();
+		
+		if(resultList.size()>0) {
+			for(Map<String,Object> map : resultList) {
+				//创建bean存数据（需要判断是否map中有数据，防止空指针）
+				ScoreExcel scoreExcel = new ScoreExcel();
+				scoreExcel.setStudentId(map.get("stuid").toString());
+				scoreExcel.setName(map.get("stuname").toString());
+				scoreExcel.setContestNname(map.get("contestname").toString());
+				scoreExcel.setClassName(map.get("classname").toString());
+				scoreExcel.setScore(map.get("score").toString());
+				scoreExcelList.add(scoreExcel);
+			}
 		}
-		
 		try {
-			//考试名字
-			String contestName = contest.getTitle();
-			// "xxx.xls"名字必须和Util的一致
-			String fileName =contestName + "年级成绩表.xls";
-			OutputStream out = new FileOutputStream(docsPath + FILE_SEPARATOR
-					+ fileName);
-			String tableTitle = contestName + "年级成绩表";
-			//利用导出工具 写出workbook对象
-			new ExportExcelUtil().exportExcel(tableTitle,headers, dataset, out);
 			
-			out.close();
-			JOptionPane.showMessageDialog(null, "导出成功!");
+			// "xxx.xls"名字必须和Util的一致
+			String fileName ="学生成绩表.xls";
+			OutputStream out = new FileOutputStream(docsPath + FILE_SEPARATOR + fileName);
+			String tableTitle = "学生成绩表";
+			//利用导出工具 写出workbook对象到指定路径
+			new ExportExcelUtil().exportExcel(tableTitle,headers, scoreExcelList, out);
+			out.close(); //关闭输出流
+			//JOptionPane.showMessageDialog(null, "导出成功!");
 			System.out.println("excel导出成功！");
 			//路径要对应上面out
 			String filePath = docsPath + FILE_SEPARATOR + fileName;
@@ -287,7 +319,7 @@ public class TeacherController {
 		}
 	
 		resp.setMsg("导出excel表格成功");
-		resp.setSuccess(1);
+		resp.setCode(0);//表示成功
 		return JSONObject.fromObject(resp).toString();
 	}
 	
@@ -378,12 +410,7 @@ public class TeacherController {
 	    } 
 	}
 	
-	/**
-	 * 组卷端上传编程题输入输出文件
-	 * @param partFiles
-	 * @param request
-	 * @return
-	 */
+	/* 测试代码
 	@RequestMapping(value="Teacher/selAllContest",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
 	@ResponseBody
 	public String selAllContest(HttpServletRequest request,HttpServletResponse response) {
@@ -411,11 +438,11 @@ public class TeacherController {
 		//返回json格式
 		//resp.getWriter().write(JSONArray.fromObject(listData).toString());	
 		
-		/*JSONObject a = new JSONObject();
+		JSONObject a = new JSONObject();
 		a.put("name", "你好");
 		JSONObject b = new JSONObject();
 		b.put("data", a);
-		*/
+		
 		return JSONArray.fromObject(listData).toString();
 	}
 	
@@ -435,7 +462,7 @@ public class TeacherController {
 			}
 		}
 		return list;
-	}
+	}*/
 	
 	/**
 	 * 根据搜索条件模糊查询出学生成绩表
@@ -446,6 +473,14 @@ public class TeacherController {
 	@RequestMapping(value="Teacher/selStuScore",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
 	@ResponseBody
 	public String selStuScore(HttpServletRequest request,HttpServletResponse response) {
+		//获取user对象
+	/*	HttpSession session = request.getSession(); 
+		User user = (User)session.getAttribute("user");		
+		System.out.println("userName:----"+user.getUserId());*/
+		
+		LayResponse layResp = new LayResponse();//layui参数返回格式
+		layResp.setCode(1); //默认设置为1
+		
 		String className = request.getParameter("classname"); 
 		String stuId = request.getParameter("stuid");
 		String stuName = request.getParameter("stuname");
@@ -473,14 +508,14 @@ public class TeacherController {
 		
 		if(resultList.size() > 0) {
 			//返回规定格式给前端
-			LayResponse layResp = new LayResponse();
 			layResp.setCode(0);
 			layResp.setCount(total.intValue());
 			layResp.setData(resultList);
 			
 			return JSONObject.fromObject(layResp).toString();
 		}
-		return null;
+		layResp.setMsg("无数据");
+		return JSONObject.fromObject(layResp).toString();
 	}
 	
 	/**
@@ -506,7 +541,6 @@ public class TeacherController {
 		return mav;
 	}
 	/**
-	 * @author zzs
 	 * @param cstatusid: 所更新成绩对应的表的主键id
 	 * @param score: 用户重新更新的成绩
 	 * @description 更新用户信息
@@ -534,5 +568,16 @@ public class TeacherController {
 			response.setMsg("成绩更新失败");
 			return JSONObject.fromObject(response).toString();
 		}
+	}
+	
+	/**
+	 * 测试
+	 */
+	@RequestMapping(value = "Teacher/selAjaxData", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String selAjaxData(HttpServletRequest request) {
+		String keyword = request.getParameter("name");
+		String result = keyword + ",你好ajax,前端后端,大数据,数据分析";
+		return result;  
 	}
 }

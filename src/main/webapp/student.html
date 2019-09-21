@@ -15,7 +15,22 @@
           <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
           <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
-
+        
+		<style type="text/css">
+			/* 表格行高 等*/
+	        .layui-table-cell{
+			    height:28px;
+			    line-height: 28px;
+			    text-align: center;
+			    font-size: 14px;
+			}
+			/* 解决checkbox不居中 */
+			.layui-table-cell .layui-form-checkbox[lay-skin="primary"]{
+				 left:15%;
+			     top: 50%;
+			     transform: translateY(-50%);
+			}
+    	</style>
 	</head>
 
 	<body>
@@ -63,7 +78,7 @@
 			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
 				<input name="id" class="layui-input" id="keyword" placeholder="id/名字/班级/邮箱地址">
 			</div>
-			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
+			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
 	</script>
 
 	<script type="text/html" id="demotool">

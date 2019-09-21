@@ -64,7 +64,7 @@
                         	<span class="x-red">*</span>考试成绩
                         </label>
                         <div class="layui-input-inline">
-                            <input type="text" id="score" name="score" required="" autocomplete="on" class="layui-input" value="${scoreobj.score}"></div>
+                            <input type="text" autocomplete="off" id="score" name="score" required="" autocomplete="on" class="layui-input" value="${scoreobj.score}" ></div>
                         <div class="layui-form-mid layui-word-aux"></div>
                     </div>		
                          
@@ -72,10 +72,10 @@
                         <label for="L_repass" class="layui-form-label"></label>
                         <button class="layui-btn" lay-filter="update" lay-submit="">更新</button>
                     </div>
-                   
+                   <!-- 隐藏div用来传cstatusid给后台 -->
                    <div class="layui-form-item">
                         <div class="layui-input-inline">
-                            <input type="text" style="display:none"  id="cstatusid" name="cstatusid" required="" autocomplete="on" class="layui-input" value="${scoreobj.cStatusId}"></div>
+                            <input type="text" style="display:none"  id="cstatusid" name="" required="" autocomplete="on" class="layui-input" value="${scoreobj.cStatusId}"></div>
                         <div class="layui-form-mid layui-word-aux"></div>
                     </div>		
                          

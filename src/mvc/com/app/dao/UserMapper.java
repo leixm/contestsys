@@ -37,4 +37,9 @@ public interface UserMapper {
 	List<Map<String, Object>> listAllTeachers();
 
 	List<Map<String, Object>> listAllTeachersByKeyword(String keyword);
+	
+	int updateStuInfoByStuId(@Param("stuid") String stuId, @Param("stuname") String stuName,
+			@Param("stuemail") String stuEmail, @Param("newpwd") String newPwd);
+	
+	
 } 

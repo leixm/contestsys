@@ -5,7 +5,9 @@
  * */
 package com.app.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,16 +19,15 @@ import com.app.dao.ProblemMapper;
 import com.app.dao.SimproblemMapper;
 import com.app.dao.SimsolutionMapper;
 import com.app.dao.SolutionMapper;
+import com.app.dao.UserMapper;
 import com.code.model.Contest;
 import com.code.model.ContestStatus;
 import com.code.model.Contestpaper;
 import com.code.model.OneProblem;
 import com.code.model.OneSimproblem;
 import com.code.model.Simsolution;
-import com.code.model.SimsolutionExample;
-import com.code.model.Solution;
-import com.code.model.SolutionExample;
 import com.code.model.SolutionWithBLOBs;
+import com.github.pagehelper.PageHelper;
 
 @Service
 public class StudentServiceImpl implements StudentService{
@@ -52,6 +53,8 @@ public class StudentServiceImpl implements StudentService{
 	@Autowired
     private SolutionMapper solutionDao;
 	
+	@Autowired
+	private UserMapper userDao;
 
 	@Override
 	public Contestpaper selectContestpaperByPrimaryKey(Integer paperId) {
@@ -88,12 +91,40 @@ public class StudentServiceImpl implements StudentService{
 		return simsolutionDao.insert(record);
 	}
 
+	/**
+	 * 根据搜索条件模糊查询出学生成绩表
+	 * @param 1、班级名称
+	 * @param 2、学生学号
+	 * @param 3、学生名字
+	 * @param 4、考试名称
+	 * @return 成绩实体Map对象集合
+	 */
+	@Override
+	public List<Map<String, Object>> selOneStuScore(String className, String stuId, String stuName, String contestName,String pageSize,String pageNumber) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
+		//分页所需相关参数的计算
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
+		resultList = contestStatusDao.selStuScoreBykeyword(className, stuId, stuName, contestName); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		return resultList;
+	}
 	
-
-
-
-
-	
+	 /**
+	  * 根据条件更新学生用户的个人信息
+	  * @param stuId	检索用的学生id
+	  * @param stuName
+	  * @param stuEmail
+	  * @param newPwd 新密码
+	  * @return 更新是否成功 
+	  */
+	@Override
+	public int updateStuInfo(String stuId, String stuName, String stuEmail, String newPwd) {
+		System.out.println("stuInfo----"+stuId+"---"+stuName+"---"+stuEmail+"---"+newPwd);
+		return userDao.updateStuInfoByStuId(stuId, stuName, stuEmail, newPwd);
+	}
 
 
 }

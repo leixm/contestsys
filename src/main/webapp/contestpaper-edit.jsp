@@ -25,7 +25,10 @@
         <div class="layui-fluid"> 
             <div class="layui-row">
                 <form class="layui-form">
-					
+					<!-- 无用div控制布局作用 -->
+                	<div style="height: 30px">
+                	</div>
+                	
 					<div class="layui-form-item">
 						<label for="paperId" class="layui-form-label">
 							<span class="x-red">*</span>试卷编号
