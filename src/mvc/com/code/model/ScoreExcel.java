@@ -3,20 +3,29 @@ package com.code.model;
 public class ScoreExcel {
 	String studentId;
 	String name;
+	String contestNname;
 	String className;
 	String score;
 	
-
 	public ScoreExcel() {
 		
 	}
-	public ScoreExcel(String studentId, String name, String className, String score) {
+	
+	public ScoreExcel(String studentId, String name, String contestNname, String className, String score) {
 		super();
 		this.studentId = studentId;
 		this.name = name;
+		this.contestNname = contestNname;
 		this.className = className;
 		this.score = score;
 	}
+	public String getContestNname() {
+		return contestNname;
+	}
+	public void setContestNname(String contestNname) {
+		this.contestNname = contestNname;
+	}
+	
 	public String getName() {
 		return name;
 	}

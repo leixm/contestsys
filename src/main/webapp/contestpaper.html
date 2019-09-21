@@ -15,7 +15,21 @@
           <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
           <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
-
+		<style type="text/css">
+			/* 表格行高 等*/
+	        .layui-table-cell{
+			    height:28px;
+			    line-height: 28px;
+			    text-align: center;
+			    font-size: 14px;
+			}
+			/* 解决checkbox不居中 */
+			.layui-table-cell .layui-form-checkbox[lay-skin="primary"]{
+				 left:15%;
+			     top: 50%;
+			     transform: translateY(-50%);
+			}
+    	</style>
 	</head>
 
 	<body>

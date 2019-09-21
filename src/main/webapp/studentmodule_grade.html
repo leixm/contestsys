@@ -10,7 +10,6 @@
 		<link rel="stylesheet" href="css/xadmin.css">
 		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 		<script src="./lib/layui/layui.all.js" charset="utf-8"></script>
-		<script src="./lib/download.js"></script> 
 		<script type="text/javascript" src="./js/xadmin.js"></script>
 		<!--[if lt IE 9]>
           <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
@@ -74,23 +73,11 @@
 			</div>
 
 			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
-					<input name="stuid" class="layui-input" id="stuid" placeholder="学号" autocomplete="off" >
-			</div>
-			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
-					<input name="id" class="layui-input" id="stuname" placeholder="学生姓名" autocomplete="off">
-			</div>
-			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
 					<input name="id" class="layui-input" id="contestname" placeholder="考试名称" autocomplete="off">
 			</div>
-			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
-					<input name="id" class="layui-input" id="classname" placeholder="班级" autocomplete="off">
-			</div>
+			
 			<button class="layui-btn" type="button" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
 		</script>
-
-		<script type="text/html" id="demotool">
-			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-   		 </script>
 
 
 		<script>
@@ -134,7 +121,7 @@
 						id: 'demoReload',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						height: '700', //容器高度
-						width: '1140',
+						width: '1000',
 						toolbar: '#header',
 						cols: [
 							[{
@@ -142,12 +129,12 @@
 							}, {
 								field: 'stuid',
 								title: '学号',
-								width: 160,
+								width: 180,
 								sort: true
 							}, {
 								field: 'stuname',
 								title: '姓名',
-								width: 100,
+								width: 120,
 								sort: true
 							}, {
 								field: 'contestname',
@@ -162,21 +149,16 @@
 							}, {
 								field: 'score',
 								title: '考试成绩',
-								width: 120,
+								width: 80,
 								sort: true
 							}, {
 								field: 'contesttime',
 								title: '考试时间',
 								width: 120,
 								sort: true
-							}, {
-								title: '操作',
-								toolbar: '#demotool',
-								'fixed': 'right',
-								width: 140
 							}]
 						],
-						url: 'Teacher/selStuScore',
+						url: 'Student/selOneStuScore',
 						method: 'post',
 						title:'学生成绩表',
 						limits: [15, 30, 50, 100],
@@ -187,14 +169,13 @@
 					
 					table.on('toolbar(demo)', function(obj) {
 						if (obj.event === 'add') {
-							
-							/* layer.open({
+							layer.open({
 								type: 2,
 								title: "新增",
 								shadeClose: false, //点击遮罩关闭层
 								area: ['40%', '70%'],
 								content: "addstudent.do"
-							}); */
+							});
 							
 						}else if (obj.event === 'reload') {	
 							console.log("执行搜索")
@@ -205,7 +186,6 @@
 							console.log("执行导出")
 							layer.confirm('是否导出Excel?', function(index) {
 								window.location.href = "Teacher/gradeScoreExcel";
-							//download("‪G:/MyEclipseWorkspaces/Workspaces/MyEclipse 2017 CI/.metadata/.me_tcat85/webapps/rustshop/docs/学生成绩表.xls");
 								layer.msg("导出成功!", {
 												time: 1000
 								});
@@ -236,7 +216,7 @@
 						
 					});
 
-
+/* 
 					table.on('tool(demo)', function(obj) {
 						if (obj.event == "edit") {
 							//编辑：对成绩的修改
@@ -245,15 +225,15 @@
 								type: 2,
 								title: "编辑",
 								shadeClose: false, //点击遮罩关闭层
-								area: ['40%', '70%'],
+								area: ['30%', '50%'],
 								content: "editScore.do?cstatusid=" + obj.data.contest_status_id +"&stuid="+obj.data.stuid+"&stuname="+obj.data.stuname
 								+"&classname="+obj.data.classname+"&score="+obj.data.score+"&contestname="+obj.data.contestname
 							});
 
 						} 
 					});
-					
-					//删除用户函数
+					 */
+					/* //删除用户函数
 					function delinventory(id) {
 						layer.confirm('是否删除?', function(index) {
 							$.ajax({
@@ -277,7 +257,7 @@
 							});
 							layer.close(index);
 						})
-					}
+					} */
 
 					
 				 	//查询操作会调用

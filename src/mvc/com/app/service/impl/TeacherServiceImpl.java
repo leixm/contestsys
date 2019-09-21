@@ -836,15 +836,17 @@ public class TeacherServiceImpl implements TeacherService{
 	public List<Map<String, Object>> selStuScore(String className, String stuId, String stuName, String contestName,String pageSize,String pageNumber) {
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
 		//分页所需相关参数的计算
-		int pageSizeInt = Integer.parseInt(pageSize);
-		int pageNumberInt = Integer.parseInt(pageNumber);
-        PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
 		resultList = contestStatusDao.selStuScoreBykeyword(className, stuId, stuName, contestName); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
 		return resultList;
 	}
 
 	/**
-	 * 根据搜索条件模糊查询出学生成绩表
+	 * 根据搜索条件更新学生成绩表
 	 * @param cstatusid: 所更新成绩对应的表的主键id
 	 * @param score: 用户重新更新的成绩
 	 * @return 更新操作返回的状态

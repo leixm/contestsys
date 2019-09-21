@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import com.app.tools.RandomValidateCode;
 import com.code.model.LayResponse;
 import com.code.model.Response;
 import com.code.model.User;
+import com.code.model.loginUser;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -457,7 +459,7 @@ public class UserController {
 
 		// 定义允许上传的文件扩展名
 		HashMap<String, String> extMap = new HashMap<String, String>();
-		extMap.put("image", "gif,jpg,jpeg,png,bmp,txt,json");
+		extMap.put("image", "gif,jpg,jpeg,png,bmp");
 
 		// 最大文件大小
 		long maxSize = 1000000;
@@ -482,7 +484,7 @@ public class UserController {
 				return;
 			}
 
-			String dirName = "uploadFile";
+			String dirName = "image";
 			if (!extMap.containsKey(dirName)) {
 				out.println(getError("目录名不正确。"));
 				return;
@@ -549,12 +551,42 @@ public class UserController {
 			e1.printStackTrace();
 		}
 	}
-
+	
+	/**
+	 * @author zzs
+	 * @description 获取用户名
+	 * @return 用户名
+	 */
+	@RequestMapping(value = "User/getUsername", method = {
+			RequestMethod.POST }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String getUsername(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		//获取所登录用户的user对象
+				HttpSession session = request.getSession(); 
+				User user = (User)session.getAttribute("user");	
+				String className = "";
+				loginUser logUser = new loginUser();
+				if(user!=null) {
+					com.code.model.Class classModel = classService.GetClass(user.getClassId().toString());
+					className = classModel.getName();
+					if(user.getLevel()==0) {
+						logUser.setClassId(user.getClassId());
+						logUser.setClassName(className);
+					}
+					logUser.setEmail(user.getEmail());
+					logUser.setLevel(user.getLevel());
+					logUser.setPassword(user.getPassword());
+					logUser.setRealname(user.getRealname());
+					logUser.setUserId(user.getUserId());
+				}
+				return JSONObject.fromObject(logUser).toString();
+	}
+	
 	private String getError(String message) {
 		JSONObject obj = new JSONObject();
 		obj.put("error", 1);
 		obj.put("message", message);
 		return obj.toString();
 	}
-
+	
 }
