@@ -227,22 +227,68 @@
 
 	});
 
-	var optionInsertPg = function(obj,optionListType){
-		var num = obj.parentNode.parentNode.children[0].innerHTML;
+	// 记录所有上传的url {"1":{"1/input": abc , "1/output": sad}}
+	var fileUrlData = new Object()
+
+    var InputOrOutputFileChange = function(obj,count_program,count_file,type){
+	    console.log(obj)
+        console.log(count_program + " " + count_file + " " + type)
+        var file = obj.files[0]
+        var formData = new FormData()
+        formData.append("file",file)
+        $.ajax({
+            url: "Teacher/upload",
+            type: "post",
+            dataType: "json",
+            data: formData,
+            async: false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data){
+                if(data.success)
+                {
+                    if(fileUrlData[count_program]==undefined) fileUrlData[count_program] = new Object()
+
+                    var obj = fileUrlData[count_program]
+                    if(type==1)
+                    obj[count_file + "/input"] = data.msg
+                    else obj[count_file + "/output"] = data.msg
+                    fileUrlData[count_program] = obj
+
+                    console.log(fileUrlData)
+                }
+                else{
+                    alert("上传失败!")
+                }
+                // 处理返回的URL
+            }
+        })
+    }
+
+    // 记录每一个编程题框中 所有存在的文件号 {"1":[1,2,3]}
+    var fileCountData = new Object()
+	var optionInsertPg = function(obj,count_program){
+	    if(fileCountData[count_program] == undefined) fileCountData[count_program] = [1]
+        var optionListType = document.getElementById("optionListSelectPg_" + count_program)
+        var curNum = Math.max.apply(0,fileCountData[count_program])+1
+        fileCountData[count_program].push(curNum)
 		var tr = document.createElement('tr');
 		var obj = obj.parentNode.parentNode;
-		tr.innerHTML = '<td style="padding-left: 15px;">' + (parseInt(num) + 1) + '</td><td ><input type="file"></td><td ><input type="file"></td>' + '<td style="width: 410px;"><img  title="添加一组数据" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;" onclick="optionInsertPg(this,' + optionListType.id + ')"><img  title="删除当前这一组数据(至少保留一组数据)" src="./img/减号.png" style="margin-left: 4px;cursor: pointer;" onclick="optionDeletePg(this,'+ optionListType.id + ')"></td>'
-		if (optionListType.children.length <= 20) {
-			if (obj.nextSibling) {
-				optionListType.insertBefore(tr,obj.nextSibling);
-			}else{
-				optionListType.appendChild(tr);
-			}
-		}
+		tr.innerHTML = '<td style="padding-left: 15px;">' + curNum + '</td><td ><input type="file" onchange="InputOrOutputFileChange(this,' + count_program + ',' + curNum +',1)"></td><td ><input type="file" onchange="InputOrOutputFileChange(this,' + count_program + ',' + curNum + ',2)"></td>' + '<td style="width: 410px;"><img  title="添加一组数据" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;" onclick="optionInsertPg(this,' + count_program + ')"><img  title="删除当前这一组数据(至少保留一组数据)" src="./img/减号.png" style="margin-left: 4px;cursor: pointer;" onclick="optionDeletePg(this,'+ count_program+ ')"></td>'
+		if (optionListType.children.length <= 20)
+            optionListType.appendChild(tr);
+
 	}
 
 
-	var optionDeletePg = function(obj,optionListType){
+	var optionDeletePg = function(obj,count_program){
+        var num = obj.parentNode.parentNode.children[0].innerHTML;
+        if(fileCountData[count_program] == undefined) fileCountData[count_program] = [1]
+        var index = fileCountData[count_program].indexOf(num)
+        if (index>-1)
+            fileCountData[count_program].splice(index,1)
+        var optionListType = document.getElementById("optionListSelectPg_" + count_program)
 		var obj = obj.parentNode.parentNode;
 		if(optionListType.children.length > 2){
 			optionListType.removeChild(obj);
@@ -852,7 +898,7 @@
 
             divEditor.setAttribute('id',pgEditorId);
             divEditor.className = 'white_content_question';
-            divEditor.innerHTML = '<div class="div_title_attr_question"></div> <div class="container" style="margin-top: 20px;text-align: left;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目标题：</p> <textarea id="'+program_title+'" cols="50" rows="8" style="width: 700px; height: 100px;"></textarea> </div> <div class="container" style="margin-top: 20px;width: 100%"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目内容：</p> <textarea id="'+program_description+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输入格式：</p> <textarea id="'+program_input+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输出格式：</p> <textarea id="'+program_output+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输入样例：</p> <textarea id="'+program_sample_input+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输出样例：</p> <textarea id="'+program_sample_output+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align:left;font-size:16px;padding-bottom: 10px;">提示：</p> <textarea id="'+program_hint+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;text-align: left;"><span style="font-weight: bold;text-align: left;font-size:15px;padding-bottom: 10px;">内存限制：</span><input type="text" style="line-height: 20px;width: 50px;text-align: center;">&nbsp;<span style="text-align: left;font-size:13px;padding-bottom: 10px;">MB</span>      </div> <div class="container" style="margin-top: 20px;text-align: left;"><span style="font-weight: bold;text-align: left;font-size:15px;padding-bottom: 10px;">时间限制：</span><input type="text" style="line-height: 20px;width: 50px;text-align: center;">&nbsp;<span style="text-align: left;font-size:13px;padding-bottom: 10px;">秒</span></div><div class="container" style="margin-top: 20px;"> <div> <div style="margin-top: 15px; text-align: left;font-size: 15px;"> <span> <b>题目分数：</b> <select onchange="titleFraction(this,'+h1Id+')" style="width: 52px;padding-left: 5px;"> <option value="0.5" selected="selected">0.5</option> <option value="1">1</option> <option value="1.5">1.5</option> <option value="2">2</option> <option value="2.5">2.5</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> </select> </span> </div> </div> </div> <div style="clear: both;"></div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输入/输出数据：</p> <div style="clear: both; width: 100%;"> <div class="selScrrol" style="text-align: center;"> <table class="tableoption" cellspacing="0" cellpadding="0" width="98%"> <tbody id="optionListSelectPg"> <tr> <td style="width: 410px; padding: 3px 5px;"><span><a title="第几组数据" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">组号<i class="design-icon design-ctext"></i></a></span></td> <td style="width: 410px; padding: 3px 5px;"><span><a title="输入数据" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">输入数据<i class="design-icon design-ctext"></i></a></span></td> <td style="width: 410px; padding: 3px 5px;"><span><a title="输出数据" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">输出数据<i class="design-icon design-ctext"></i></a></span></td> <td style="width: 410px; padding: 3px 5px;"><span><a title="操作" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">操作<i class="design-icon design-ctext"></i></a></span></td> </tr> <tr> <td style="padding-left: 15px;">1</td> <td ><input type="file"></td> <td ><input type="file"></td> <td style="width: 410px;"> <img  title="添加一组数据" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;" onclick="optionInsertPg(this,optionListSelectPg)"> <img  title="删除当前这一组数据(至少保留一组数据)" src="./img/减号.png" style="margin-left: 1px;cursor: pointer;" onclick="optionDeletePg(this,optionListSelectPg)"> </td> </tr> </tbody> </table> </div> </div> </div> <div style="margin-top: 36px;"> <input onclick="hid_editor_program('+pgEditorId+','+div1Id+','+count_program+')" id="'+program_complete+'" type="button"value="完成编辑" class="submitbutton" style="width: 92%;"> </div> <div class="div_title_attr_question"></div>'; 
+            divEditor.innerHTML = '<div class="div_title_attr_question"></div> <div class="container" style="margin-top: 20px;text-align: left;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目标题：</p> <textarea id="'+program_title+'" cols="50" rows="8" style="width: 700px; height: 100px;"></textarea> </div> <div class="container" style="margin-top: 20px;width: 100%"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">题目内容：</p> <textarea id="'+program_description+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输入格式：</p> <textarea id="'+program_input+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输出格式：</p> <textarea id="'+program_output+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输入样例：</p> <textarea id="'+program_sample_input+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输出样例：</p> <textarea id="'+program_sample_output+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align:left;font-size:16px;padding-bottom: 10px;">提示：</p> <textarea id="'+program_hint+'" cols="100" rows="8" style="width: 700px; height: 200px; visibility: hidden;"></textarea> </div> <div class="container" style="margin-top: 20px;text-align: left;"><span style="font-weight: bold;text-align: left;font-size:15px;padding-bottom: 10px;">内存限制：</span><input type="text" style="line-height: 20px;width: 50px;text-align: center;">&nbsp;<span style="text-align: left;font-size:13px;padding-bottom: 10px;">MB</span>      </div> <div class="container" style="margin-top: 20px;text-align: left;"><span style="font-weight: bold;text-align: left;font-size:15px;padding-bottom: 10px;">时间限制：</span><input type="text" style="line-height: 20px;width: 50px;text-align: center;">&nbsp;<span style="text-align: left;font-size:13px;padding-bottom: 10px;">秒</span></div><div class="container" style="margin-top: 20px;"> <div> <div style="margin-top: 15px; text-align: left;font-size: 15px;"> <span> <b>题目分数：</b> <select onchange="titleFraction(this,'+h1Id+')" style="width: 52px;padding-left: 5px;"> <option value="0.5" selected="selected">0.5</option> <option value="1">1</option> <option value="1.5">1.5</option> <option value="2">2</option> <option value="2.5">2.5</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> </select> </span> </div> </div> </div> <div style="clear: both;"></div> <div class="container" style="margin-top: 20px;"> <p style="font-weight: bold;text-align: left;font-size:16px;padding-bottom: 10px;">输入/输出数据：</p> <div style="clear: both; width: 100%;"> <div class="selScrrol" style="text-align: center;"> <table class="tableoption" cellspacing="0" cellpadding="0" width="98%"> <tbody id="optionListSelectPg_' + count_program + '"> <tr> <td style="width: 410px; padding: 3px 5px;"><span><a title="第几组数据" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">组号<i class="design-icon design-ctext"></i></a></span></td> <td style="width: 410px; padding: 3px 5px;"><span><a title="输入数据" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">输入数据<i class="design-icon design-ctext"></i></a></span></td> <td style="width: 410px; padding: 3px 5px;"><span><a title="输出数据" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">输出数据<i class="design-icon design-ctext"></i></a></span></td> <td style="width: 410px; padding: 3px 5px;"><span><a title="操作" href="javascript:;" style="color: rgb(34, 34, 34); margin-left: 7px; text-decoration: none;">操作<i class="design-icon design-ctext"></i></a></span></td> </tr> <tr> <td style="padding-left: 15px;">1</td> <td ><input type="file" onchange="InputOrOutputFileChange(this,' + count_program + ',1,1)"></td> <td ><input type="file" onchange="InputOrOutputFileChange(this,' + count_program + ',1,2)"></td> <td style="width: 410px;"> <img  title="添加一组数据" src="./img/加号.png" style="cursor: pointer; margin-left: 3px;" onclick="optionInsertPg(this,' +  count_program + ')"> <img  title="删除当前这一组数据(至少保留一组数据)" src="./img/减号.png" style="margin-left: 1px;cursor: pointer;" onclick="optionDeletePg(this,' + count_program +')"> </td> </tr> </tbody> </table> </div> </div> </div> <div style="margin-top: 36px;"> <input onclick="hid_editor_program('+pgEditorId+','+div1Id+','+count_program+')" id="'+program_complete+'" type="button"value="完成编辑" class="submitbutton" style="width: 92%;"> </div> <div class="div_title_attr_question"></div>';
             div1.appendChild(label);
             div1.appendChild(h1);
             div1.appendChild(div2);
@@ -1042,7 +1088,7 @@
 		} 
 
         var submitPaper = function(){
-            if(window.confirm('你确定要取消交易吗？')){
+            if(window.confirm('你确定要提交试卷吗？')){
             
             var selectList = new Array;
             var i=1;
@@ -1168,6 +1214,7 @@
             while(i <= count_program){
                 if (programList[i]) {
                     programJson[ii] = { //编程题对象
+
                         "problem": {  
                             "description": programList[i][2],  //编程题描述
                             "sampleInput": programList[i][5],  //样例输入
@@ -1181,7 +1228,8 @@
                             "pos": parseInt(programList[i][0]), //这一题在试卷中 是第几题
                             "hint": programList[i][7],  //提示
                             "memoryLimit": parseInt(programList[i][8]),  //内存限制
-                            "sampleOutput": programList[i][6] //样例输出
+                            "sampleOutput": programList[i][6], //样例输出
+                            "fileMap": fileUrlData[i]
                         },
                         "solution": null,
                     };
@@ -1359,9 +1407,8 @@
                 contentType: "application/json; charset=utf-8",  //设置头
                 data: JSON.stringify(submitTitle),  //序列化
                 url: "Teacher/addNewpaper",
-                dataType: "text",
-                success: function (da) {  
-                var dt = JSON.parse(da);
+                dataType: "json",
+                success: function (dt) {
                 if(dt.success > 0){
                     alert(dt.msg);
                 }else{

@@ -4,14 +4,7 @@
  * @description 简单题目类-用于出题、做题
  * */
 package com.code.model;
-
 import java.util.List;
-
-/**
- * ��װһ��ѡ�������Ŀ�𰸵�����
- * @author Administrator
- *
- */
 public class OneSimproblem {
 	
 	private int simproblemId;  //ID simproblem里面有 可以不管
@@ -19,8 +12,7 @@ public class OneSimproblem {
 	private List<Options> option; //选项信息 
 	private Simsolution simsolution; //作答情况
  	private List<Answer> answer; //答案
-	
-	
+
 	public List<Options> getOption() {
 		return option;
 	}

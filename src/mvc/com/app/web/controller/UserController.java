@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.app.tools.PathHelper;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -451,7 +452,7 @@ public class UserController {
 	public void fileUpload(HttpServletRequest request, HttpServletResponse response) {
 		System.out.println("file upload!");
 		// 文件保存目录路径
-		String savePath = request.getServletContext().getRealPath("/") + "upload/";
+		String savePath = PathHelper.getNormativePath(request,"upload/");
 
 		// 文件保存目录URL
 		String saveUrl = request.getContextPath() + "/upload/";

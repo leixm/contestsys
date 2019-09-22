@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>  
+<?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"  
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
        xmlns:context="http://www.springframework.org/schema/context"  
@@ -30,11 +30,12 @@
     <!-- org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler，  
     它会像一个检查员，对进入DispatcherServlet的URL进行筛查，如果发现是静态资源的请求，  
     就将该请求转由Web应用服务器默认的Servlet处理，如果不是静态资源的请求，才由DispatcherServlet继续处理。 -->  
-    <mvc:default-servlet-handler/>  
+    <mvc:default-servlet-handler/>
+
     <!-- 指定要扫描的包的位置 -->  
     <context:component-scan base-package="com" />  
     <!-- 对静态资源文件的访问,因为Spring MVC会拦截所有请求,导致jsp页面中对js和CSS的引用也被拦截,配置后可以把对资源的请求交给项目的  
-    默认拦截器而不是Spring MVC-->  
+    默认拦截器而不是Spring MVC-->
 
 
 

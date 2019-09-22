@@ -30,7 +30,7 @@ public class RandomString {
 		for(int i=0;i<len;i++)
 		{
 			int index = rd.nextInt(s.length());
-			str+=s.charAt(index);
+			str += s.charAt(index);
 		}
 		return str;
 	}
