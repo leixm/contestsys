@@ -125,6 +125,25 @@ public class StudentServiceImpl implements StudentService{
 		System.out.println("stuInfo----"+stuId+"---"+stuName+"---"+stuEmail+"---"+newPwd);
 		return userDao.updateStuInfoByStuId(stuId, stuName, stuEmail, newPwd);
 	}
+	
+	/**
+	 * 根据条件查询学生个人的考试列表
+	 * @param stuId	用户Id	
+	 * @param keyword	搜索条件
+	 * @return
+	 */
+	@Override
+	public List<Map<String, Object>> selOwnContest(String stuId, String keyword,String pageSize,String pageNumber) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
+		//分页所需相关参数的计算
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
+		resultList = contestStatusDao.selOwnContestBykeyword(stuId, keyword); //根据参数查询学生考试等字段，如果参数全部为空自动查询全部
+		return resultList;
+	}
 
 
 }

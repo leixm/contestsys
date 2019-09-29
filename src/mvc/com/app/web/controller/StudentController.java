@@ -26,7 +26,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -211,7 +214,7 @@ public class StudentController {
 	
 	}
    
-    /**
+    /**zzs
 	 * 根据搜索条件模糊查询出学生成绩表
 	 * @param request
 	 * @param response
@@ -272,7 +275,7 @@ public class StudentController {
 		return JSONObject.fromObject(layResp).toString();
 	}
 
-	 /**
+	 /**zzs
 		 * 根据条件更新学生用户的个人信息
 		 * @param request
 		 * @param response
@@ -299,7 +302,7 @@ public class StudentController {
 		return JSONObject.fromObject(layResp).toString();
 	}
 	
-	/**
+	/**zzs
 	 * 校验前端填写的旧密码是否和session保存 的一致
 	 * @param request
 	 * @param response
@@ -321,5 +324,76 @@ public class StudentController {
 		return "-1"; 
 	}
 	
+	/**zzs
+	 * 根据条件查询学生个人的考试列表
+	 * @param stuId	用户Id	
+	 * @param keyword	搜索条件
+	 * @return
+	 */
+	@RequestMapping(value="Student/selOwnContest",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String selOwnContest(HttpServletRequest request,HttpServletResponse response) {
+		try {
+			//获取user对象
+			HttpSession session = request.getSession(); 
+			User user = (User)session.getAttribute("user");		
+			String stuId = user.getUserId();
+			System.out.println("userId:----"+user.getUserId());
+			
+			LayResponse layResp = new LayResponse();//layui参数返回格式
+			layResp.setCode(1); //默认设置为1
+			
+			String keyword = request.getParameter("keyword"); 
+			System.out.println(keyword);
+			//判断是否非空后再来去掉前后空格，防止空指针
+			if(keyword!=null||"".equals(keyword)) {
+				keyword = keyword.trim();
+			}
+			
+			//获取分页所需相关数据
+			String pageSize = request.getParameter("limit"); //一页多少个
+			String pageNumber = request.getParameter("page");	//第几页
+			List<Map<String,Object>> resultList = studentService.selOwnContest(stuId, keyword, pageSize, pageNumber);
+			
+			//计算考试的状态：未开始，正在进行，已结束
+			String cstatus = "";
+			if(resultList.size()>0) {
+				for (Map<String, Object> map : resultList) {
+					Date nowDate = new Date();
+					String start = map.get("starttime").toString();
+					String end = map.get("endtime").toString();
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					Date startDate = sdf.parse(start);
+					Date endDate = sdf.parse(end);
+					if(nowDate.getTime()<startDate.getTime()) {
+						cstatus = "未开始";
+					}else if(endDate.getTime() >= nowDate.getTime() && nowDate.getTime() >= startDate.getTime()) {
+						cstatus = "正在进行";
+					}else {
+						cstatus = "已结束";
+					}
+					map.put("cstatus", cstatus);
+				}
+			}
+			
+			//获取分页插件的数据只能通过PageInfo来获取
+			PageInfo pInfo = new PageInfo(resultList);
+			Long total = pInfo.getTotal();
+			
+			if(resultList.size() > 0) {
+				//返回规定格式给前端
+				layResp.setCode(0);
+				layResp.setCount(total.intValue());
+				layResp.setData(resultList);
+				
+				return JSONObject.fromObject(layResp).toString();
+			}
+			layResp.setMsg("无数据");
+			return JSONObject.fromObject(layResp).toString();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
 

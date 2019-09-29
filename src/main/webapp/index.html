@@ -34,24 +34,22 @@
             </div>
             <ul class="layui-nav left fast-add" lay-filter="">
                 <li class="layui-nav-item">
-                    <a href="javascript:;">more</a>
+                    <a href="javascript:;">更多</a>
                     <dl class="layui-nav-child">
                         <!-- 二级菜单 -->
                         <dd>
-                            <a onclick="xadmin.open('最大化','http://www.baidu.com','','',true)">
-                                <i class="iconfont">&#xe6a2;</i>弹出最大化</a></dd>
+                        	<a onclick="xadmin.add_tab('返回主页','welcome.html')">
+                                <i class="iconfont">&#xe6b8;</i>返回主页</a></dd>
+                            
                         <dd>
-                            <a onclick="xadmin.open('弹出自动宽高','http://www.baidu.com')">
-                                <i class="iconfont">&#xe6a8;</i>弹出自动宽高</a></dd>
+                       		<a onclick="xadmin.add_tab('修改个人资料','teacherInfo.jsp',true)">
+                                <i class="iconfont">&#xe6b8;</i>修改个人资料</a></dd>
                         <dd>
-                            <a onclick="xadmin.open('弹出指定宽高','http://www.baidu.com',500,300)">
-                                <i class="iconfont">&#xe6a8;</i>弹出指定宽高</a></dd>
+                            <a onclick="xadmin.open('惠州学院官网','http://ehall.hzu.edu.cn',500,300)">
+                                <i class="iconfont">&#xe6a8;</i>惠州学院网上办事大厅</a></dd>
                         <dd>
-                            <a onclick="xadmin.add_tab('在tab打开','student.html')">
-                                <i class="iconfont">&#xe6b8;</i>在tab打开</a></dd>
-                        <dd>
-                            <a onclick="xadmin.add_tab('在tab打开刷新','student.html',true)">
-                                <i class="iconfont">&#xe6b8;</i>在tab打开刷新</a></dd>
+                            <a onclick="xadmin.open('百度一下','http://www.baidu.com')">
+                                <i class="iconfont">&#xe6a8;</i>百度一下</a></dd>
                     </dl> 
                 </li>
             </ul>
@@ -61,13 +59,14 @@
                     <dl class="layui-nav-child">
                         <!-- 二级菜单 -->
                         <dd>
-                            <a href="./login.html" >切换账号</a></dd>
+                            <a onclick="outlogin();" >切换账号</a></dd>
                         <dd>
-                            <a href="./login.html">退出</a></dd>
+                            <a	onclick="outlogin();">退出登录</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item to-index">
-                    <a href="./index.html">前台首页</a></li>
+                    <a onclick="xadmin.add_tab('我的桌面','welcome.html')" >返回桌面</li>
+                    <a href="javascript:;">
             </ul>
         </div>
         <!-- 顶部结束 -->
@@ -77,11 +76,16 @@
             <div id="side-nav">
                 <ul id="nav">
                     <li>
-                        <a href="javascript:;">
                             <i class="iconfont left-nav-li" lay-tips="用户管理">&#xe6b8;</i>
                             <cite>用户管理</cite>
                             <i class="iconfont nav_right">&#xe697;</i></a>
                         <ul class="sub-menu">
+                            <li>
+							    <a onclick="xadmin.add_tab('个人资料','teacherInfo.jsp')"> 
+							        <i class="iconfont">&#xe6a7;</i>
+							        <cite>个人资料</cite></a>
+							</li>
+                            
                             <li>
                                 <a onclick="xadmin.add_tab('学生管理','student.html')">
                                     <i class="iconfont">&#xe6a7;</i>
@@ -141,7 +145,7 @@
                             </li>
                             
                             <li>  
-                                <a onclick="xadmin.add_tab('试卷管理','addnewpaper.html')">
+                                <a onclick="xadmin.add_tab('组卷管理','addnewpaper.html')">
                                     <i class="iconfont">&#xe6a7;</i> 
                                     <cite>组卷管理</cite></a>
                             </li>
@@ -202,11 +206,27 @@
 								async: false,
 								dataType: 'json', 
 								success: function(data) {
-									$("#username").html(data.realname);
+									if(data.level<1) {	//判断有误权限进来此页面
+										alert("无登录权限");
+										window.location.href = "./login.html";
+									}else {
+										if(data.realname!=null&&data.realname!="") {
+										$("#username").html("欢迎，"+data.realname);
+										}else {
+											$("#username").html("请先登录系统");
+										}
+									}
 								}
 							})
 		      }
-        		
+        	
+        	function outlogin() {
+        		layer.confirm('是否退出登录?', function(index) {
+					window.location.href = "./login.html";
+				 	
+					layer.close(index);
+				})
+        	}
         </script>
         
         <!-- 中部结束 -->

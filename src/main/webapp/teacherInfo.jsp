@@ -52,7 +52,7 @@
 				</div>
 				<!-- 提示：如果你不想用form，你可以换成div等任何一个普通元素 -->
 				<div class="layui-form-item">
-					<label class="layui-form-label" >学号</label>
+					<label class="layui-form-label" >工号</label>
 					<div class="layui-input-block" style="width: 150px;">
 						<input type="text" name="stuid" style="color:#a7a7a7" placeholder="请登录系统" autocomplete="off"
 							class="layui-input" " value="${user.userId}" disabled>
@@ -65,13 +65,13 @@
 							type="radio" name="sex" value="1" title="女" checked>
 					</div>
 				</div> -->
-				<div class="layui-form-item" >
+				<!-- <div class="layui-form-item" >
 					<label class="layui-form-label">班级</label>
 					<div class="layui-input-block" style="width:120px; color:#a7a7a7">
 						<input type="text" name="classname" placeholder="请登录系统" autocomplete="off"
 							class="layui-input" id="classname" disabled>
 					</div>
-				</div>
+				</div> -->
 				
 				<div class="layui-form-item">
 					<label class="layui-form-label">姓名</label>
@@ -251,7 +251,7 @@
 		});
 		
 	</script>
-	 <script type="text/javascript">
+	 <!-- <script type="text/javascript">
        	/*获取登录的用户信息 */
 	      window.onload = function() {
 	     	var $ = layui.$
@@ -267,7 +267,7 @@
 					}
 				})
 	      }
-    </script>
+    </script> -->
 	
 	<script>
 		layui.use('util', function() {

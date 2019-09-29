@@ -248,5 +248,20 @@
   		 UPDATE contest_status SET score = #{score} WHERE contest_status_id = #{cstatusid}
   </update>
   
+  <select id="selOwnContestBykeyword" resultType="map">
+  		select  b.title as title, date_format(b.startTime,'%Y-%m-%d %H:%i') as starttime,date_format(b.endTime,'%Y-%m-%d %H:%i') as endtime,u.realName as teacher
+		from contest_status as a  
+		left join contest as b on a.contest_id = b.contest_id
+		left join user as u on b.teacher = u.user_id
+		<where>
+			<if test="stuid!=null and stuid!=''">
+				and a.student like "%"#{stuid}"%"
+			</if >
+			<if test="keyword!=null and keyword!=''">
+				and	(b.title like "%"#{keyword}"%" or u.realName like "%"#{keyword}"%")
+			</if>
+		</where>
+		
+  </select>
   
 </mapper>
