@@ -40,6 +40,11 @@
 org.springframework.web.util.WebAppRootListener
 </listener-class>
   </listener>
+
+  <listener>
+    <listener-class>com.lxm.MyListener</listener-class>
+  </listener>
+
   <filter-mapping>
     <filter-name>encodingFilter</filter-name>
     <url-pattern>/*</url-pattern>
