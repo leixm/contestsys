@@ -28,30 +28,28 @@
         <!-- 顶部开始 -->
         <div class="container">
             <div class="logo"> 
-                <a href="./index.html">学生在线考试系统</a></div>
+                <a href="./studentmodule_index.html">学生在线考试系统</a></div>
             <div class="left_open">
                 <a><i title="展开左侧栏" class="iconfont">&#xe699;</i></a>
             </div>
             <ul class="layui-nav left fast-add" lay-filter="">
                 <li class="layui-nav-item">
-                    <a href="javascript:;">more</a>
+                    <a href="javascript:;">更多</a>
                     <dl class="layui-nav-child">
                         <!-- 二级菜单 -->
                         <dd>
-                            <a onclick="xadmin.open('最大化','http://www.baidu.com','','',true)">
-                                <i class="iconfont">&#xe6a2;</i>弹出最大化</a></dd>
+                        	<a onclick="xadmin.add_tab('返回主页','studentmodule_welcome.html')">
+                                <i class="iconfont">&#xe6b8;</i>返回主页</a></dd>
+                            
                         <dd>
-                            <a onclick="xadmin.open('弹出自动宽高','http://www.baidu.com')">
-                                <i class="iconfont">&#xe6a8;</i>弹出自动宽高</a></dd>
+                       		<a onclick="xadmin.add_tab('修改个人资料','studentmodule_stuInfo.jsp',true)">
+                                <i class="iconfont">&#xe6b8;</i>修改个人资料</a></dd>
                         <dd>
-                            <a onclick="xadmin.open('弹出指定宽高','http://www.baidu.com',500,300)">
-                                <i class="iconfont">&#xe6a8;</i>弹出指定宽高</a></dd>
+                            <a onclick="xadmin.open('惠州学院官网','http://ehall.hzu.edu.cn',500,300)">
+                                <i class="iconfont">&#xe6a8;</i>惠州学院网上办事大厅</a></dd>
                         <dd>
-                            <a onclick="xadmin.add_tab('在tab打开','student.html')">
-                                <i class="iconfont">&#xe6b8;</i>在tab打开</a></dd>
-                        <dd>
-                            <a onclick="xadmin.add_tab('在tab打开刷新','student.html',true)">
-                                <i class="iconfont">&#xe6b8;</i>在tab打开刷新</a></dd>
+                            <a onclick="xadmin.open('百度一下','http://www.baidu.com')">
+                                <i class="iconfont">&#xe6a8;</i>百度一下</a></dd>
                     </dl> 
                 </li>
             </ul>
@@ -61,13 +59,14 @@
                     <dl class="layui-nav-child">
                         <!-- 二级菜单 -->
                         <dd>
-                            <a href="./login.html">切换账号</a></dd>
+                            <a onclick="outlogin();">切换账号</a></dd>
                         <dd>
-                            <a href="./login.html">退出</a></dd>
+                            <a onclick="outlogin();">退出登录</a></dd>
                     </dl>
                 </li>
-                <li class="layui-nav-item to-index">
-                    <a href="./welcome.html">前台首页</a></li>
+                 <li class="layui-nav-item to-index">
+                    <a onclick="xadmin.add_tab('我的桌面','studentmodule_welcome.html')" >返回桌面</li>
+                    <a href="javascript:;">
             </ul>
         </div>
         <!-- 顶部结束 -->
@@ -77,7 +76,6 @@
             <div id="side-nav">
                 <ul id="nav">
                     <li>
-                        <a href="javascript:;">
                             <i class="iconfont left-nav-li" lay-tips="用户管理">&#xe6b8;</i>
                             <cite>用户管理</cite>
                             <i class="iconfont nav_right">&#xe697;</i></a>
@@ -117,7 +115,7 @@
                             <i class="iconfont nav_right">&#xe697;</i></a>
                         <ul class="sub-menu">
                             <li>
-                                <a onclick="xadmin.add_tab('考试列表','class.html')">
+                                <a onclick="xadmin.add_tab('考试列表','studentmodule_contestInfo.html')">
                                     <i class="iconfont">&#xe6a7;</i>
                                     <cite>考试列表</cite></a>
                             </li>
@@ -164,7 +162,7 @@
                 </div>
                 <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">
-                        <iframe src='./welcome.html' frameborder="0" scrolling="yes" class="x-iframe"></iframe>
+                        <iframe src='./studentmodule_welcome.html' frameborder="0" scrolling="yes" class="x-iframe"></iframe>
                     </div>
                 </div>
                 <div id="tab_show"></div>
@@ -183,10 +181,21 @@
 								dataType: 'json', 
 								async: false,
 								success: function(data) {
-									$("#username").html(data.realname);
+									if(data.realname!=null&&data.realname!="") {
+										$("#username").html("欢迎，"+data.realname);
+									}else {
+										$("#username").html("请先登录系统");
+									}
 								}
 							})
 		      }
+        		
+        	 function outlogin() {
+        		layer.confirm('是否退出登录?', function(index) {
+					window.location.href = "./login.html";
+					layer.close(index);
+				})
+        	}	
         		
         </script>
         <!-- 中部结束 -->

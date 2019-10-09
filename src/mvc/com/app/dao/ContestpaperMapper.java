@@ -44,5 +44,5 @@ public interface ContestpaperMapper {
     
     @Select("select  count(*) from contestpaper")
     int selPaperCount();
-
+    
 }

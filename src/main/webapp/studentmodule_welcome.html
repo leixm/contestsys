@@ -34,7 +34,7 @@
 	                height: 416px;
 	                width: 90%;
 	                cursor:pointer; 
-	                background-color: #4baea0;
+	                background-color: #6bc5d2;
 	                border-radius:40px;
 	                margin:auto;
 	                margin-top: 18px;
@@ -49,7 +49,7 @@
 				            
 				.cardBox:hover {
 					transition: all 0.2s ease-in-out 0s;
-			        background-color:#4baea0;
+			        background-color:#6bc5d2;
 			    }
 			    
 				.headerBox:hover {
@@ -86,27 +86,27 @@
     	</head>
     	<body>
     		<div class="bigBox">
-	          <div class="cardBox" >
+	           <div class="cardBox" >
 	               <div class="headerBox" onclick="window.open('contestpaper.html','_self')" >
-	               		<p>试卷管理</p>
+	               		<p>题库总览</p>
 	               </div>
 	           </div>
 	           
 	           <div class="cardBox" >
-	               <div class="headerBox"  onclick="window.open('contest.html','_self')" >
-	                   <p>考试管理</p>
+	               <div class="headerBox"  onclick="window.open('studentmodule_contestInfo.html','_self')" >
+	                   <p>考试列表</p>
 	               </div>
 	           </div>
 	           
-	           <div class="cardBox" onclick="window.open('addnewpaper.html','_self')" >
+	           <div class="cardBox" onclick="window.open('studentmodule_grade.html','_self')" >
 	               <div class="headerBox" >
-	                   <p>组卷管理</p>
+	                   <p>成绩概况</p>
 	               </div>
 	           </div>
 	           
 	           <div class="cardBox" onclick="window.open('grade.html','_self')" >
 	               <div class="headerBox" >
-	                   <p>成绩管理</p>
+	                   <p>成绩统计</p>
 	               </div>
 	           </div>
 	      	</div>
@@ -142,7 +142,7 @@
     			
     			//表盘(颜色)
     			cxt.lineWidth=10;
-    			cxt.strokeStyle="#b6e6bd";
+    			cxt.strokeStyle="#6bc5d2";
     			cxt.beginPath();
     			cxt.arc(250,250,150,0,360,false);
     			cxt.closePath();

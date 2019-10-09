@@ -566,10 +566,10 @@ public class UserController {
 				User user = (User)session.getAttribute("user");	
 				String className = "";
 				loginUser logUser = new loginUser();
-				if(user!=null) {
-					com.code.model.Class classModel = classService.GetClass(user.getClassId().toString());
-					className = classModel.getName();
-					if(user.getLevel()==0) {
+				if(user!=null) { 
+					if(user.getLevel()==0) {	//判断是学生才需要加班级
+						com.code.model.Class classModel = classService.GetClass(user.getClassId().toString());
+						className = classModel.getName();
 						logUser.setClassId(user.getClassId());
 						logUser.setClassName(className);
 					}

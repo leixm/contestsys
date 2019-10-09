@@ -57,4 +57,11 @@ public interface StudentService {
 	  */
 	public int updateStuInfo(String stuId,String stuName,String stuEmail,String newPwd);
 	
+	/**
+	 * 根据条件查询学生个人的考试列表
+	 * @param stuId	用户Id	
+	 * @param keyword	搜索条件
+	 * @return
+	 */
+	public List<Map<String,Object>> selOwnContest(String stuId, String keyword, String pageSize, String pageNumber);
 }

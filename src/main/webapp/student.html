@@ -40,6 +40,9 @@
 					<a> <cite>导航元素</cite></a>
 				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
 				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
+				 
+				 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "window.open('welcome.html','_self')"
+				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
 			</div>
 			<div class="layui-fluid">
 				<div class="layui-row layui-col-space15">
@@ -130,7 +133,7 @@
 							}, {
 								field: 'realName',
 								title: '姓名',
-								width: 180,
+								width: 140,
 								sort: true
 							}, {
 								field: 'email',
@@ -145,7 +148,7 @@
 							}, {
 								field: 'registerTime',
 								title: '注册时间',
-								width: 260,
+								width: 200,
 								sort: true
 							}, {
 								title: '操作',
@@ -156,8 +159,8 @@
 						],
 						url: 'User/GetAllStudents',
 						method: 'post',
-						limits: [10, 20, 30, 50, 100],
-						limit: 10, //默认采用10
+						limits: [15, 20, 30, 50, 100],
+						limit: 15, //默认采用10
 						loading: true,
 						page: true
 					});

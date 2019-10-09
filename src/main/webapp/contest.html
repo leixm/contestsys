@@ -40,6 +40,8 @@
 					<a> <cite>导航元素</cite></a>
 				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
 				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
+				 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "window.open('welcome.html','_self')"
+				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>			
 			</div>
 			<div class="layui-fluid">
 				<div class="layui-row layui-col-space15">
@@ -79,7 +81,7 @@
 						<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加考试</button>
 						
 						<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
-						<input name="id" class="layui-input" id="keyword" placeholder="id/试卷/负责人/考试名称">
+						<input name="id" class="layui-input" id="keyword" placeholder="id/试卷/负责人/考试名称" autocomplete="off">
 						</div>
 
 <div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
@@ -167,8 +169,8 @@
 						],
 						url: 'Contest/GetAllContest',
 						method: 'post',
-						limits: [10, 20, 30, 50, 100],
-						limit: 10, //默认采用10
+						limits: [15, 30, 50, 100],
+						limit: 15, //默认采用10
 						loading: true,
 						page: true
 					});
