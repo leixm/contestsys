@@ -264,4 +264,30 @@
 		
   </select>
   
+  <select id="selClassContestAVGbyKeyword" resultType="map">
+  		SELECT b.name as classname,c.title, ROUND(AVG(a.score),2) as average,
+  		ROUND(MAX(a.score),2) as maxscore,  ROUND(MIN(a.score),2) as minscore
+		FROM contest_status a 
+		LEFT JOIN user u on a.student = u.user_id 
+		LEFT JOIN class b on u.class_id=b.class_id
+		LEFT JOIN contest c on a.contest_id=c.contest_id
+		WHERE 1=1 
+		<if test="classname!=null and classname!=''">
+			and b.name in
+			<foreach collection="classname" item="cla" index="index" open="(" close=")" separator=",">
+				 #{cla}
+	        </foreach>
+		</if>
+		
+		<if test="contestname!=null and contestname!=''">
+			and c.title in
+			<foreach collection="contestname" item="item" index="index" open="(" close=")" separator=",">
+				 #{item}
+	        </foreach>
+		</if>
+		
+		GROUP BY b.class_id,c.contest_id
+		ORDER BY b.class_id
+  </select>
+  
 </mapper>

@@ -64,6 +64,8 @@ import com.code.model.UserExample;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
+import net.sf.json.JSONArray;
+
 @Service
 @Transactional
 public class TeacherServiceImpl implements TeacherService{
@@ -857,6 +859,39 @@ public class TeacherServiceImpl implements TeacherService{
 		int cStatusIdInt = Integer.parseInt(cStatusId);
 		//返回更新数据总条数
 		return contestStatusDao.updateScore(cStatusIdInt, scoreDecimal);
+	}
+
+	/**
+	 * 查询所有的班级对象
+	 * @return 所有的班级对象
+	 */
+	@Override
+	public List<Map<String, Object>> selAllClassObj() {
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		list = classDao.listAll();
+		return list;
+	}
+	
+	/**
+	 * 查询所有的班级对象
+	 * @return 所有的班级对象
+	 */
+	@Override
+	public List<Map<String, Object>> selAllContestObj() {
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		list = contestDao.listAll();
+		return list;
+	}
+
+	/**
+	 * 查询所有的班级的所有考试的平均分
+	 * @return 所有对象
+	 */
+	@Override
+	public List<Map<String, Object>> selClassContestAVG(List className, List contestName) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
+		resultList = contestStatusDao.selClassContestAVGbyKeyword(className, contestName);
+		return resultList;
 	}
 	
 }

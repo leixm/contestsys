@@ -118,4 +118,21 @@ public interface TeacherService {
 	 */
 	public int updateScore(String cStatusId,String score); 
 	
+	/**
+	 * 查询所有的班级对象
+	 * @return 所有的班级对象
+	 */
+	public List<Map<String,Object>> selAllClassObj(); 
+	
+	/**
+	 * 查询所有的考试对象
+	 * @return 所有的考试对象
+	 */
+	public List<Map<String,Object>> selAllContestObj(); 
+	
+	/**
+	 * 查询所有的班级的所有考试的平均分
+	 * @return 所有对象
+	 */
+	public List<Map<String,Object>> selClassContestAVG(List className,List contestName); 
 }
