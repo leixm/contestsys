@@ -12,11 +12,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.app.dao.AnswerMapper;
@@ -78,42 +80,132 @@ public class MyListener implements ServletContextListener{
 	    String path = e.getServletContext().getRealPath("");
 		
 		mythread = new MyThread();
+		SimsolutionMapper simsolutionDao = WebApplicationContextUtils.getWebApplicationContext(e.getServletContext()).getBean(SimsolutionMapper.class);
+		SimproblemMapper simproblemDao = WebApplicationContextUtils.getWebApplicationContext(e.getServletContext()).getBean(SimproblemMapper.class);
+		OptionsMapper optionDao = WebApplicationContextUtils.getWebApplicationContext(e.getServletContext()).getBean(OptionsMapper.class);
+		AnswerMapper answerDao = WebApplicationContextUtils.getWebApplicationContext(e.getServletContext()).getBean(AnswerMapper.class);
+		ContestStatusMapper contestStatusDao = WebApplicationContextUtils.getWebApplicationContext(e.getServletContext()).getBean(ContestStatusMapper.class);
+		SolutionMapper solutionDao = WebApplicationContextUtils.getWebApplicationContext(e.getServletContext()).getBean(SolutionMapper.class);
+		ProblemMapper problemDao = WebApplicationContextUtils.getWebApplicationContext(e.getServletContext()).getBean(ProblemMapper.class);
+		ContestMapper contestDao = WebApplicationContextUtils.getWebApplicationContext(e.getServletContext()).getBean(ContestMapper.class);
+		ContestpaperMapper contestpaperDao = WebApplicationContextUtils.getWebApplicationContext(e.getServletContext()).getBean(ContestpaperMapper.class);
+		UserMapper userDao = WebApplicationContextUtils.getWebApplicationContext(e.getServletContext()).getBean(UserMapper.class);
 
+		mythread.setSimsolutionDao(simsolutionDao);
+		mythread.setSimproblemDao(simproblemDao);
+		mythread.setOptionDao(optionDao);
+		mythread.setAnswerDao(answerDao);
+		mythread.setContestStatusDao(contestStatusDao);
+		mythread.setSolutionDao(solutionDao);
+		mythread.setProblemDao(problemDao);
+		mythread.setContestDao(contestDao);
+		mythread.setUserDao(userDao);
+		mythread.setContestpaperDao(contestpaperDao);
 		mythread.setPath(path);
 		mythread.start();
 	}
 } 
 
 class MyThread extends Thread{
-	
-	@Autowired
+
 	private SimsolutionMapper simsolutionDao;
-	
-	@Autowired
+
 	private SimproblemMapper simproblemDao;
-	
-    @Autowired
+
     private OptionsMapper optionDao;
-    
-    @Autowired
+
     private AnswerMapper answerDao;
-    
-    @Autowired
+
     private ContestStatusMapper contestStatusDao;
-    
-    @Autowired
+
     private SolutionMapper solutionDao;
-	
-    @Autowired
+
     private ProblemMapper problemDao;
-    
-    @Autowired
+
     private ContestMapper contestDao;
-    
-    @Autowired
-    private ContestpaperMapper contestpaperDao;
-    
-    @Autowired
+
+	public SimsolutionMapper getSimsolutionDao() {
+		return simsolutionDao;
+	}
+
+	public void setSimsolutionDao(SimsolutionMapper simsolutionDao) {
+		this.simsolutionDao = simsolutionDao;
+	}
+
+	public SimproblemMapper getSimproblemDao() {
+		return simproblemDao;
+	}
+
+	public void setSimproblemDao(SimproblemMapper simproblemDao) {
+		this.simproblemDao = simproblemDao;
+	}
+
+	public OptionsMapper getOptionDao() {
+		return optionDao;
+	}
+
+	public void setOptionDao(OptionsMapper optionDao) {
+		this.optionDao = optionDao;
+	}
+
+	public AnswerMapper getAnswerDao() {
+		return answerDao;
+	}
+
+	public void setAnswerDao(AnswerMapper answerDao) {
+		this.answerDao = answerDao;
+	}
+
+	public ContestStatusMapper getContestStatusDao() {
+		return contestStatusDao;
+	}
+
+	public void setContestStatusDao(ContestStatusMapper contestStatusDao) {
+		this.contestStatusDao = contestStatusDao;
+	}
+
+	public SolutionMapper getSolutionDao() {
+		return solutionDao;
+	}
+
+	public void setSolutionDao(SolutionMapper solutionDao) {
+		this.solutionDao = solutionDao;
+	}
+
+	public ProblemMapper getProblemDao() {
+		return problemDao;
+	}
+
+	public void setProblemDao(ProblemMapper problemDao) {
+		this.problemDao = problemDao;
+	}
+
+	public ContestMapper getContestDao() {
+		return contestDao;
+	}
+
+	public void setContestDao(ContestMapper contestDao) {
+		this.contestDao = contestDao;
+	}
+
+	public ContestpaperMapper getContestpaperDao() {
+		return contestpaperDao;
+	}
+
+	public void setContestpaperDao(ContestpaperMapper contestpaperDao) {
+		this.contestpaperDao = contestpaperDao;
+	}
+
+	public UserMapper getUserDao() {
+		return userDao;
+	}
+
+	public void setUserDao(UserMapper userDao) {
+		this.userDao = userDao;
+	}
+
+	private ContestpaperMapper contestpaperDao;
+
     private UserMapper userDao;
     
 	private String path;
@@ -142,7 +234,7 @@ class MyThread extends Thread{
 			SimsolutionExample simsolutionExample = new SimsolutionExample(); 
 			SimsolutionExample.Criteria simsolutionCriteria = simsolutionExample.createCriteria();
 			simsolutionCriteria.andStatusEqualTo(new Integer(0));
-			List<Simsolution> simsolutions = simsolutionDao.selectByExample(simsolutionExample);  //未批改的题目
+			List<Simsolution> simsolutions = simsolutionDao.selectByExampleWithBLOBs(simsolutionExample);  //未批改的题目
 			if(simsolutions.size()>0)
 			{
 				for(Simsolution simsolution : simsolutions)
@@ -153,7 +245,7 @@ class MyThread extends Thread{
 					AnswerExample answerExample = new AnswerExample();
 					AnswerExample.Criteria answerCriteria = answerExample.createCriteria();
 					answerCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());  //找到这题的答案
-					List<Answer> answers = answerDao.selectByExample(answerExample);
+					List<Answer> answers = answerDao.selectByExampleWithBLOBs(answerExample);
 					if(answers.size()>0){
 						BigDecimal bd = new BigDecimal(0);  //分数
 
@@ -182,7 +274,8 @@ class MyThread extends Thread{
 							}
 						}
 						else if(type==2){ //多选题
-							JSONArray arr = JSONArray.fromObject(simsolution.getAnswer());
+							String[] s = simsolution.getAnswer().split("§§§");
+							JSONArray arr = JSONArray.fromObject(s);
 						    boolean flag = true;
 						    for(int i=0;i<answers.size();i++)  //必须选对所有选项
 						    {
@@ -197,12 +290,13 @@ class MyThread extends Thread{
 						}
 						else if(type==4)  //填空题 对应的空必须等于正确答案
 						{
-							JSONArray arr = JSONArray.fromObject(simsolution.getAnswer());
+							String[] s = simsolution.getAnswer().split("§§§");
+							JSONArray arr = JSONArray.fromObject(s);
 							double count = 0;
 							for(int i=0;i<simproblem.getBlanks().intValue();i++)  //第i+1个空
 							{
 								for(int j=0;j<answers.size();j++){
-									if(answers.get(j).getPos().intValue()==i+1 && arr.get(i)!=null && answers.get(j).getContent().equals(arr.get(i))){
+									if(answers.get(j).getPos().intValue()==i && arr.get(i)!=null && answers.get(j).getContent().equals(arr.get(i))){
 										count++;  //答对一个空
 										break;
 									}

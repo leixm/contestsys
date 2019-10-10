@@ -36,7 +36,9 @@ public interface StudentService {
 	int insert(SolutionWithBLOBs record);
 	
 	int insert(Simsolution record);
-	
+
+	int updateContestStatus(ContestStatus record);
+
 	/**
 	 * 根据搜索条件模糊查询出学生成绩表
 	 * @param 1、班级名称

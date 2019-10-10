@@ -164,8 +164,62 @@ public class StudentController {
 		return model;
 		
 	}
-    
- 
+
+
+	/**
+	 * @author lxm
+	 * @param contestStatusId: 考试状态id
+	 * @description 跳转至考试页面
+	 * @return
+	 */
+	@RequestMapping(value = "contest.do", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public ModelAndView startContest(HttpServletRequest request, Integer contestStatusId) throws IOException {
+
+		HttpSession session = request.getSession();
+		ModelAndView model = new ModelAndView();
+
+		if(session.getAttribute("user") == null){
+			model.addObject("error", "请先登录后再操作");
+			model.setViewName("error");
+			return model;
+		}
+		User user = (User)session.getAttribute("user");
+
+		ContestStatus contestStatus = studentService.selectContestStatusByPrimaryKey(contestStatusId);
+		Contest contest = studentService.selectContestByPrimaryKey(contestStatus.getContestId());
+		Contestpaper contestPaper = studentService.selectContestpaperByPrimaryKey(contest.getPaperId());
+
+		if(contestPaper != null){
+
+			//获取指定试卷的所有编程题
+			int paper_id = contestPaper.getPaperId();
+			List<OneProblem> ProblemList = studentService.getProblemAndSolutionByPaperId(paper_id);
+
+			//获取指定试卷的所有选择题和选项、填空题
+			List<OneSimproblem> SimproblemList = studentService.getSimproblemAndOptionByPaperId(paper_id);
+			//封装一张试题
+			OnePaper onePaper = new OnePaper();
+
+			onePaper.setContestpaper(contestPaper);
+			onePaper.setProb(ProblemList);
+			onePaper.setSimp(SimproblemList);
+			System.out.println(JSONObject.fromObject(onePaper).toString());
+			model.addObject("paper",JSONObject.fromObject(onePaper).toString());
+
+			Date start_time = contest.getStarttime();
+			Date end_time = contest.getEndtime();
+			long time_span = end_time.getTime() - start_time.getTime();
+			model.addObject("student", user);
+			model.addObject("contestStatusId", contestStatusId);
+			model.addObject("contest", contestPaper);
+			model.addObject("leftTime", time_span/1000);
+
+			model.setViewName("contestpage.jsp");
+		}
+		return model;
+
+	}
 	   
     	  
     /**
@@ -176,7 +230,7 @@ public class StudentController {
 	 */
     @RequestMapping(value = "submit.do", consumes = "application/json" ,produces = "text/html;charset=UTF-8", method = {RequestMethod.POST })
     @ResponseBody
-	public String examSubmit(@RequestBody String paper,HttpServletResponse response) throws Exception{
+	public String examSubmit(@RequestBody String paper,HttpServletRequest request,HttpServletResponse response) throws Exception{
 	      
     	System.out.println(paper);
     	Map classMap = new HashMap(); 
@@ -185,19 +239,17 @@ public class StudentController {
 		classMap.put("answer", Answer.class);
 		classMap.put("option", Options.class);
 		OnePaper onePaper = (OnePaper) JSONObject.toBean(JSONObject.fromObject(paper), OnePaper.class, classMap);
-	   	//OnePaper onePaper = oneContest.getPaper();
-    	//OnePaper onePaper = (OnePaper)request.getAttribute("onePaper");
-    	//System.out.println(onePaper);
 	   		
 	   	List<OneProblem> oneProblems = onePaper.getProb(); 
 	   
    		List<OneSimproblem> oneSimproblems = onePaper.getSimp();
-	   		
+
 	   	//添加编程题作答结果
   		if(oneProblems.size()>0){
    			for(OneProblem oneProblem : oneProblems){
    				SolutionWithBLOBs solution = oneProblem.getSolution();
    				solution.setStatus(new Integer(0));
+				solution.setResult((short)0);
    				studentService.insert(solution);
    			}
    		}	   		
@@ -209,7 +261,14 @@ public class StudentController {
 	   			simsolution.setStatus(new Integer(0)); 
 	   			studentService.insert(simsolution); 
    			} 
-   		} 
+   		}
+
+		Integer contestStatusId = Integer.parseInt(request.getParameter("contestStatusId"));
+		ContestStatus contestStatus = new ContestStatus();
+		contestStatus.setContestStatusId(contestStatusId);
+		contestStatus.setStatus(new Integer(1));
+		studentService.updateContestStatus(contestStatus);
+
 		return "成功";
 	
 	}

@@ -1135,7 +1135,7 @@ function submitpaper()
 	 
 	   $.ajax({ 
 		 type: "POST", 
-		 url: "submit.do",   
+		 url: "submit.do?contestStatusId=" + contestStatusId,
 		 dataType : 'text',
 		 contentType:"application/json;charset=UTF-8", 
 		 data: JSON.stringify(pro), 

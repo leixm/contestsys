@@ -29,6 +29,7 @@ import com.code.model.Simsolution;
 import com.code.model.SolutionWithBLOBs;
 import com.github.pagehelper.PageHelper;
 
+
 @Service
 public class StudentServiceImpl implements StudentService{
 	
@@ -91,6 +92,10 @@ public class StudentServiceImpl implements StudentService{
 		return simsolutionDao.insert(record);
 	}
 
+	@Override
+	public int updateContestStatus(ContestStatus record){
+		return contestStatusDao.updateByPrimaryKeySelective(record);
+	}
 	/**
 	 * 根据搜索条件模糊查询出学生成绩表
 	 * @param 1、班级名称
