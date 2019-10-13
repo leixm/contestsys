@@ -88,7 +88,7 @@
 
 	<script type="text/html" id="demotool">
 			<a class="layui-btn layui-btn-xs" lay-event="edit">考试说明</a>
-            <a class="layui-btn layui-btn-warm" lay-event="view">开始考试</a>
+            <a class="layui-btn layui-btn-warm" lay-event="start">开始考试</a>
     </script>
 
 
@@ -118,6 +118,11 @@
 						cols: [
 							[{
 								checkbox: true
+							}, {
+								field: 'cstatusid',
+								title: '考试id',
+								sort: true,
+								hide:true
 							}, {
 								field: 'title',
 								title: '考试名称',
@@ -173,13 +178,13 @@
 
 					table.on('tool(demo)', function(obj) {
 						
-						if(obj.event == "view"){
+						if(obj.event == "start"){
 							layer.open({
 								type: 2,
 								title: "编辑",
 								shadeClose: false, //点击遮罩关闭层
 								area: ['100%', '100%'], 
-								content: "viewpaper.do?id=" + obj.data.paper_id
+								content: "contest.do?contestStatusId=" + obj.data.cstatusid
 							});
 						}
 

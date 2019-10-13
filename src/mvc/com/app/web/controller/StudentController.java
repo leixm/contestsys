@@ -424,6 +424,8 @@ public class StudentController {
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					Date startDate = sdf.parse(start);
 					Date endDate = sdf.parse(end);
+					String contestStatusId = map.get("cstatusid").toString();
+					map.put("cstatusid", contestStatusId);
 					if(nowDate.getTime()<startDate.getTime()) {
 						cstatus = "未开始";
 					}else if(endDate.getTime() >= nowDate.getTime() && nowDate.getTime() >= startDate.getTime()) {

@@ -249,7 +249,7 @@
   </update>
   
   <select id="selOwnContestBykeyword" resultType="map">
-  		select  b.title as title, date_format(b.startTime,'%Y-%m-%d %H:%i') as starttime,date_format(b.endTime,'%Y-%m-%d %H:%i') as endtime,u.realName as teacher
+  		select  a.contest_status_id as cstatusid, b.title as title, date_format(b.startTime,'%Y-%m-%d %H:%i') as starttime,date_format(b.endTime,'%Y-%m-%d %H:%i') as endtime,u.realName as teacher
 		from contest_status as a  
 		left join contest as b on a.contest_id = b.contest_id
 		left join user as u on b.teacher = u.user_id
