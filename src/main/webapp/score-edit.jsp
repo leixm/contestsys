@@ -75,7 +75,7 @@
                    <!-- 隐藏div用来传cstatusid给后台 -->
                    <div class="layui-form-item">
                         <div class="layui-input-inline">
-                            <input type="text" style="display:none"  id="cstatusid" name="" required="" autocomplete="on" class="layui-input" value="${scoreobj.cStatusId}"></div>
+                            <input type="text"  style="display: none" id="cstatusid" name="cstatusid" required="" autocomplete="on" class="layui-input" value="${scoreobj.cStatusId}"></div>
                         <div class="layui-form-mid layui-word-aux"></div>
                     </div>		
                          

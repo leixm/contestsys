@@ -149,6 +149,31 @@ public class StudentServiceImpl implements StudentService{
 		resultList = contestStatusDao.selOwnContestBykeyword(stuId, keyword); //根据参数查询学生考试等字段，如果参数全部为空自动查询全部
 		return resultList;
 	}
+	
+	/**
+	 * 查询某个学生的个人成绩和班级考试的平均分
+	 * @param stuId	用户Id	
+	 * @param contestName 考试名字
+	 * @return 所有对象
+	 */
+	@Override
+	public List<Map<String, Object>> selOneStuScoreAVG(String stuId, List contestName) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
+		resultList = contestStatusDao.selOneStuScoreAVGbyKeyword(stuId, contestName);
+		return resultList;
+	}
+	
+	/**
+	 * 查询某个学生的所有考试名称
+	 * @param stuId	用户Id	
+	 * @return 所有对象
+	 */
+	@Override
+	public List<Map<String, Object>> selStuContestTitle(String stuId) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
+		resultList = contestStatusDao.selStuContestTitleByKeyword(stuId);
+		return resultList;
+	}
 
 
 }

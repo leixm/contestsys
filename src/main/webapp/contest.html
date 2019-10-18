@@ -78,7 +78,7 @@
 
 
 			<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
-						<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加考试</button>
+						<button class="layui-btn layui-btn-warm" lay-event="add"><i class="layui-icon"></i>添加考试</button>
 						
 						<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
 						<input name="id" class="layui-input" id="keyword" placeholder="id/试卷/负责人/考试名称" autocomplete="off">
@@ -98,7 +98,7 @@
 			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
             <a class="layui-btn layui-btn-xs" lay-event="viewstudent">查看考生名单</a>
-            <a class="layui-btn layui-btn-xs" lay-event="addstudent">添加考试班级</a>
+            <a class="layui-btn layui-btn-warm" lay-event="addstudent">添加考试班级</a>
     </script>
 
 
@@ -126,6 +126,7 @@
 						id: 'demo',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						height: '600', //容器高度
+						width:'',
 						toolbar: '#header',
 						cols: [
 							[{
@@ -133,8 +134,9 @@
 							}, {
 								field: 'contest_id',
 								title: '考试id',
-								width: 180,
-								sort: true
+								width: 80,
+								sort: true,
+								hide:true
 							}, {
 								field: 'title',
 								title: '考试名称',
@@ -148,17 +150,17 @@
 							}, {
 								field: 'realName',
 								title: '负责人',
-								width: 200,
+								width: 120,
 								sort: true
 							},{
 								field: 'startTime',
 								title: '开始时间',
-								width: 200,
+								width: 180,
 								sort: true
 							},{
 								field: 'endTime',
 								title: '结束时间',
-								width: 200,
+								width: 180,
 								sort: true
 							},{
 								title: '操作',
@@ -220,7 +222,7 @@
 								type: 2,
 								title: "考生名单",
 								shadeClose: false, //点击遮罩关闭层
-								area: ['40%', '70%'],
+								area: ['50%', '100%'],
 								content: "viewContestStudent.do?id=" + obj.data.contest_id
 							});
 							 
@@ -230,7 +232,7 @@
 								type: 2,
 								title: "添加考试班级",
 								shadeClose: false, //点击遮罩关闭层
-								area: ['40%', '70%'],
+								area: ['80%', '70%'],
 								content: "addContestStudent.do?id=" + obj.data.contest_id
 							});
 							

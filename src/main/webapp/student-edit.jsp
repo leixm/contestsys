@@ -31,7 +31,7 @@
 					
 					<div class="layui-form-item">
                         <label for="userId" class="layui-form-label">
-                            <span class="x-red">*</span>用户名</label>
+                            <span class="x-red">*</span>学号</label>
                         <div class="layui-input-inline">
                             <input type="text" id="userId" name="userId" required="" lay-verify="require" autocomplete="on" class="layui-input" value="${user.userId}" disabled="disabled"></div>
                         <div class="layui-form-mid layui-word-aux">

@@ -536,7 +536,7 @@ public class TeacherController {
 	@RequestMapping(value = "editScore.do", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public ModelAndView editScore(HttpServletRequest request, String stuid, String stuname, String classname, String contestname, String score, String cstatusid) {
-
+		
 		ModelAndView mav = new ModelAndView();
 		ScoreObject scoreObj = new ScoreObject();
 		scoreObj.setClassName(classname);
@@ -545,7 +545,6 @@ public class TeacherController {
 		scoreObj.setScore(score);
 		scoreObj.setStuId(stuid);
 		scoreObj.setStuName(stuname);
-		
 		mav.addObject("scoreobj",scoreObj);
 		mav.setViewName("score-edit.jsp");
 		return mav;
@@ -560,7 +559,6 @@ public class TeacherController {
 	@ResponseBody
 	public String updateScore(HttpServletRequest request,String score,String cstatusid) {
 		LayResponse response = new LayResponse();
-		
 		response.setCode(1);  
 		if(!score.trim().isEmpty()&&!cstatusid.trim().isEmpty()){
 			//将新修改的成绩根据cstatusid存进对应的表
@@ -667,6 +665,7 @@ public class TeacherController {
 		}
 		
 		if(request.getParameter("selclass") != null && !("null").equals(request.getParameter("selclass"))) {
+			claList.clear(); //清楚前面干扰的初始化数据
 			String className = request.getParameter("selclass").toString();
 			className = className.substring(2,className.length()-2); //去掉首尾["  "]
 			className = className.replaceAll("\",\"",",");
@@ -774,6 +773,7 @@ public class TeacherController {
 		}
 				
 		if(request.getParameter("selclass") != null && !("null").equals(request.getParameter("selclass"))) {
+			claList.clear(); //清楚前面干扰的初始化数据
 			String className = request.getParameter("selclass").toString();
 			className = className.substring(2,className.length()-2); //去掉首尾["  "]
 			className = className.replaceAll("\",\"",",");

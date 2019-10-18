@@ -45,7 +45,7 @@
 							<span class="x-red">*</span>开始时间
 						</label>
 						<div class="layui-input-inline">
-							<input id="startTimeS" name="startTimeS" type="text" class="layui-input">
+							<input id="startTimeS" name="startTimeS" type="text" class="layui-input"  autocomplete="off">
 						</div>
 						<div class="layui-form-mid layui-word-aux">
 							<span class="x-red">*</span>
@@ -53,11 +53,11 @@
 					</div>
 
 					<div class="layui-form-item">
-						<label for="endTimeS" class="layui-form-label">
+						<label for="endTimeS" class="layui-form-label" >
 							<span class="x-red">*</span>结束时间
 						</label>
 						<div class="layui-input-inline">
-							<input id="endTimeS" name="endTimeS" type="text" class="layui-input">
+							<input id="endTimeS" name="endTimeS" type="text" class="layui-input" autocomplete="off">
 						</div>
 						<div class="layui-form-mid layui-word-aux">
 							<span class="x-red">*</span>

@@ -127,9 +127,9 @@
                             </li>
                             
                              <li>
-                                <a onclick="xadmin.add_tab('考试统计','stuGradeShow.html')">
+                                <a onclick="xadmin.add_tab('成绩统计','stuGradeShow.html')">
                                     <i class="iconfont">&#xe6a7;</i>
-                                    <cite>考试统计</cite></a>
+                                    <cite>成绩统计</cite></a>
                             </li>
                         </ul>
                     </li>
@@ -218,6 +218,8 @@
 										if(data.realname!=null&&data.realname!="") {
 										$("#username").html("欢迎，"+data.realname);
 										}else {
+											alert("请先登录系统");
+											window.location.href = "./login.html";
 											$("#username").html("请先登录系统");
 										}
 									}

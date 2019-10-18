@@ -76,8 +76,10 @@
 <link rel="stylesheet" href="./HUSTOJ_files/white.css">
 <link rel="stylesheet" href="./HUSTOJ_files/katex.min.css">
 <link rel="stylesheet" href="./HUSTOJ_files/mathjax.css">
+<link rel="stylesheet" href="lib/layui/css/layui.css">
 <script src="./HUSTOJ_files/ace.js"></script>
-<script src="./HUSTOJ_files/checksource.js"></script>	  
+<script src="./HUSTOJ_files/checksource.js"></script>
+<script src="./lib/layui/layui.js" charset="utf-8"></script>	  
 
 <style>
 #source {
@@ -245,11 +247,11 @@
     
 </div>
 
-<div id="ctl00_ContentPlaceHolder1_JQ1_question" class="surveycontent">
-    <div id="divMaxTime" style="text-align: center; width: 80px; background: white; position: fixed; top: 135px; border: 1px solid rgb(219, 219, 219); padding: 8px; z-index: 10; left: 372px;">
-       <div id="spanTimeTip" style="border-bottom:1px solid #dbdbdb;height:30px; line-height:30px;">剩余时间</div><div style="color: Red;font-size:16px; height:30px; line-height:30px;" id="spanMaxTime"></div></div>
+<div id="ctl00_ContentPlaceHolder1_JQ1_question" class="surveycontent" >
+    <div id="divMaxTime" style="text-align: center; width: 80px; background: white; position: fixed; top: 135px; border: 1px solid rgb(219, 219, 219); padding: 8px; z-index: 10;  margin-left: -190px; margin-top:-50px;">
+       <div id="spanTimeTip" style="border-bottom:1px solid #dbdbdb;height:30px; line-height:30px;">剩余时间</div><div style="color: Red;font-size:16px; height:30px; line-height:30px; " id="spanMaxTime"></div></div>
     
-    <div id="bb" style="text-align: center; width: 80px; background: white; position: fixed; top: 35px; border: 1px solid rgb(219, 219, 219); padding: 8px; z-index: 10; left: 372px;">
+    <div id="bb" style="text-align: center; width: 80px; background: white; position: fixed; top: 35px; border: 1px solid rgb(219, 219, 219); padding: 8px; z-index: 10; margin-left: -190px; margin-top:-20px;">
        <div id="ab" style="height:30px; line-height:30px;">考生姓名</div><div style="font-size:16px; height:30px; line-height:30px;" id=""> ${student.realname} </div></div> 
             
 	<div id="ctl00_ContentPlaceHolder1_JQ1_surveyContent">
@@ -1132,21 +1134,42 @@ function submitpaper()
 		 pro.prob[i].solution = solu;
 	 }
 	 console.log(pro) 
-	 
-	   $.ajax({ 
-		 type: "POST", 
-		 url: "submit.do?contestStatusId=" + contestStatusId,
-		 dataType : 'text',
-		 contentType:"application/json;charset=UTF-8", 
-		 data: JSON.stringify(pro), 
-		 success: function(data){  
-		 alert("提交成功")   
-		 }, 
-		 error: function(data){
-		 alert("提交失败")
-		 }
-	 })
-	  
+	 	
+  	layui.use(['layer', 'form'], function(){
+  		var layerIndex = layer.load(1, { shade: [0.5, '#393D49'] });	//加载动画 
+      	layer.confirm('确定提交答卷？', function(index) {
+	      		$.ajax({ 
+					 type: "POST", 
+					 url: "submit.do?contestStatusId=" + contestStatusId,
+					 dataType : 'text',
+					 contentType:"application/json;charset=UTF-8", 
+					 data: JSON.stringify(pro), 
+					 success: function(data){  
+					 	layer.close(layerIndex);	//关闭加载动画
+						//配置一个透明的询问框
+					      layer.msg('提交成功', {
+					        time: 4000, //4s后自动关闭
+					      });
+					      setTimeout(
+							function(){
+								window.history.back(-1);  //回退
+							},
+							3000)
+					 }, 
+					 error: function(data){
+					 	 layer.close(layerIndex);
+						 layui.use(['layer', 'form'], function(){
+							 //配置一个透明的询问框
+							layer.msg('提交失败', {
+					        	time: 3000, //4s后自动关闭
+					      	});
+						 });
+					 }
+				 })
+				layer.close(index);
+		})
+	      
+ 	});
 }
 
 /* 

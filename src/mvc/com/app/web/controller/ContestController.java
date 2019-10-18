@@ -279,18 +279,23 @@ public class ContestController {
 	@ResponseBody
 	public String AddContestClass(HttpServletRequest request) throws ParseException {
 		String contestId = request.getParameter("contestId");
-		String classId = request.getParameter("classId");
-		System.out.println("contestid=" + contestId + " classId=" + classId);
+		String classId = request.getParameter("classId");		//classId：1,2,3
+		
 		LayResponse response = new LayResponse();
 		response.setCode(1); 
-		if(contestId==null || classId==null)
-		{
-			response.setMsg("参数错误");
+		if(contestId==null || classId==null || classId.equals(""))
+		{	
+			response.setMsg("请选并择添加考试班级");
 			JSONObject.fromObject(response).toString();
+			return JSONObject.fromObject(response).toString();
 		}
-		
+		//分割classId 组成集合
+		String[] classIdStrArr = classId.split(",");
+		List<String> classIdList = new ArrayList<>();
+		for(String classIdStr : classIdStrArr) {	//遍历classIdStr并添加其为考试班级
+			contestService.AddContestClass(Integer.parseInt(contestId), Integer.parseInt(classIdStr));
+		}
 		response.setCode(0);
-		contestService.AddContestClass(Integer.parseInt(contestId), Integer.parseInt(classId));
 		response.setMsg("添加成功"); 
 		return JSONObject.fromObject(response).toString();
 	}

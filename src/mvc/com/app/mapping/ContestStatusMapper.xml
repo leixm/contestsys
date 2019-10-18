@@ -95,6 +95,7 @@
   select user.user_id,user.realName,class.name from 
   contest_status,user,class 
   where contest_status.contest_id=#{0} and contest_status.student=user.user_id and user.class_id=class.class_id
+  order by class.class_id
   </select>
   
   
@@ -241,7 +242,7 @@
 				and c.title like "%"#{contestname}"%"
 			</if>
 		</where>
-		order by b.class_id
+		order by b.class_id,a.contest_id,u.user_id
   </select>
   
   <update id="updateScore" >
@@ -289,5 +290,44 @@
 		GROUP BY b.class_id,c.contest_id
 		ORDER BY b.class_id
   </select>
+  
+  <select id="selOneStuScoreAVGbyKeyword" resultType="map">
+  		SELECT u.realName,c.title, ROUND(a.score,2) as score,(
+			SELECT ROUND(AVG(a.score),2) as average
+			FROM contest_status a 
+				LEFT JOIN user u on a.student = u.user_id 
+				LEFT JOIN class cla on u.class_id=cla.class_id
+				LEFT JOIN contest con on a.contest_id=con.contest_id
+				WHERE 1=1 and cla.class_id = b.class_id and con.contest_id = c.contest_id
+				GROUP BY cla.class_id,c.contest_id
+				ORDER BY cla.class_id
+		)	as class_avg
+		
+			FROM contest_status a 
+				LEFT JOIN user u on a.student = u.user_id 
+				LEFT JOIN class b on u.class_id=b.class_id
+				LEFT JOIN contest c on a.contest_id=c.contest_id
+				WHERE 1=1 
+				and u.user_id = #{stuid}
+		
+		<if test="contestname!=null and contestname!=''">
+			and c.title in
+			<foreach collection="contestname" item="item" index="index" open="(" close=")" separator=",">
+				 #{item}
+	        </foreach>
+		</if>
+		
+			GROUP BY c.title		
+			ORDER BY b.class_id
+  </select>
+  
+  <select id="selStuContestTitleByKeyword" resultType="map">
+  		SELECT con.title FROM contest con 
+  			LEFT JOIN contest_status cs on cs.contest_id = con.contest_id 
+		WHERE 
+		 	cs.student =  #{stuid}
+		
+  </select>
+  
   
 </mapper>

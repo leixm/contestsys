@@ -62,12 +62,6 @@
     </style>
 </head>
 <body class="childrenBody" style="padding: 10px">
-<div class="x-nav">
-	<span class="layui-breadcrumb"> <a href="">首页</a> <a href="">演示</a>
-		<a> <cite>导航元素</cite></a>
-	</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
-	 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
-</div>
 <div class="layui-row">
     
 	    <div class="layui-col-lg12 layui-col-md12">
@@ -75,17 +69,6 @@
         	<br><br>
             <legend>请筛选图表所要展示的信息</legend>
             <form class="layui-form">
-                <div class="layui-block">
-                    <label class="layui-form-label">班级</label>
-                    <div class="layui-input-inline">
-                        <select name="sel1" id="sel1" multiple>
-                            <option value="">默认展示前四个班级</option>
-                        </select>
-                    </div>
-                    <div class="layui-input-inline code">
-                         <span style="color: red; font-size: 12px;">(可多选)</span>
-                    </div>
-                </div>
 				<div class="layui-block">
                     <label class="layui-form-label">考试名称</label>
                     <div class="layui-input-inline">
@@ -119,7 +102,7 @@
         // 指定图表的配置项和数据
         var option = {
             title: {
-                text: '班级各科成绩平均分统计表',
+                text: '学生个人成绩与班级平均分统计图',
                 left:'',
 				// 分别设置四个方向的内边距
 				padding: [
@@ -133,7 +116,7 @@
         };
 		var option2 = {
             title: {
-                text: '班级各科成绩最高分统计表',
+                text: '学生个人成绩与班级平均分折线图',
                 left:'',
 				// 分别设置四个方向的内边距
 				padding: [
@@ -159,23 +142,9 @@
 	
 	//默认加载两个select的内容
 	function appendOption() {	
-		$.ajax({
-	             type: "post",
-	             url: "Teacher/selAllClassObj",
-	             data:'',
-	             dataType: "json",
-	             async:false,
-	             success:function(jsondata) {
-						for(var j=0;j<jsondata.classnames.length;j++) {
-							 $("#sel1").append("<option value='"+jsondata.classnames[j]+"'>"+jsondata.classnames[j]+"</option>");
-						}
-            		
-	             }
-	     });
-	     
 	     $.ajax({
 	             type: "post",
-	             url: "Teacher/selAllContestTitle",
+	             url: "Student/selStuContestTitle",
 	             data:'',
 	             dataType: "json",
 	             async:false,
@@ -192,13 +161,13 @@
 	//默认加载全部的成绩信息，返回给页面
 	function loadingChar() {
 		myChart.showLoading();
-      	$.get('Teacher/selClassContestAVG').done(function (data) {
+      	$.get('Student/selOneStuScoreAVG').done(function (data) {
       		jsondata=$.parseJSON(data);
 			myChart.hideLoading();
 			// 填入数据
 		    myChart.setOption({
 			    title: {
-	                text: '班级各科成绩平均分统计表',
+	                text: '学生个人成绩与班级平均分统计图',
 	                left:'',
 					// 分别设置四个方向的内边距
 					padding: [
@@ -221,7 +190,7 @@
 		            		color:'red',
 		            	},
 		            },
-
+				color: ['#3c9d9b', '#aee7e8'],
 			    tooltip: {},
 			    dataset: {
 			        source: jsondata.dataset
@@ -229,26 +198,26 @@
 			    xAxis: {type: 'category'},	//应该是采用dataset来获取x轴等数据固定写法
 			    yAxis: {
 			        type: 'value',
-			        name: '平均分：单位/分',
+			        name: '单位/分',
 			        nameLocation:'center',
 			        nameGap: 30,//与轴线间距
 			        min:0,
 			        max:100,
 			        interval:10
 			    },
-			    series: jsondata.series
+			    series: [{type: 'bar'},{type: 'bar'}]
 		    },true);			//此处加true，可以重新加载别的数据时去除元数据
 		});
 		
 		
 		myChart2.showLoading();
-		$.get('Teacher/selClassContestMAX').done(function (data) {
+		$.get('Student/selOneStuScoreAVG').done(function (data) {
       		jsondata=$.parseJSON(data);
 			myChart2.hideLoading();
 			// 填入数据
 		    myChart2.setOption({
 		    	title: {
-	                text: '班级各科成绩最高分统计表',
+	                text: '学生个人成绩与班级平均分折线图',
 	                left:'',
 					// 分别设置四个方向的内边距
 					padding: [
@@ -271,7 +240,7 @@
 		            		color:'red',
 		            	},
 		            },
-	
+				color: ['#3c9d9b', '#aee7e8'],
 			    tooltip: {},
 			    dataset: {
 			        source: jsondata.dataset
@@ -279,14 +248,14 @@
 			    xAxis: {type: 'category'},	//应该是采用dataset来获取x轴等数据固定写法
 			    yAxis: {
 			        type: 'value',
-			        name: '最高分：单位/分',
+			        name: '单位/分',
 			        nameLocation:'center',
 			        nameGap: 30,//与轴线间距
-			         min:0,
+			        min:0,
 			        max:100,
 			        interval:10
 			    },
-			    series: jsondata.series
+			    series: [{type: 'line'},{type: 'line'}]
 		    },true);		//此处加true，可以重新加载别的数据时去除元数据
 		
 		});
@@ -308,8 +277,8 @@
 			var sel2 = $('#sel2').val();	//考试名称
        		$.ajax({
 	             type: "post",
-	             url: "Teacher/selClassContestAVG",
-	             data:{selclass:JSON.stringify(sel1),selcontest:JSON.stringify(sel2)},
+	             url: "Student/selOneStuScoreAVG",
+	             data:{selcontest:JSON.stringify(sel2)},
 	             dataType: "json",
 	             async:false,
 	             success:function(jsondata) {
@@ -317,7 +286,7 @@
 						// 填入数据
 					    myChart.setOption({
 					    title: {
-			                text: '班级各科成绩平均分统计表',
+			                text: '学生个人成绩与班级平均分统计图',
 			                left:'',
 							// 分别设置四个方向的内边距
 							padding: [
@@ -340,7 +309,7 @@
 				            		color:'red',
 				            	},
 				            },
-			
+							color: ['#3c9d9b', '#aee7e8'],
 						    tooltip: {},
 						    dataset: {
 						        source: jsondata.dataset
@@ -348,21 +317,21 @@
 						    xAxis: {type: 'category'},	//应该是采用dataset来获取x轴等数据固定写法
 						    yAxis: {
 						        type: 'value',
-						        name: '平均分：单位/分',
+						        name: '单位/分',
 						        nameLocation:'center',
 						        nameGap: 30,//与轴线间距
 						         min:0,
 						        max:100,
 						        interval:10
 						    },
-						    series: jsondata.series
+						    series: [{type: 'bar'},{type: 'bar'}]
 					    },true);		//此处加true，可以重新加载别的数据时去除元数据					
 	             }
 	         });
        		$.ajax({
 	             type: "post",
-	             url: "Teacher/selClassContestMAX",
-	             data: {selclass:JSON.stringify(sel1),selcontest:JSON.stringify(sel2)},
+	             url: "Student/selOneStuScoreAVG",
+	             data: {selcontest:JSON.stringify(sel2)},
 	             dataType: "json",
 	             async:false,
 	             success:function(jsondata) {
@@ -370,7 +339,7 @@
 						// 填入数据
 					    myChart2.setOption({
 						     title: {
-				                text: '班级各科成绩最高分统计表',
+				                text: '学生个人成绩与班级平均分折线图',
 				                left:'',
 								// 分别设置四个方向的内边距
 								padding: [
@@ -393,7 +362,7 @@
 					            		color:'red',
 					            	},
 					        },
-			
+							color: ['#3c9d9b', '#aee7e8'],
 						    tooltip: {},
 						    dataset: {
 						        source: jsondata.dataset
@@ -401,14 +370,14 @@
 						    xAxis: {type: 'category'},	//应该是采用dataset来获取x轴等数据固定写法
 						    yAxis: {
 						        type: 'value',
-						        name: '最高分：单位/分',
+						        name: '单位/分',
 						        nameLocation:'center',
 						        nameGap: 30,//与轴线间距
-						         min:0,
+						        min:0,
 						        max:100,
 						        interval:10
 						    },
-						    series: jsondata.series
+						    series: [{type: 'line'},{type: 'line'}]
 					    },true);		//此处加true，可以重新加载别的数据时去除元数据
 	             }
 	         });

@@ -87,9 +87,7 @@
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						height: '600', //容器高度
 						cols: [
-							[{
-								checkbox: false 
-							}, {
+							[ {
 								field: 'user_id',
 								title: '学号',
 								width: 180,
