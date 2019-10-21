@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layui-select-multiple</title>
+      <!-- 引入 echarts.js -->
+    <script src="./assets/js/echarts.min.js"></script>
+ 	<script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
+ 	<script src="./EcharsTheme/wonderland.js"></script>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="layui/css/layui.css" media="all"/>
+    <style>
+        /* 下拉多选样式 需要引用*/
+        select[multiple]+.layui-form-select>.layui-select-title>input.layui-input{ border-bottom: 0}
+        select[multiple]+.layui-form-select dd{ padding:0;}
+        select[multiple]+.layui-form-select .layui-form-checkbox[lay-skin=primary]{ margin:0 !important; display:block; line-height:36px !important; position:relative; padding-left:26px;}
+        select[multiple]+.layui-form-select .layui-form-checkbox[lay-skin=primary] span{line-height:36px !important;padding-left: 10px; float:none;}
+        select[multiple]+.layui-form-select .layui-form-checkbox[lay-skin=primary] i{ position:absolute; left:10px; top:0; margin-top:9px;}
+        .multiSelect{ line-height:normal; height:auto; padding:4px 10px; overflow:hidden;min-height:38px; margin-top:-38px; left:0; z-index:99;position:relative;background:none;}
+        .multiSelect a{ padding:2px 5px; background:#908e8e; border-radius:2px; color:#fff; display:block; line-height:20px; height:20px; margin:2px 5px 2px 0; float:left;}
+        .multiSelect a span{ float:left;}
+        .multiSelect a i {float:left;display:block;margin:2px 0 0 2px;border-radius:2px;width:8px;height:8px;padding:4px;position:relative;-webkit-transition:all .3s;transition:all .3s}
+        .multiSelect a i:before, .multiSelect a i:after {position:absolute;left:8px;top:2px;content:'';height:12px;width:1px;background-color:#fff}
+        .multiSelect a i:before {-webkit-transform:rotate(45deg);transform:rotate(45deg)}
+        .multiSelect a i:after {-webkit-transform:rotate(-45deg);transform:rotate(-45deg)}
+        .multiSelect a i:hover{ background-color:#545556;}
+        .multiOption{display: inline-block; padding: 0 5px;cursor: pointer; color: #999;}
+        .multiOption:hover{color: #5FB878}
+
+        @font-face {font-family: "iconfont"; src: url('data:application/x-font-woff;charset=utf-8;base64,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') format('woff')}
+        .iconfont {font-family:"iconfont" !important;font-size:16px;font-style:normal;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;}
+        .icon-fanxuan:before { content: "\e837"; }
+        .icon-quanxuan:before { content: "\e623"; }
+        .icon-qingkong:before { content: "\e63e"; }
+
+        /* 下面是页面内样式，无需引用 */
+        .layui-block {
+            margin-bottom: 10px;
+        }
+
+        .layui-form-label {
+            width: 180px;
+        }
+        .code {
+            color: gray;
+            margin-left: 10px;
+        }
+        .unshow>#result {
+            display: none;
+        }
+        pre { padding: 5px; margin: 5px; }
+        .string { color: green; }
+        .number { color: darkorange; }
+        .boolean { color: blue; }
+        .null { color: magenta; }
+        .key { color: red; }
+    </style>
+</head>
+<body class="childrenBody" style="padding: 10px">
+<div class="x-nav">
+	<span class="layui-breadcrumb"> <a href="">首页</a> <a href="">演示</a>
+		<a> <cite>导航元素</cite></a>
+	</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
+	 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
+</div>
+<div class="layui-row">
+    
+	    <div class="layui-col-lg12 layui-col-md12">
+        <fieldset class="layui-elem-field  ">
+        	<br><br>
+            <legend>请筛选图表所要展示的信息</legend>
+            <form class="layui-form">
+                <div class="layui-block">
+                    <label class="layui-form-label">班级</label>
+                    <div class="layui-input-inline">
+                        <select name="sel1" id="sel1" multiple>
+                            <option value="">默认展示前四个班级</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline code">
+                         <span style="color: red; font-size: 12px;">(可多选)</span>
+                    </div>
+                </div>
+				<div class="layui-block">
+                    <label class="layui-form-label">考试名称</label>
+                    <div class="layui-input-inline">
+                        <select name="sel2" id="sel2" multiple>
+                            <option value="">默认展示所有</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline code">
+                         <span style="color: red; font-size: 12px;">(可多选)</span>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <a class="layui-btn" lay-submit="" lay-filter="*">更新图表信息</a>
+                    </div>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+
+</div>
+	<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 1000px;height:500px; margin: 40px auto;"></div>
+    <div id="main2" style="width: 1000px;height:500px; margin: 40px auto;"></div>
+   	<script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'),'wonderland');
+        var myChart2 = echarts.init(document.getElementById('main2'),'wonderland');
+
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: '班级各科成绩平均分统计表',
+                left:'',
+				// 分别设置四个方向的内边距
+				padding: [
+				    5,  // 上
+				    0, // 右
+				    0,  // 下
+				   	0, // 左
+				]                
+            },
+            
+        };
+		var option2 = {
+            title: {
+                text: '班级各科成绩最高分统计表',
+                left:'',
+				// 分别设置四个方向的内边距
+				padding: [
+				    5,  // 上
+				    0, // 右
+				    0,  // 下
+				   	0, // 左
+				]                
+            },
+            
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+		myChart2.setOption(option2);
+	</script>
+<script type="text/javascript" src="layui/layui.js"></script>
+<script>
+	//页面加载执行函数	(实测好用)
+	$(document).ready(function() {
+		appendOption();
+		loadingChar();
+	});
+	
+	//默认加载两个select的内容
+	function appendOption() {	
+		$.ajax({
+	             type: "post",
+	             url: "Teacher/selAllClassObj",
+	             data:'',
+	             dataType: "json",
+	             async:false,
+	             success:function(jsondata) {
+						for(var j=0;j<jsondata.classnames.length;j++) {
+							 $("#sel1").append("<option value='"+jsondata.classnames[j]+"'>"+jsondata.classnames[j]+"</option>");
+						}
+            		
+	             }
+	     });
+	     
+	     $.ajax({
+	             type: "post",
+	             url: "Teacher/selAllContestTitle",
+	             data:'',
+	             dataType: "json",
+	             async:false,
+	             success:function(jsondata) {
+						for(var j=0;j<jsondata.contestname.length;j++) {
+							 $("#sel2").append("<option value='"+jsondata.contestname[j]+"'>"+jsondata.contestname[j]+"</option>");
+						}
+            		
+	             }
+	     });
+	}
+	
+	
+	//默认加载全部的成绩信息，返回给页面
+	function loadingChar() {
+		myChart.showLoading();
+      	$.get('Teacher/selClassContestAVG').done(function (data) {
+      		jsondata=$.parseJSON(data);
+			myChart.hideLoading();
+			// 填入数据
+		    myChart.setOption({
+			    title: {
+	                text: '班级各科成绩平均分统计表',
+	                left:'',
+					// 分别设置四个方向的内边距
+					padding: [
+					    5,  // 上
+					    0, // 右
+					    0,  // 下
+					   	0, // 左
+					]                
+	            },
+	           	//----------------   图例 legend  -----------------
+	            legend: {
+		            	type:'plain',				//----图例类型，默认为'plain'，当图例很多时可使用'scroll'
+		            	top:'4%',					//----图例相对容器位置,top\bottom\left\right           	
+		            	/* textStyle:{					//----图例内容样式
+		            		color:'#fff',				//---所有图例的字体颜色
+		            		//backgroundColor:'black',	//---所有图例的字体背景色
+		            	},           	 */
+		            	tooltip:{					//图例提示框，默认不显示
+		            		show:true,
+		            		color:'red',
+		            	},
+		            },
+
+			    tooltip: {},
+			    dataset: {
+			        source: jsondata.dataset
+			    },
+			    xAxis: {type: 'category'},	//应该是采用dataset来获取x轴等数据固定写法
+			    yAxis: {
+			        type: 'value',
+			        name: '平均分：单位/分',
+			        nameLocation:'center',
+			        nameGap: 30,//与轴线间距
+			        min:0,
+			        max:100,
+			        interval:10
+			    },
+			    series: jsondata.series
+		    },true);			//此处加true，可以重新加载别的数据时去除元数据
+		});
+		
+		
+		myChart2.showLoading();
+		$.get('Teacher/selClassContestMAX').done(function (data) {
+      		jsondata=$.parseJSON(data);
+			myChart2.hideLoading();
+			// 填入数据
+		    myChart2.setOption({
+		    	title: {
+	                text: '班级各科成绩最高分统计表',
+	                left:'',
+					// 分别设置四个方向的内边距
+					padding: [
+					    5,  // 上
+					    0, // 右
+					    0,  // 下
+					   	0, // 左
+					]                
+            	},
+           		//----------------   图例 legend  -----------------
+	            legend: {
+		            	type:'plain',				//----图例类型，默认为'plain'，当图例很多时可使用'scroll'
+		            	top:'4%',					//----图例相对容器位置,top\bottom\left\right           	
+		            	/* textStyle:{					//----图例内容样式
+		            		color:'#fff',				//---所有图例的字体颜色
+		            		//backgroundColor:'black',	//---所有图例的字体背景色
+		            	},           	 */
+		            	tooltip:{					//图例提示框，默认不显示
+		            		show:true,
+		            		color:'red',
+		            	},
+		            },
+	
+			    tooltip: {},
+			    dataset: {
+			        source: jsondata.dataset
+			    },
+			    xAxis: {type: 'category'},	//应该是采用dataset来获取x轴等数据固定写法
+			    yAxis: {
+			        type: 'value',
+			        name: '最高分：单位/分',
+			        nameLocation:'center',
+			        nameGap: 30,//与轴线间距
+			         min:0,
+			        max:100,
+			        interval:10
+			    },
+			    series: jsondata.series
+		    },true);		//此处加true，可以重新加载别的数据时去除元数据
+		
+		});
+	
+	}
+
+
+	
+    layui.use(['form','code'], function () {
+       		var form = layui.form,
+            $ = layui.$;
+
+        // 提交事件,将下拉框内容传给后台进行数据处理
+        form.on("submit(*)", function (data) {
+        	myChart.showLoading();
+			myChart2.showLoading();
+			
+			var sel1 = $('#sel1').val();	//班级
+			var sel2 = $('#sel2').val();	//考试名称
+       		$.ajax({
+	             type: "post",
+	             url: "Teacher/selClassContestAVG",
+	             data:{selclass:JSON.stringify(sel1),selcontest:JSON.stringify(sel2)},
+	             dataType: "json",
+	             async:false,
+	             success:function(jsondata) {
+						myChart.hideLoading();
+						// 填入数据
+					    myChart.setOption({
+					    title: {
+			                text: '班级各科成绩平均分统计表',
+			                left:'',
+							// 分别设置四个方向的内边距
+							padding: [
+							    5,  // 上
+							    0, // 右
+							    0,  // 下
+							   	0, // 左
+							]                
+			            },
+			           	//----------------   图例 legend  -----------------
+			            legend: {
+				            	type:'plain',				//----图例类型，默认为'plain'，当图例很多时可使用'scroll'
+				            	top:'4%',					//----图例相对容器位置,top\bottom\left\right           	
+				            	/* textStyle:{					//----图例内容样式
+				            		color:'#fff',				//---所有图例的字体颜色
+				            		//backgroundColor:'black',	//---所有图例的字体背景色
+				            	},           	 */
+				            	tooltip:{					//图例提示框，默认不显示
+				            		show:true,
+				            		color:'red',
+				            	},
+				            },
+			
+						    tooltip: {},
+						    dataset: {
+						        source: jsondata.dataset
+						    },
+						    xAxis: {type: 'category'},	//应该是采用dataset来获取x轴等数据固定写法
+						    yAxis: {
+						        type: 'value',
+						        name: '平均分：单位/分',
+						        nameLocation:'center',
+						        nameGap: 30,//与轴线间距
+						         min:0,
+						        max:100,
+						        interval:10
+						    },
+						    series: jsondata.series
+					    },true);		//此处加true，可以重新加载别的数据时去除元数据					
+	             }
+	         });
+       		$.ajax({
+	             type: "post",
+	             url: "Teacher/selClassContestMAX",
+	             data: {selclass:JSON.stringify(sel1),selcontest:JSON.stringify(sel2)},
+	             dataType: "json",
+	             async:false,
+	             success:function(jsondata) {
+						myChart2.hideLoading();
+						// 填入数据
+					    myChart2.setOption({
+						     title: {
+				                text: '班级各科成绩最高分统计表',
+				                left:'',
+								// 分别设置四个方向的内边距
+								padding: [
+								    5,  // 上
+								    0, // 右
+								    0,  // 下
+								   	0, // 左
+								]                
+				            },
+			           		//----------------   图例 legend  -----------------
+				            legend: {
+					            	type:'plain',				//----图例类型，默认为'plain'，当图例很多时可使用'scroll'
+					            	top:'4%',					//----图例相对容器位置,top\bottom\left\right           	
+					            	/* textStyle:{					//----图例内容样式
+					            		color:'#fff',				//---所有图例的字体颜色
+					            		//backgroundColor:'black',	//---所有图例的字体背景色
+					            	},           	 */
+					            	tooltip:{					//图例提示框，默认不显示
+					            		show:true,
+					            		color:'red',
+					            	},
+					        },
+			
+						    tooltip: {},
+						    dataset: {
+						        source: jsondata.dataset
+						    },
+						    xAxis: {type: 'category'},	//应该是采用dataset来获取x轴等数据固定写法
+						    yAxis: {
+						        type: 'value',
+						        name: '最高分：单位/分',
+						        nameLocation:'center',
+						        nameGap: 30,//与轴线间距
+						         min:0,
+						        max:100,
+						        interval:10
+						    },
+						    series: jsondata.series
+					    },true);		//此处加true，可以重新加载别的数据时去除元数据
+	             }
+	         });
+            return false;
+        });
+
+        // json 格式化+高亮
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }	
+    })
+</script>
+
+</body>
+</html>

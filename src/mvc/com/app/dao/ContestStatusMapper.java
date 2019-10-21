@@ -39,4 +39,11 @@ public interface ContestStatusMapper {
     int updateScore(@Param("cstatusid") int cStatusId,@Param("score") BigDecimal score); 
     
     List<Map<String, Object>> selOwnContestBykeyword(@Param("stuid") String stuId, @Param("keyword") String keyword);
+    
+    List<Map<String, Object>> selClassContestAVGbyKeyword(@Param("classname") List className,@Param("contestname") List contestName);
+  
+    List<Map<String, Object>> selOneStuScoreAVGbyKeyword(@Param("stuid") String stuId,@Param("contestname") List contestName);
+    
+    List<Map<String, Object>> selStuContestTitleByKeyword(@Param("stuid") String stuId);
+    
 }

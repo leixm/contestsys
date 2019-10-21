@@ -21,19 +21,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.swing.JOptionPane;
 
-import com.app.tools.PathHelper;
-import com.app.tools.RandomString;
-import com.code.model.*;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,6 +43,20 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.app.service.TeacherService;
 import com.app.tools.ExportExcelUtil;
+import com.app.tools.PathHelper;
+import com.app.tools.RandomString;
+import com.code.model.Answer;
+import com.code.model.Contest;
+import com.code.model.LayResponse;
+import com.code.model.OnePaper;
+import com.code.model.OneProblem;
+import com.code.model.OneSimproblem;
+import com.code.model.Options;
+import com.code.model.Response;
+import com.code.model.ScoreExcel;
+import com.code.model.ScoreObject;
+import com.code.model.UrlData;
+import com.code.model.User;
 import com.github.pagehelper.PageInfo;
 
 import net.sf.json.JSONArray;
@@ -525,7 +536,7 @@ public class TeacherController {
 	@RequestMapping(value = "editScore.do", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public ModelAndView editScore(HttpServletRequest request, String stuid, String stuname, String classname, String contestname, String score, String cstatusid) {
-
+		
 		ModelAndView mav = new ModelAndView();
 		ScoreObject scoreObj = new ScoreObject();
 		scoreObj.setClassName(classname);
@@ -534,7 +545,6 @@ public class TeacherController {
 		scoreObj.setScore(score);
 		scoreObj.setStuId(stuid);
 		scoreObj.setStuName(stuname);
-		
 		mav.addObject("scoreobj",scoreObj);
 		mav.setViewName("score-edit.jsp");
 		return mav;
@@ -549,7 +559,6 @@ public class TeacherController {
 	@ResponseBody
 	public String updateScore(HttpServletRequest request,String score,String cstatusid) {
 		LayResponse response = new LayResponse();
-		
 		response.setCode(1);  
 		if(!score.trim().isEmpty()&&!cstatusid.trim().isEmpty()){
 			//将新修改的成绩根据cstatusid存进对应的表
@@ -570,6 +579,54 @@ public class TeacherController {
 	}
 	
 	/**
+	 * @description 查所有的班级名称
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Teacher/selAllClassObj", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String selAllClassObj(HttpServletRequest request) {
+		Map<String,Object> resultMap = new HashMap<String, Object>();
+		List<Map<String,Object>> classList = teacherService.selAllClassObj();
+		List<String> classNameList = new ArrayList<String>();
+		List<String> classIdList = new ArrayList<String>();
+		
+		if(classList.size() > 0) {
+			for (Map<String, Object> classObj : classList) {
+				System.out.println("classObj---"+classObj);
+				classNameList.add(classObj.get("name").toString());
+				classIdList.add(classObj.get("class_id").toString());
+			}
+		}
+		System.out.println(classNameList);
+		resultMap.put("classnames", classNameList);
+		resultMap.put("classidlist", classIdList);
+		resultMap.put("msg", "查询成功");
+		return JSONObject.fromObject(resultMap).toString();
+	}
+	
+	/**
+	 * @description 查所有的考试名称
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Teacher/selAllContestTitle", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String selAllContestTitle(HttpServletRequest request) {
+		Map<String,Object> resultMap = new HashMap<String, Object>();
+		List<Map<String,Object>> contestList = teacherService.selAllContestObj();
+		List<String> contestNameList = new ArrayList<String>();
+		
+		if(contestList.size() > 0) {
+			for (Map<String, Object> contestObj : contestList) {
+				contestNameList.add(contestObj.get("title").toString());
+			}
+		}
+		System.out.println("contest----"+contestList);
+		resultMap.put("contestname", contestNameList);
+		resultMap.put("msg", "查询成功");
+		return JSONObject.fromObject(resultMap).toString();
+	}
+	
+	/**
 	 * 测试
 	 */
 	@RequestMapping(value = "Teacher/selAjaxData", produces = "text/html;charset=UTF-8")
@@ -579,4 +636,215 @@ public class TeacherController {
 		String result = keyword + ",你好ajax,前端后端,大数据,数据分析";
 		return result;  
 	}
+	
+	/**
+	 * 查询所有的班级的所有考试的平均分
+	 * @return 按照Echars所需要的格式返回JSON格式的参数 
+	 */
+	@RequestMapping(value = "Teacher/selClassContestAVG", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String selClassContestAVG(HttpServletRequest request) {
+		Map<String,Object> resultMap = new HashMap<String, Object>();
+		List<String> seriesList = new ArrayList<String>(); //存series供图表用
+		Set set = new HashSet(); //利用set特性来去重
+		List<String> titleList = new ArrayList<String>();	//格式为：['titleList', 'C语言测试', 'JAVA测试', 'python测试','C++测试'],
+		titleList.add("titleList");		//------+1
+		
+		List<String> classNameList = new ArrayList<String>();	//格式为：['软件一班','软件一班','软件一班'],
+		List<List<String>> allAvgList = new ArrayList<>(); //格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],
+		
+		//创建供sql in 语句查询的对象，下面对前端参数进行分割拼接成list
+		List claList = new ArrayList();
+		List conList = new ArrayList();
+		//默认定义班级名称为查询到的前四个班级
+		List<Map<String,Object>> tempList = teacherService.selAllClassObj();
+		if(tempList.size()>4) {	//只有大于4个班级才需要进行循环赋值，否则只需要显示全部即可
+			for (int i=0; i<4; i++) {
+				claList.add(tempList.get(i).get("name").toString());
+			}
+		}
+		
+		if(request.getParameter("selclass") != null && !("null").equals(request.getParameter("selclass"))) {
+			claList.clear(); //清楚前面干扰的初始化数据
+			String className = request.getParameter("selclass").toString();
+			className = className.substring(2,className.length()-2); //去掉首尾["  "]
+			className = className.replaceAll("\",\"",",");
+			String str[] = className.split(",");
+			for (String string : str) {
+				claList.add(string);
+			}
+		}else if(claList.size()==0) {
+			claList = null;
+		}
+		
+		
+		
+		if(request.getParameter("selcontest") != null && !("null").equals(request.getParameter("selcontest"))) {
+			String contest = request.getParameter("selcontest").toString();
+			contest = contest.substring(2,contest.length()-2); //去掉首尾["  "]
+			contest = contest.replaceAll("\",\"",",");
+			String str[] = contest.split(",");
+			for (String string : str) {
+				conList.add(string);
+			}
+		}else {
+			conList = null;
+		}
+		
+		//获取某个班级某场考试的平均分
+		List<Map<String,Object>> classList = teacherService.selClassContestAVG(claList, conList);
+		if(classList.size() > 0) {
+			for (Map<String, Object> map : classList) {
+				String title = map.get("title").toString();
+				String classname = map.get("classname").toString();
+				if(set.add(title)) { //去重判断
+					titleList.add(title);
+				}
+				if(set.add(classname)) { //去重判断
+					classNameList.add(classname);
+				}
+			}
+			
+			//计算并拼接 series: [ {type: 'bar'},{type: 'bar'}]
+			int size = titleList.size()-1;	//减一是因为前面默认加了titleList.add("titleList")
+			String series = "{type: 'bar'}";
+			for(int i=0;i<size;i++)  {
+				seriesList.add(series);
+			}
+			System.out.println("seriesList----"+seriesList);
+			Set set2 = new HashSet(); //利用set特性来去重
+			//添加完班级名称和考试名称集合后，遍历查询数据的键值对集合，组装特定格式数据（格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],）
+			allAvgList.add(titleList);//添加每个bar的名称集合在集合第一位置
+			
+			List<String> titleList2 = new ArrayList<String>();	//用于遍历，便于组装参数
+			titleList2.addAll(titleList);
+			titleList2.remove(0);	//去掉干扰项"titleList"，便于组装参数
+			
+			for(String classname : classNameList) {
+				List<String> classAvgList = new ArrayList<String>(); //格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],
+				classAvgList.add(classname);
+				for(String title : titleList2) {
+					String average = "0";	//给某个班级没有进行某门考试的位置赋值0，防止数据错位
+					for (Map<String, Object> map : classList) {
+						if(map.get("title").equals(title) && map.get("classname").equals(classname)) {
+							average = map.get("average").toString();
+						}
+					}
+					classAvgList.add(average); //格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],
+					System.out.println("classAvgList-----"+classAvgList);
+				}
+				allAvgList.add(classAvgList);
+				System.out.println("allAvgList-----"+allAvgList);
+			}
+		}
+		resultMap.put("series", seriesList);
+		resultMap.put("dataset", allAvgList);
+		resultMap.put("msg", "请求成功");
+		resultMap.put("status", 1);
+		return JSONObject.fromObject(resultMap).toString();
+	}
+	
+	/**
+	 * 查询所有的班级的所有考试的最高分
+	 * @return 按照Echars所需要的格式返回JSON格式的参数 
+	 */
+	@RequestMapping(value = "Teacher/selClassContestMAX", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String selClassContestMAX(HttpServletRequest request) {
+		Map<String,Object> resultMap = new HashMap<String, Object>();
+		List<String> seriesList = new ArrayList<String>(); //存series供图表用
+		Set set = new HashSet(); //利用set特性来去重
+		List<String> titleList = new ArrayList<String>();	//格式为：['titleList', 'C语言测试', 'JAVA测试', 'python测试','C++测试'],
+		titleList.add("titleList");		//------+1
+		
+		List<String> classNameList = new ArrayList<String>();	//格式为：['软件一班','软件一班','软件一班'],
+		List<List<String>> allMaxScoreList = new ArrayList<>(); //格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],
+		
+		//创建供sql in 语句查询的对象，下面对前端参数进行分割拼接成list
+		List claList = new ArrayList();
+		List conList = new ArrayList();
+		
+		//默认定义班级名称为查询到的前四个班级
+		List<Map<String,Object>> tempList = teacherService.selAllClassObj();
+		if(tempList.size()>4) {	//只有大于4个班级才需要进行循环赋值，否则只需要显示全部即可
+			for (int i=0; i<4; i++) {
+				claList.add(tempList.get(i).get("name").toString());
+			}
+		}
+				
+		if(request.getParameter("selclass") != null && !("null").equals(request.getParameter("selclass"))) {
+			claList.clear(); //清楚前面干扰的初始化数据
+			String className = request.getParameter("selclass").toString();
+			className = className.substring(2,className.length()-2); //去掉首尾["  "]
+			className = className.replaceAll("\",\"",",");
+			String str[] = className.split(",");
+			for (String string : str) {
+				claList.add(string);
+			}
+		}else if(claList.size()==0) {
+			claList = null;
+		}
+		
+		if(request.getParameter("selcontest") != null  && !("null").equals(request.getParameter("selcontest"))) {
+			String contest = request.getParameter("selcontest").toString();
+			contest = contest.substring(2,contest.length()-2); //去掉首尾["  "]
+			contest = contest.replaceAll("\",\"",",");
+			String str[] = contest.split(",");
+			for (String string : str) {
+				conList.add(string);
+			}
+		}else {
+			conList = null;
+		}
+		//获取某个班级某场考试的平均分
+		List<Map<String,Object>> classList = teacherService.selClassContestAVG(claList, conList);
+		if(classList.size() > 0) {
+			for (Map<String, Object> map : classList) {
+				String title = map.get("title").toString();
+				String classname = map.get("classname").toString();
+				if(set.add(title)) { //去重判断
+					titleList.add(title);
+				}
+				if(set.add(classname)) { //去重判断
+					classNameList.add(classname);
+				}
+			}
+			
+			//计算并拼接 series: [ {type: 'bar'},{type: 'bar'}]
+			int size = titleList.size()-1;	//减一是因为前面默认加了titleList.add("titleList")
+			String series = "{type: 'bar'}";
+			for(int i=0;i<size;i++)  {
+				seriesList.add(series);
+			}
+			Set set2 = new HashSet(); //利用set特性来去重
+			//添加完班级名称和考试名称集合后，遍历查询数据的键值对集合，组装特定格式数据（格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],）
+			allMaxScoreList.add(titleList);//添加每个bar的名称集合在集合第一位置
+			
+			List<String> titleList2 = new ArrayList<String>();	//用于遍历，便于组装参数
+			titleList2.addAll(titleList);
+			titleList2.remove(0);	//去掉干扰项"titleList"，便于组装参数
+			
+			for(String classname : classNameList) {
+				List<String> classMaxList = new ArrayList<String>(); //格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],
+				classMaxList.add(classname);
+				for(String title : titleList2) {
+					String maxscore = "0";	//给某个班级没有进行某门考试的位置赋值0，防止数据错位
+					for (Map<String, Object> map : classList) {
+						if(map.get("title").equals(title) && map.get("classname").equals(classname)) {
+							maxscore = map.get("maxscore").toString();
+						}
+					}
+					classMaxList.add(maxscore); //格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],
+				}
+				allMaxScoreList.add(classMaxList);
+				System.out.println("allAvgList-----"+allMaxScoreList);
+			}
+		}
+		resultMap.put("series", seriesList);
+		resultMap.put("dataset", allMaxScoreList);
+		resultMap.put("msg", "请求成功");
+		resultMap.put("status", 1);
+		return JSONObject.fromObject(resultMap).toString();
+	}
+	
 }

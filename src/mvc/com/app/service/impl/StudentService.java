@@ -66,4 +66,20 @@ public interface StudentService {
 	 * @return
 	 */
 	public List<Map<String,Object>> selOwnContest(String stuId, String keyword, String pageSize, String pageNumber);
+	
+	/**
+	 * 查询某个学生的个人成绩和班级考试的平均分
+	 * @param stuId	用户Id	
+	 * @param contestName 考试名字
+	 * @return 所有对象
+	 */
+	public List<Map<String,Object>> selOneStuScoreAVG(String stuId,List contestName); 
+	
+	/**
+	 * 查询某个学生的所有考试名称
+	 * @param stuId	用户Id	
+	 * @return 所有对象
+	 */
+	public List<Map<String,Object>> selStuContestTitle(String stuId); 
+	
 }

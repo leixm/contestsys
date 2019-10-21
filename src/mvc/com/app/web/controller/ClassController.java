@@ -41,7 +41,7 @@ public class ClassController {
 	 * @description 查询班级
 	 * @return 班级信息
 	 */
-	@RequestMapping(value = "Class/GetAllClass", method = { RequestMethod.POST }, produces = "text/html;charset=UTF-8")
+	@RequestMapping(value = "Class/GetAllClass", produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public String GetAllClass(HttpServletRequest request, HttpServletResponse response, String Keyword)
 			throws Exception {

@@ -30,10 +30,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 public class StudentController {
@@ -424,6 +427,8 @@ public class StudentController {
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					Date startDate = sdf.parse(start);
 					Date endDate = sdf.parse(end);
+					String contestStatusId = map.get("cstatusid").toString();
+					map.put("cstatusid", contestStatusId);
 					if(nowDate.getTime()<startDate.getTime()) {
 						cstatus = "未开始";
 					}else if(endDate.getTime() >= nowDate.getTime() && nowDate.getTime() >= startDate.getTime()) {
@@ -453,6 +458,100 @@ public class StudentController {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * zzs
+	 * 查询所有的班级的所有考试的平均分
+	 * @return 按照Echars所需要的格式返回JSON格式的参数 
+	 */
+	@RequestMapping(value = "Student/selOneStuScoreAVG", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String selOneStuScoreAVG(HttpServletRequest request) {
+		Map<String,Object> resultMap = new HashMap<String, Object>();
+		List<String> seriesList = new ArrayList<String>(); //存series供图表用
+		Set set = new HashSet(); //利用set特性来去重
+		List<String> titleList = new ArrayList<String>();	//格式为：['titleList', '个人成绩', '所在班级平均分'],
+		titleList.add("titleList");		//------+1
+		titleList.add("个人成绩");	
+		titleList.add("所在班级平均分");	
+		List<String> contestNameList = new ArrayList<String>();	//格式为：['C语言测试',''C++语言测试''。。。。。],
+		List<List<String>> allScoreList = new ArrayList<>(); //封装多条数据集，部分格式为： ['C语言测试', '43.3', 85.8],
+		allScoreList.add(titleList);  //添加固定集合头头  echars规定格式
+		
+		//创建供sql in 语句查询的对象，下面对前端参数进行分割拼接成list
+		List conList = new ArrayList();
+		
+		if(request.getParameter("selcontest") != null && !("null").equals(request.getParameter("selcontest"))) {
+			String contest = request.getParameter("selcontest").toString();
+			contest = contest.substring(2,contest.length()-2); //去掉首尾["  "]
+			contest = contest.replaceAll("\",\"",",");
+			String str[] = contest.split(",");
+			for (String string : str) {
+				conList.add(string);
+			}
+		}else {
+			conList = null;
+		}
+		//通过session获取userId
+		User user = (User)request.getSession().getAttribute("user");
+		String stuId = user.getUserId();
+		
+		//获取某个学生考试的成绩和班级平均分
+		List<Map<String,Object>> OneStuScoreList = studentService.selOneStuScoreAVG(stuId, conList);
+		if(OneStuScoreList.size() > 0) {
+			for (Map<String, Object> map : OneStuScoreList) {
+				List<String> OneStuScore = new ArrayList<String>();  //封装一条数据集['C语言测试', '43.3', 85.8],
+				String title = map.get("title").toString();
+				String score = map.get("score").toString();
+				String avg = map.get("class_avg").toString();
+				
+				contestNameList.add(title);
+				OneStuScore.add(title);
+				OneStuScore.add(score);
+				OneStuScore.add(avg);
+				allScoreList.add(OneStuScore);
+			}
+			
+			
+			//计算并拼接 series: [ {type: 'bar'},{type: 'bar'}] 
+			int size = 2;	//因为只有两个['titleList', '个人成绩', '所在班级平均分']所以size=2
+			String series = "{type: 'bar'}";
+			for(int i=0;i<size;i++)  {
+				seriesList.add(series);
+			}
+		}
+		resultMap.put("series", seriesList);
+		resultMap.put("dataset", allScoreList);
+		resultMap.put("msg", "请求成功");
+		resultMap.put("status", 1);
+		return JSONObject.fromObject(resultMap).toString();
+	}
+	
+	/**
+	 * @description 查所有的考试名称
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Student/selStuContestTitle", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String selStuContestTitle(HttpServletRequest request) {
+		//通过session获取userId
+		User user = (User)request.getSession().getAttribute("user");
+		String stuId = user.getUserId();
+				
+		Map<String,Object> resultMap = new HashMap<String, Object>();
+		List<Map<String,Object>> contestList = studentService.selStuContestTitle(stuId);
+		List<String> contestNameList = new ArrayList<String>();
+		
+		if(contestList.size() > 0) {
+			for (Map<String, Object> contestObj : contestList) {
+				contestNameList.add(contestObj.get("title").toString());
+			}
+		}
+		
+		resultMap.put("contestname", contestNameList);
+		resultMap.put("msg", "查询成功");
+		return JSONObject.fromObject(resultMap).toString();
 	}
 }
 

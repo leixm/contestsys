@@ -101,6 +101,11 @@ public class ContestService {
        return contestStatusDao.GetAllContestStudent(id);
 	}
 	
+	/**
+	 * 根据考试id和班级id添加contest_status
+	 * @param contest_id
+	 * @param class_id
+	 */
 	public void AddContestClass(Integer contest_id,Integer class_id)
 	{
 
@@ -108,15 +113,43 @@ public class ContestService {
 		UserExample.Criteria criteria = userExample.createCriteria();
 		criteria.andClassIdEqualTo(class_id);
 		List<User> users = userDao.selectByExample(userExample);
-        for(User user : users){
-        	ContestStatus contestStatus = new ContestStatus();
+		
+		/*判断同一门考试（contest_id）同个学生（user_id）是否已经存在考试表格,如果有，则不添加到contest_status表*/
+		
+		//查询数据库中contest_id和userid条件下存在的学生，将其记录到existentUserId中
+		List<String> existentUserId = new ArrayList<String>();
+		for(User user : users){ 
+	    	ContestStatusExample cStatusExample = new ContestStatusExample();
+	    	ContestStatusExample.Criteria criteria1 = cStatusExample.createCriteria();
+	    	criteria1.andContestIdEqualTo(contest_id);
+	    	criteria1.andStudentEqualTo(user.getUserId());
+			List<ContestStatus> contestStatus = contestStatusDao.selectByExample(cStatusExample);
+			if(contestStatus.size()>0) {
+				for (ContestStatus contestStatus2 : contestStatus) {
+					existentUserId.add(contestStatus2.getStudent());
+				}
+			}
+		}
+		System.out.println("existentUserId-----"+existentUserId);
+		
+		if(existentUserId.size()>0) {
+			for(int i=0; i<users.size(); i++) {
+				for(String str : existentUserId) {
+					if(str.equals(users.get(i).getUserId())) {
+						users.remove(i);	//去掉已存在contestStatus表格中的考生名单,防止重复插入考试
+					}
+				}
+			}
+    	}
+		
+		for(User user : users){
+			ContestStatus contestStatus = new ContestStatus();
         	contestStatus.setStudent(user.getUserId());
         	contestStatus.setContestId(contest_id);
         	contestStatus.setScore(new BigDecimal(0));
         	contestStatus.setStatus(new Integer(0));
         	contestStatusDao.insert(contestStatus);
-        }
-		
+		}
 	}
 
 }

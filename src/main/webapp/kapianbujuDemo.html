@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>卡片效果</title>
+        <link href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <style type="text/css">
+            .cardBox {
+                width: 200px;
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+                text-align: center;
+                float: left;
+                margin-right: 10px;
+                padding: 5px;
+                padding-top: 15px;
+            }
+
+            .headerBox {
+                color: #fff;
+                padding: 10px;
+                font-size: 15px;
+                height: 60px;
+            }
+
+            .bodyBox {
+                padding: 10px;
+            }
+
+            .bodyBox p {
+                margin-left: 5px;
+            }
+            
+			            
+			.cardBox:hover {
+				transition: all 0.2s ease-in-out 0s;
+		        background-color:#4caf50;
+		    }
+        </style>
+    </head>
+
+    <body>
+        <div>
+            <div class="cardBox" style="height: 140px; display: block; margin: 200px auto; border-radius:18px;">
+                <div  onclick="alert('成功')" class="headerBox" id="headerBox" style="cursor:pointer; background-color: #4caf50; height: 130px; margin-top: -10px; border-radius:18px; ">
+                    <p>
+                    	项目名称一
+                    </p>
+                </div>
+            </div>
+
+            <div class="cardBox">
+                <div class="headerBox" style="background-color: #5BC0DE;">
+                    <p>项目名称二</p>
+                </div>
+                <div class="bodyBox">
+                    <p>项目经理：朱焕宏</p>
+                    <p>项目主管：朱焕宏</p>
+                    <p>项目状态：
+                        <a href="javascript:void(0)" class="label label-info" style="border-radius: .25em;">初始化</a>
+                    </p>
+                    <p>异常状态：<span style="color:green">无异常</span></p>
+                    <p>加工量：0</p>
+                </div>
+            </div>
+
+     
+        </div>
+
+    </body>
+
+</html>
