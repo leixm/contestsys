@@ -97,8 +97,8 @@ public class TeacherServiceImpl implements TeacherService{
 	private ContestStatusMapper contestStatusDao;
 
 	// 输入文件和输出文件存放地址
-//	private String InputAndOutputDataDir = "F:/test_data";
-	private String InputAndOutputDataDir = "/home/judge/data";
+	private String InputAndOutputDataDir = "F:/test_data";
+//	private String InputAndOutputDataDir = "/home/judge/data";
 
 	/**
 	 * @author zzs
