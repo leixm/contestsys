@@ -833,7 +833,7 @@ catch(ex){}
 	function Create_jqRadio(content,num,count)
 	{
 		var id = 'q' + num + '_' + count;
-		var s = '<li style="width: 99%;"><a href="javascript:" class="jqRadio" rel="' + id + '"></a><input style="display:none;" type="radio" id="'+ id +'" value="' + content +'" /><label onmouseover="selected(this)" onmouseout="unselected(this)" onclick="radioClick(this)" id="' + id + '_text" for="' + id + '">' + content + '</label></li>';
+		var s = '<li style="width: 99%;"><a href="javascript:" class="jqRadio" rel="' + id + '"></a><input style="display:none;" type="radio" id="'+ id +'" value=\'' + content +'\' /><label onmouseover="selected(this)" onmouseout="unselected(this)" onclick="radioClick(this)" id="' + id + '_text" for="' + id + '">' + content + '</label></li>';
 		return s;
 	}
 	function Create_clear_div(){
@@ -842,12 +842,12 @@ catch(ex){}
 	function Create_jqCheckbox(content,num,count)
 	{
 		var id = 'q' + num + '_' + count;
-		var s = '<li style="width:99%;"><a href="javascript:" class="jqCheckbox" rel="' + id +'"></a><input style="display:none;" id="' + id + '" type="checkbox"  value="' + content + '" /><label onmouseover="selected(this)" onmouseout="unselected(this)" onclick="checkboxClick(this)" id="' + id + '_text">' + content + '</label></li>';
+		var s = '<li style="width:99%;"><a href="javascript:" class="jqCheckbox" rel="' + id +'"></a><input style="display:none;" id="' + id + '" type="checkbox"  value=\'' + content + '\' /><label onmouseover="selected(this)" onmouseout="unselected(this)" onclick="checkboxClick(this)" id="' + id + '_text">' + content + '</label></li>';
 	    return s;
 	}
 	function CreateProblemContent(obj) 
 	{
-		var s = '题目标题：' + obj.title +'<br>题目描述：'+ obj.description +'<br>时间限制:' + obj.timeLimit +' sec<br>内存限制:' + obj.memoryLimit + ' MB<br>数据输入:<br>' + obj.sampleInput + '<br>数据输出<br>' + obj.sampleOutput +'<br>提示:<br>' + obj.hint;
+		var s = '题目标题：' + obj.title.replace("\\n","&#10") +'<br>题目描述：'+ obj.description.replace("\\n","&#10") +'<br>时间限制:' + obj.timeLimit +' sec<br>内存限制:' + obj.memoryLimit + ' MB<br>数据输入:<br>' + obj.sampleInput.replace("\\n","&#10") + '<br>数据输出<br>' + obj.sampleOutput.replace("\\n","&#10") +'<br>提示:<br>' + obj.hint.replace("\\n","&#10");
 		return s;
 	}
 	function Create_underline(content,num,count)
