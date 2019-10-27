@@ -227,7 +227,7 @@
 
 	});
 
-	// 记录所有上传的url {"1":{"1/input": abc , "1/output": sad}}
+	// 记录所有上传的url {"1":{"1/in": abc , "1/out": sad}}
 	var fileUrlData = new Object()
 
     var InputOrOutputFileChange = function(obj,count_program,count_file,type){
@@ -252,8 +252,8 @@
 
                     var obj = fileUrlData[count_program]
                     if(type==1)
-                    obj[count_file + "/input"] = data.msg
-                    else obj[count_file + "/output"] = data.msg
+                    obj[count_file + "/in"] = data.msg
+                    else obj[count_file + "/out"] = data.msg
                     fileUrlData[count_program] = obj
 
                     console.log(fileUrlData)
