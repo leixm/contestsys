@@ -110,6 +110,13 @@ public interface TeacherService {
 	 */
 	public List<Map<String,Object>> selStuScore(String className,String stuId,String stuName,String contestName,String pageSize,String pageNumber); 
 	
+
+	/**
+	 * 查询出所有学生成绩表
+	 * @return 成绩实体Map对象集合
+	 */
+	public List<Map<String,Object>> selAllStuScore(); 
+	
 	/**
 	 * 根据搜索条件模糊查询出学生成绩表
 	 * @param cstatusid: 所更新成绩对应的表的主键id

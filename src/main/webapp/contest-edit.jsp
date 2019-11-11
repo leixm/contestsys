@@ -123,12 +123,14 @@
                 </form> 
             </div>
         </div>
-        <script>layui.use(['form', 'layer'],
+        <script>
+        var startTime,endTime,startTimeS,endTimeS;
+        layui.use(['form', 'layer','laydate'],
             function() {
                 $ = layui.jquery;
                 var form = layui.form,
                 layer = layui.layer;
-
+ 				var laydate = layui.laydate; 
 
                 //监听提交
                 form.on('submit(add)',
@@ -168,7 +170,27 @@
                     
                     
                 });
-
+				laydate.render({
+						elem: '#startTimeS',
+						type: 'datetime',
+						format: 'yyyy-MM-dd HH:mm:ss',
+						min: '2019-5-20',
+						done: function(value, date, endDate) {
+							startTime = date;
+							startTimeS = value;
+						}
+					});
+					laydate.render({
+						elem: '#endTimeS',
+						type: 'datetime',
+						format: 'yyyy-MM-dd HH:mm:ss',
+						min: '2019-5-20',
+						done: function(value, date, endDate) {
+						    endTime = date;
+						    startTimeS = value;
+						}
+					});
+				
             });</script>
         <script>var _hmt = _hmt || []; (function() {
                 var hm = document.createElement("script");

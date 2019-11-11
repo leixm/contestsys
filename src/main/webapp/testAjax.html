@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  		<meta charset="UTF-8">
+		<title>欢迎页面-X-admin2.2</title>
+		<meta name="renderer" content="webkit">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<link rel="stylesheet" href="lib/layui/css/layui.css">
+		<link rel="stylesheet" href="css/font.css">
+		<link rel="stylesheet" href="css/xadmin.css">
+		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+		<script src="./lib/layui/layui.all.js" charset="utf-8"></script>
+		<script type="text/javascript" src="./js/xadmin.js"></script>
+    	<style type="text/css">
+    		html,body{margin: 0; padding: 0}
+				p{margin: 0; padding: 5px 0;}
+				p:hover{background: #ccc;}
+				.search{
+				    position: relative; 
+				    letter-spacing: -4px;
+				    margin: 20px 20px 0; 
+				    border: 1px solid #000;}
+				input{
+				    padding: 0; 
+				    border: none; 
+				    width: 10%; 
+				    height: 30px; 
+				    outline:none; 
+				    font-size: 16px;}
+				.search span{
+				    position: absolute; 
+				    top: 0; 
+				    right: 0; 
+				    width: 45px; 
+				    line-height: 30px; 
+				    letter-spacing: normal; 
+				    text-align: center; 
+				    cursor: pointer; 
+				    background: #ccc;}
+				.history{
+				    position: absolute; 
+				    left: 20px; 
+				    right: 20px; 
+				    margin: 0 auto; 
+				    border: 1px solid #000; 
+				    display: none;}
+    	</style>
+	  </head>
+	  
+	  
+	  <body>
+	  	Search <input type="text" name="name" class="inputtable"  id="name" /> 
+	           <input type="button" id="ajax" value="搜索" border="0" style="margin-bottom:-4px" ">
+	           <div id="context1" style="background-color:white; border: 1px solid red;width:128px;position: absolute;top: 133px;left:944px;display:none" ></div>
+	  			  <div class="history">
+			            <p>139</p>
+			            <p>12306</p>
+        			</div>
+	  	<script type="text/javascript">
+			$(".inputtable").keyup(function(){
+		        var content=$(this).val();
+		        //如果当前搜索内容为空，无须进行查询
+		        if(content==""){
+		            $("#context1").css("display","none");
+		            return ;
+		        }
+		        //由于浏览器的缓存机制 所以我们每次传入一个时间
+		        var time=new Date().getTime();
+		        $.ajax({
+		       		async:true,
+		            type:"get",
+		            //新建一个名为findBooksAjaxServlet的servlet
+		            url:"Teacher/selAjaxData",
+		            data:{name:content,time:time},
+		            success:function(data){
+		            	$(".inputtable").hidden();
+		                //拼接html
+		                var res=data.split(",");
+		                var html="";
+		                for(var i=0;i<res.length;i++){
+		                    //每一个div还有鼠标移出、移入点击事件
+		                    html+="<div οnclick='setSearch_onclick(this)' οnmοuseοut='changeBackColor_out(this)' οnmοuseοver='changeBackColor_over(this)'>"+res[i]+"</div>";
+		                }
+		                $("#context1").html(html);
+		                //显示为块级元素
+		                $("#context1").css("display","block");
+		            }
+		        });
+		        
+		        //鼠标移动到内容上
+			    function changeBackColor_over(div){
+			        $(div).css("background-color","#CCCCCC");
+			    }
+			    //鼠标离开内容
+			    function changeBackColor_out(div){
+			        $(div).css("background-color","");
+			    }
+			    //将点击的内容放到搜索框
+			    function setSearch_onclick(div){
+			        $(".inputtable").val(div.innerText);
+			        $("#context1").css("display","none");
+			    }
+		    });
+			  
+	    </script>
+	  </body>
+</html>
+
+
+
+

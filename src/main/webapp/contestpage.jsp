@@ -1134,7 +1134,9 @@ function submitpaper()
 		 pro.prob[i].solution = solu;
 	 }
 	 console.log(pro) 
-	 	
+		
+	
+	
   	layui.use(['layer', 'form'], function(){
   		var layerIndex = layer.load(1, { shade: [0.5, '#393D49'] });	//加载动画 
       	layer.confirm('确定提交答卷？', function(index) {
@@ -1152,15 +1154,16 @@ function submitpaper()
 					      });
 					      setTimeout(
 							function(){
-								window.history.back(-1);  //回退
+                                javascript:top.location.reload();  //回退主页
 							},
 							3000)
 					 }, 
 					 error: function(data){
+					     layer.close(layerIndex);	//关闭加载动画
 					 	 layer.close(layerIndex);
 						 layui.use(['layer', 'form'], function(){
 							 //配置一个透明的询问框
-							layer.msg('提交失败', {
+							layer.msg('提交失败, 请将试题填写完整', {
 					        	time: 3000, //4s后自动关闭
 					      	});
 						 });

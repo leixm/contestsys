@@ -5,7 +5,7 @@
     <link href="./设计问卷 － 专业的在线问卷调查平台_files/NewDefault.css" rel="stylesheet" type="text/css">
     <link id="linkBaseUrl" rel="stylesheet" type="text/css" href="./设计问卷 － 专业的在线问卷调查平台_files/q.css">
     
-    <link href="./设计问卷 － 专业的在线问卷调查平台_files/iconFont.css" rel="stylesheet">
+    <link href="./设计问卷 － 专业的在线问卷调查平台_files/iconfont.css" rel="stylesheet">
     <link href="./设计问卷 － 专业的在线问卷调查平台_files/designnew.css" rel="stylesheet" type="text/css">
     <link type="text/css" rel="stylesheet" href="./设计问卷 － 专业的在线问卷调查平台_files/default.css">
     <link rel="stylesheet" href="kindeditor/themes/default/default.css" />
@@ -111,6 +111,11 @@
             padding-left: 10%;
             line-height: 23px;
         }
+        
+        #subUl a:hover {
+        background: #008080;
+        color: #fff;
+    }
     </style> 
     <title></title>
 </head>
@@ -120,45 +125,48 @@
             <ul class="tabQTypet" id="divNormal">
                 <li class="open">
                     <div style="text-align: left;" class="classifyTitle">
-                        <i class="iconfont"></i><span>选择题</span>
+                        <span>选择题</span>
                     </div>                              
                     <ul class="navlist">
-                        <li><a id="hrefChoice" href="javascript:void(0);" onclick="addSelect()"><i class="iconfont"></i><span>单选</span></a></li>
-                        <li><a href="javascript:void(0);" id="hrefMultiChoice" onclick="addMulti()"><i class="iconfont"></i><span>多选</span></a></li>
+                        <li><a id="hrefChoice" href="javascript:void(0);" onclick="addSelect()"><i class="iconfont"><span>单选</span></i></a></li>
+                        <li><a href="javascript:void(0);" id="hrefMultiChoice" onclick="addMulti()"><i class="iconfont"><span>多选</span></i></a></li>
                     </ul>
                 </li>
                
                 <li class="open">
                     <div style="text-align: left;" class="classifyTitle">
-                    <i class="iconfont down"></i></i><span>填空题</span>
+                    </i><span>填空题</span>
                     </div>
                     <ul class="navlist">
-                        <li><a href="javascript:void(0);" id="fillBlank" onclick="addFilBlank()"><i class="iconfont"></i><span>填空题</span></a></li>
+                        <li><a href="javascript:void(0);" id="fillBlank" onclick="addFilBlank()"><i class="iconfont"><span>填空题</span></i></a></li>
                     </ul>
                 </li>
                 <li class="open">
                     <div style="text-align: left;" class="classifyTitle">
-                        <i class="iconfont"></i><span>判断题</span>
+                        <span>判断题</span>
                     </div>                              
                     <ul class="navlist">
-                        <li><a id="judge" href="javascript:void(0);" onclick="addJudge()"><i class="iconfont"></i><span>判断题</span></a></li>
+                        <li><a id="judge" href="javascript:void(0);" onclick="addJudge()"><i class="iconfont"><span>判断题</span></i></a></li>
                     </ul>
                 </li>
                 <li class="open">
                     <div style="text-align: left;" class="classifyTitle">
-                        <i class="iconfont"></i><span>大题</span>
+                        <span>大题</span>
                     </div>                              
                     <ul class="navlist">
-                        <li><a id="questionAnswer" href="javascript:void(0);" onclick="addqa()"><i class="iconfont"></i><span>问答题</span></a></l>
-                        <li><a id="program" href="javascript:void(0);" onclick="addProgram()" ><i class="iconfont"></i><span>编程题</span></a></li>
+                        <li><a id="questionAnswer" href="javascript:void(0);" onclick="addqa()"><i class="iconfont"><span>问答题</span></i></a></l>
+                        <li><a id="program" href="javascript:void(0);" onclick="addProgram()" ><i class="iconfont"><span>编程题</span></i></a></li>
                     </ul>
                 </li>
+                <li style="margin-top: 240px;"></li>
                 <li class="open">
-                    <div style="text-align: left;" class="classifyTitle">
-                        <i class="iconfont"></i><span>完成</span>
-                    </div>                              
-                    <ul class="navlist">
-                        <li><a id="program" href="javascript:void(0);" onclick="submitPaper()" ><i class="iconfont"></i><span>提交试卷</span></a></li>
+                                            
+                    <ul class="navlist" id="subUl">
+                        <li style="margin-left: 50px;"><a id="program" style="text-align: center;" href="javascript:void(0);" onclick="submitPaper()" >
+                        <i class="iconfont">
+                        	<span style="font-size: 20px;font-weight: bold;margin-left: -25px;">提交试卷</span>
+                        </i></a>
+                 </li>
                     </ul>
                 </li>
             </ul>
@@ -1411,6 +1419,7 @@
                 success: function (dt) {
                 if(dt.success > 0){
                     alert(dt.msg);
+                    window.location.reload();
                 }else{
                     alert(dt.msg);
                 }

@@ -14,10 +14,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.app.dao.ContestMapper;
 import com.app.dao.ContestpaperMapper;
-import com.code.model.Contest;
 import com.code.model.Contestpaper;
+import com.github.pagehelper.PageHelper;
 
 import net.sf.json.JSONArray;
 
@@ -27,10 +26,17 @@ public class ContestPaperService {
 	@Autowired
 	private ContestpaperMapper contestpaperDao;
 	
-	public JSONArray GetAllContestPaper(String Keyword,String startTime,String endTime){
+	public List GetAllContestPaper(String Keyword,String startTime,String endTime,String pageSize,String pageNumber){
         System.out.println("key=" + Keyword + " startTime=" + startTime + "endTime=" + endTime);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		
+		//分页所需相关参数的计算
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
 		
 		if(Keyword!=null && !Keyword.trim().isEmpty()){
 			if(startTime!=null && endTime!=null && !startTime.trim().isEmpty() && !endTime.trim().isEmpty()){
@@ -52,7 +58,7 @@ public class ContestPaperService {
 	        map.put("date", sdf.format((Date)map.get("date")));
 	    }
 	    System.out.println(JSONArray.fromObject(list).toString());
-	    return JSONArray.fromObject(list);
+	    return list;
 	}
 	
 	public int AddContestPaper(Contestpaper contestpaper){

@@ -90,25 +90,35 @@
     from contest
     where contest_id = #{contestId,jdbcType=INTEGER}
   </select>
+	
    
+  <select id="selAllByUserId" resultType="map" parameterType="java.lang.String">
+  	select * from contest where teacher = #{0}
+  	order by endTime desc
+  </select> 
+  
   <select id="listAll" resultType="map" >
  select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName from contest,user,contestpaper
  where contest.teacher = user.user_id and contest.paper_id = contestpaper.paper_id
+ order by endTime desc
  </select>
    
   <select id="listAllByKeyword" resultType="map" parameterType="java.lang.String">
     select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName from contest,user,contestpaper
  where contest.teacher = user.user_id and contest.paper_id = contestpaper.paper_id and (contest_id=#{0} or contest.title=#{0} or contestpaper.title=#{0} or user.realName=#{0})
+  order by endTime desc
   </select> 
      
    <select id="listAllByDate" resultType="map" parameterType="java.lang.String">
     select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName from contest,user,contestpaper
  where contest.teacher = user.user_id and contest.paper_id = contestpaper.paper_id and (startTime between #{0} and #{1})
+  order by endTime desc
   </select>
   
   <select id="listAllByKeywordAndDate" resultType="map" parameterType="java.lang.String">
     select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName from contest,user,contestpaper
  where contest.teacher = user.user_id and contest.paper_id = contestpaper.paper_id and (contest_id=#{0} or contest.title=#{0} or contestpaper.title=#{0} or user.realName=#{0}) and (startTime between #{1} and #{2})
+  order by endTime desc
   </select>
   
   

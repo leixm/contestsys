@@ -177,7 +177,6 @@
 						elem: '#startTimeS',
 						type: 'datetime',
 						format: 'yyyy-MM-dd HH:mm:ss',
-						max: '2020-5-20',
 						min: '2019-5-20',
 						done: function(value, date, endDate) {
 							startTime = date;
@@ -188,7 +187,6 @@
 						elem: '#endTimeS',
 						type: 'datetime',
 						format: 'yyyy-MM-dd HH:mm:ss',
-						max: '2020-5-20',
 						min: '2019-5-20',
 						done: function(value, date, endDate) {
 						    endTime = date;

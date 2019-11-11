@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 public interface ClassMapper {
     int countByExample(ClassExample example);
@@ -33,5 +34,8 @@ public interface ClassMapper {
     List<Map<String,Object>> listAll();
     
     List<Map<String,Object>> listAllByKeyword(String keyword);
+    
+    @Select("select class_id from class where name = #{classname}")
+    List<Map<String,Object>> selByClassname(String classname);
     
 }

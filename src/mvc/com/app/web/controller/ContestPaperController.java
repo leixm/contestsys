@@ -22,6 +22,7 @@ import com.app.service.impl.ContestPaperService;
 import com.code.model.Contest;
 import com.code.model.Contestpaper;
 import com.code.model.LayResponse;
+import com.github.pagehelper.PageInfo;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -44,11 +45,17 @@ public class ContestPaperController {
 	@ResponseBody
 	public String GetAllContestPaper(HttpServletRequest request, HttpServletResponse response, String Keyword,String startTime,String endTime)
 			throws Exception {
+		String pageSize = request.getParameter("limit"); //一页多少个
+		String pageNumber = request.getParameter("page");	//第几页
+		List resultList = contestpaperService.GetAllContestPaper(Keyword,startTime,endTime,pageSize,pageNumber);
 		JSONObject obj = new JSONObject();
-		JSONArray arr = contestpaperService.GetAllContestPaper(Keyword,startTime,endTime);
+		JSONArray arr = JSONArray.fromObject(resultList);
+		//获取分页插件的数据只能通过PageInfo来获取
+		PageInfo pInfo = new PageInfo(resultList);
+		Long total = pInfo.getTotal();
 		obj.put("code", 0);
 		obj.put("msg", "返回成功");
-		obj.put("count", arr.size());
+		obj.put("count", total.intValue());
 		obj.put("data", arr);
 		return obj.toString();
 	}

@@ -115,6 +115,19 @@
       #{classId,jdbcType=INTEGER}, #{registertime,jdbcType=TIMESTAMP}, #{validatetime,jdbcType=TIMESTAMP}, 
       #{state,jdbcType=INTEGER})
   </insert>
+  
+  <insert id="insertStuByExcel" parameterType="com.code.model.User" >
+    insert into user (user_id, realName, password, class_id, level, state)
+    values (#{userId,jdbcType=VARCHAR}, #{realname,jdbcType=VARCHAR},  #{password,jdbcType=VARCHAR},  #{classId,jdbcType=INTEGER},
+   #{level,jdbcType=INTEGER},  #{state,jdbcType=INTEGER})
+  </insert>
+  
+  <insert id="insertTeaByExcel" parameterType="com.code.model.User" >
+    insert into user (user_id, realName, password, level, state)
+    values (#{userId,jdbcType=VARCHAR}, #{realname,jdbcType=VARCHAR},  #{password,jdbcType=VARCHAR},
+   #{level,jdbcType=INTEGER},  #{state,jdbcType=INTEGER})
+  </insert>
+  
   <insert id="insertSelective" parameterType="com.code.model.User" >
     insert into user
     <trim prefix="(" suffix=")" suffixOverrides="," >
@@ -194,18 +207,22 @@
    
   <select id="listAllStudents" resultType="map" >
    select user_id,email,realName,level,name,registerTime from user,class where user.class_id = class.class_id and level=0
+   order by user.class_id,user_id
   </select>
    
   <select id="listAllStudentsByKeyword" resultType="map" parameterType="java.lang.String">
    select user_id,email,realName,level,name,registerTime from user,class where level=0 and (user.user_id=#{0} or email = #{0} or name=#{0} or realName=#{0}) and user.class_id = class.class_id
+   order by user.class_id,user_id
   </select>
   
   <select id="listAllTeachers" resultType="map" >
    select user_id,email,realName,level,registerTime from user where level=1
+   order by user_id
   </select>
    
   <select id="listAllTeachersByKeyword" resultType="map" parameterType="java.lang.String"> 
    select user_id,email,realName,level,registerTime from user where level=1 and (user.user_id=#{0} or email = #{0} or realName=#{0})
+   order by user_id
   </select>
     
   <update id="updateByExampleSelective" parameterType="map" >

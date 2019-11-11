@@ -46,7 +46,7 @@
 							<span class="x-red">*</span>试卷标题
 						</label>
 						<div class="layui-input-inline">
-							<input type="text" id="title" name="title" required="" lay-verify="required" autocomplete="off" class="layui-input" disabled="disabled" value="${contestpaper.title}">
+							<input type="text" id="title" name="title" required="" lay-verify="required" autocomplete="off" class="layui-input" value="${contestpaper.title}">
 						</div>
 						<div class="layui-form-mid layui-word-aux">
 							<span class="x-red">*</span>
@@ -81,7 +81,7 @@
 								success: function(da) {
 									console.log(JSON.stringify(da))
 									if (da.code == 0) {
-										layer.alert('添加成功', {
+										layer.alert('更新成功', {
 												icon: 6
 											},
 											function() {

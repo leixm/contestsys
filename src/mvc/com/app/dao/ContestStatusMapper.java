@@ -36,6 +36,8 @@ public interface ContestStatusMapper {
     
     List<Map<String,Object>> selStuScoreBykeyword(@Param("classname") String className,@Param("stuid") String stuId,@Param("stuname") String stuName,@Param("contestname") String contestName);
     
+    List<Map<String,Object>> selAllStuScore( );
+    
     int updateScore(@Param("cstatusid") int cStatusId,@Param("score") BigDecimal score); 
     
     List<Map<String, Object>> selOwnContestBykeyword(@Param("stuid") String stuId, @Param("keyword") String keyword);

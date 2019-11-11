@@ -231,7 +231,7 @@ public class TeacherController {
 	
 	
 	/**
-	 * 导出年级成绩表
+	 * 导出年级成绩表========================此接口已经没有调用
 	 * 解析：从数据库表获取组建表格需要的List<ScoreExcel>对象，然后通过Excel导出工具导出workbook对象到服务器，在利用download从上边下载到本地即可
 	 * @param user	具体老师
 	 * @param contest 具体考试
@@ -254,6 +254,8 @@ public class TeacherController {
 		String stuId = request.getParameter("stuid");
 		String stuName = request.getParameter("stuname");
 		String contestName = request.getParameter("contestname");
+		System.out.println(stuId);
+		System.out.println(contestName);
 		//判断是否非空后再来去掉前后空格，防止空指针
 		if(className!=null||"".equals(className)) {
 			className = className.trim();
@@ -296,7 +298,7 @@ public class TeacherController {
 				ScoreExcel scoreExcel = new ScoreExcel();
 				scoreExcel.setStudentId(map.get("stuid").toString());
 				scoreExcel.setName(map.get("stuname").toString());
-				scoreExcel.setContestNname(map.get("contestname").toString());
+				scoreExcel.setContestName(map.get("contestname").toString());
 				scoreExcel.setClassName(map.get("classname").toString());
 				scoreExcel.setScore(map.get("score").toString());
 				scoreExcelList.add(scoreExcel);
@@ -497,16 +499,16 @@ public class TeacherController {
 		String contestName = request.getParameter("contestname");
 		//判断是否非空后再来去掉前后空格，防止空指针
 		if(className!=null||"".equals(className)) {
-			className = className.trim();
+			className = className.replaceAll(" ","");
 		}
 		if(stuId!=null||"".equals(stuId)) {
-			stuId = stuId.trim();	
+			stuId = stuId.replaceAll(" ","");	
 		}
 		if(stuName!=null||"".equals(stuName)) {
-			stuName = stuName.trim();
+			stuName = stuName.replaceAll(" ","");
 		}
 		if(contestName!=null||"".equals(contestName)) {
-			contestName = contestName.trim();
+			contestName = contestName.replaceAll(" ","");
 		}
 		//获取分页所需相关数据
 		String pageSize = request.getParameter("limit"); //一页多少个

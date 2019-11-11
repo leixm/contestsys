@@ -40,7 +40,7 @@
 					<a> <cite>导航元素</cite></a>
 				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
 				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
-				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "window.open('welcome.html','_self')"
+				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
 				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
 			</div>
 			<div class="layui-fluid">
@@ -74,21 +74,23 @@
     </script>
 
 		<script type="text/html" id="header">
+			<div id="headbar" style="float:left; display:none;">
+				<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
+				<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加班级</button>
+			</div>		
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px; ">
+				<input name="id" class="layui-input" id="keyword" placeholder="输入关键字查询"> 
+			</div>
+			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
+			<button class="layui-btn" style="float:right"; lay-event="importClass" data-type="importClass" id="importClass"><i class="layui-icon layui-icon-download-circle" ></i>批量导入</button>
+		</script>
 
- 
-
-			<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
-						<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加班级</button>
-						
-						<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
-										<input name="id" class="layui-input" id="keyword" placeholder="输入关键字查询"> 
-									</div>
-									<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
-</script>
 
 		<script type="text/html" id="demotool">
+		<div class="caozuo" style="display:none;">
 			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+		</div>	
     </script>
 
 
@@ -97,6 +99,33 @@
 
 				initTable();
 			});
+			
+			/* 获取用户角色信息 */
+			function roleControl() {
+				$.ajax({
+							type: "POST", 
+							url: "User/getUsername",
+							data: '',
+							async: false,
+							dataType: 'json', 
+							success: function(data) {
+								if(data.level<1) {	//判断有误权限进来此页面
+									alert("无登录权限");
+								}else {
+									if(data.realname!=null&&data.realname!="") {
+										if(data.level==2) { //管理员角色可编辑学生信息
+											$(".caozuo").show();
+											$("#headbar").show();
+										}
+									}else {
+										alert("请先登录系统");
+									}
+								}
+							}
+				})
+			}
+			
+			
 			layui.use('laydate', function() {
 				var laydate = layui.laydate;
 				//时间选择器
@@ -122,7 +151,6 @@
 					table.render({
 						id: 'demo',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
-						height: '600', //容器高度
 						toolbar: '#header',
 						cols: [
 							[{
@@ -130,23 +158,23 @@
 							}, {
 								field: 'class_id',
 								title: '班级id',
-								width: 180,
+								minWidth: 180,
 								sort: true
 							}, {
 								field: 'name',
 								title: '班级名称',
-								width: 180,
+								minWidth: 180,
 								sort: true
 							}, {
 								field: 'realName',
 								title: '任课老师',
-								width: 200,
+								minWidth: 200,
 								sort: true
 							}, {  
 								title: '操作',
 								toolbar: '#demotool',
 								'fixed': 'right',
-								width: 200
+								minWidth: 200
 							}]
 						],
 						url: 'Class/GetAllClass',
@@ -154,7 +182,10 @@
 						limits:  [15, 30, 50, 100],
 						limit: 15, //默认采用10
 						loading: true,
-						page: true
+						page: true,
+						done: function a() {
+							roleControl();
+						}
 					});
 
 
@@ -164,7 +195,7 @@
 								type: 2,
 								title: "新增",
 								shadeClose: false, //点击遮罩关闭层
-								area: ['40%', '70%'],
+								area: ['480px','300px'],
 								content: "addclass.do"
 							});
 						}
@@ -177,6 +208,19 @@
 						var type = $(this).data('type');
 						active[type] ? active[type].call(this) : '';
 						}
+						else if(obj.event === 'importClass') {
+								
+							//iframe层-父子操作
+
+							layer.open({
+							  type: 2,
+							  area: ['700px', '450px'],
+							  title: "批量导入",
+							  fixed: false, //不固定
+							  maxmin: true,
+							  content: 'importClass.html'
+							});
+					    }
 					});
 
 
@@ -188,7 +232,7 @@
 								type: 2,
 								title: "编辑班级信息",
 								shadeClose: false, //点击遮罩关闭层
-								area: ['40%', '70%'],
+								area: ['480px','380px'],
 								content: "editclass.do?id=" + obj.data.class_id
 							});
 

@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.app.service.impl.ClassService;
 import com.app.service.impl.UserService;
 import com.code.model.LayResponse;
+import com.github.pagehelper.PageInfo;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -45,12 +46,21 @@ public class ClassController {
 	@ResponseBody
 	public String GetAllClass(HttpServletRequest request, HttpServletResponse response, String Keyword)
 			throws Exception {
-		System.out.println("ss"); 
+		//获取分页所需相关数据
+		String pageSize = request.getParameter("limit"); //一页多少个
+		String pageNumber = request.getParameter("page");	//第几页
+		
+		List resultList =  classService.GetAllClass(Keyword,pageSize,pageNumber);
+		//获取分页插件的数据只能通过PageInfo来获取
+		PageInfo pInfo = new PageInfo(resultList);
+		Long total = pInfo.getTotal();
+		
 		JSONObject obj = new JSONObject();
-		JSONArray arr = classService.GetAllClass(Keyword);
+		JSONArray arr = JSONArray.fromObject(resultList);
+		
 		obj.put("code", 0);
 		obj.put("msg", "返回成功");
-		obj.put("count", arr.size());
+		obj.put("count", total.intValue());
 		obj.put("data", arr);
 		return obj.toString();
 	}

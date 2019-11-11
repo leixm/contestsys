@@ -226,6 +226,7 @@
 		left join class b on u.class_id=b.class_id
 		left join contest c on a.contest_id=c.contest_id
 		<where>
+			and a.status = 2
 			<if test="classname!=null and classname!=''">
 				and b.name like "%"#{classname}"%"
 			</if>
@@ -245,12 +246,22 @@
 		order by b.class_id,a.contest_id,u.user_id
   </select>
   
+  <select id="selAllStuScore" resultType="map">
+  		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,date_format(c.startTime,'%Y-%m-%d') as contesttime,a.score,a.contest_status_id
+		from contest_status a 
+		left join user u on a.student = u.user_id 
+		left join class b on u.class_id=b.class_id
+		left join contest c on a.contest_id=c.contest_id
+			where a.status = 2
+		order by b.class_id,a.contest_id,u.user_id
+  </select>
+  
   <update id="updateScore" >
   		 UPDATE contest_status SET score = #{score} WHERE contest_status_id = #{cstatusid}
   </update>
   
   <select id="selOwnContestBykeyword" resultType="map">
-  		select  a.contest_status_id as cstatusid, b.title as title, date_format(b.startTime,'%Y-%m-%d %H:%i') as starttime,date_format(b.endTime,'%Y-%m-%d %H:%i') as endtime,u.realName as teacher
+  		select  a.contest_status_id as cstatusid, a.status, b.paper_id, b.title as title, date_format(b.startTime,'%Y-%m-%d %H:%i') as starttime,date_format(b.endTime,'%Y-%m-%d %H:%i') as endtime,u.realName as teacher
 		from contest_status as a  
 		left join contest as b on a.contest_id = b.contest_id
 		left join user as u on b.teacher = u.user_id
@@ -262,6 +273,7 @@
 				and	(b.title like "%"#{keyword}"%" or u.realName like "%"#{keyword}"%")
 			</if>
 		</where>
+		order by starttime desc
 		
   </select>
   
@@ -272,7 +284,7 @@
 		LEFT JOIN user u on a.student = u.user_id 
 		LEFT JOIN class b on u.class_id=b.class_id
 		LEFT JOIN contest c on a.contest_id=c.contest_id
-		WHERE 1=1 
+		WHERE 1=1 and a.status = 2
 		<if test="classname!=null and classname!=''">
 			and b.name in
 			<foreach collection="classname" item="cla" index="index" open="(" close=")" separator=",">
@@ -309,7 +321,7 @@
 				LEFT JOIN contest c on a.contest_id=c.contest_id
 				WHERE 1=1 
 				and u.user_id = #{stuid}
-		
+				and a.status = 2
 		<if test="contestname!=null and contestname!=''">
 			and c.title in
 			<foreach collection="contestname" item="item" index="index" open="(" close=")" separator=",">

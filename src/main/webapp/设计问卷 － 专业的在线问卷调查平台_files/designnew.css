@@ -294,9 +294,10 @@ cursor:move;
         color:#fff;
     }
     .navlist li a .iconfont {
-        font-size: 18px;
-        color: #0095FF;
-        margin: 0 4px 0 6px;
+    	font-style:normal;
+        font-size: 14px;
+        color: #008080;
+        margin: 0 4px 0 30px;
     }
     .tabQTypet ul li a span {
         vertical-align: middle;

@@ -41,6 +41,8 @@ public interface ContestMapper {
     
     @Select("select * from contest where teacher = #{id}")
     List<Contest> selAllContest(String id);
-
+    
+    List<Map<String,Object>> selAllByUserId(String keyword);
+    
     
 }

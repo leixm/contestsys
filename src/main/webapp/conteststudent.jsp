@@ -19,7 +19,14 @@
           <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
           <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
-
+        
+		<style type="text/css">
+		/* 表格行高 等*/
+        .layui-table-cell{
+		    text-align: center;
+		}
+	
+    	</style>
 	</head>
 
 	<body> 
@@ -85,7 +92,7 @@
 					table.render({
 						id: 'demo',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
-						height: '600', //容器高度
+						height: '550', //容器高度
 						cols: [
 							[ {
 								field: 'user_id',
