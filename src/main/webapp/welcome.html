@@ -1,6 +1,7 @@
 <!doctype html>
     <html>
     	<head>
+    		 <script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
     		<style type="text/css">
     			body {
     				/*  transform: scale(0.25) translate(-2000px,-100px);   */
@@ -287,7 +288,7 @@
 		        }
 		        return date;
 		    }
-		
+			
 		    function getLangDate(){
 		        var dateObj = new Date(); //表示当前系统时间的Date对象
 		        var year = dateObj.getFullYear(); //当前系统时间的完整年份值
@@ -305,6 +306,29 @@
 		        setTimeout(getLangDate,1000);
 		    }
 		</script>
+		
+		 <script type="text/javascript">
+        //页面加载执行函数
+        	$(document).ready(function() {
+				loadingUserName();
+			});
+        	/* 显示登录的用户名 */
+		      function loadingUserName() {
+		      		$.ajax({
+								type: "POST", 
+								url: "User/getUsername",
+								data: '',
+								async: false,
+								dataType: 'json', 
+								success: function(data) {
+									if(data.level<1) {	//判断有误权限进来此页面
+										alert("无登录权限");
+										window.location.href = "./login.html";
+									}
+								}
+							})
+		      }
+        </script>
     </html>
 
 

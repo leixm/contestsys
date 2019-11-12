@@ -14,6 +14,7 @@
         <link rel="stylesheet" href="./css/xadmin.css"> 
 		<link rel="stylesheet" href="lib/layui/css/layui.css">
         <script type="text/javascript" src="./lib/layui/layui.js" charset="utf-8"></script>
+        <script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
         <script type="text/javascript" src="./js/xadmin.js"></script>
         <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
         <!--[if lt IE 9]>
@@ -134,6 +135,31 @@
                 });
 
             });</script>
+        <script type="text/javascript">
+			$(document).ready(function() {
+					loadingUserName();
+			});
+		
+			
+			/* 显示登录的用户名 */
+		      function loadingUserName() {
+		      		$.ajax({
+								type: "POST", 
+								url: "User/getUsername",
+								data: '',
+								async: false,
+								dataType: 'json', 
+								success: function(data) {
+									if(data.level<2) {	//判断有误权限进来此页面
+										alert("无访问权限");
+										window.location.href = "./error.html";
+									}
+								}
+							})
+		      }
+		
+		</script>
+            
         <script>var _hmt = _hmt || []; (function() {
                 var hm = document.createElement("script");
                 hm.src = "https://hm.baidu.com/hm.js?b393d153aeb26b46e9431fabaf0f6190";

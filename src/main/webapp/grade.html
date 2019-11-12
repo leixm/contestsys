@@ -91,7 +91,9 @@
 		</script>
 
 		<script type="text/html" id="demotool">
-			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+			<div style="display:none;"  class="caozuo">
+				<a class="layui-btn layui-btn-xs " lay-event="edit" >编辑</a>
+			</div>
    		 </script>
 
 
@@ -194,7 +196,10 @@
 						limits: [15, 30, 50, 100],
 						limit: 15, //默认采用10
 						loading: true,
-						page: true
+						page: true,
+						done:function a() {
+							roleControl();
+						}
 					});
 					
 					table.on('toolbar(demo)', function(obj) {
@@ -243,6 +248,8 @@
 										}
 	
 									}
+									
+												
 								});    
 								layer.close(index);
 							})
@@ -343,6 +350,31 @@
 				xhr.send(null);
 			} */
 			
+			/* 获取用户角色信息 */
+			function roleControl() {
+				$.ajax({
+							type: "POST", 
+							url: "User/getUsername",
+							data: '',
+							async: false,
+							dataType: 'json', 
+							success: function(data) {
+								if(data.level<1) {	//判断有误权限进来此页面
+									alert("无访问权限");
+									window.location.href = "./error.html";
+								}else {
+									if(data.realname!=null&&data.realname!="") {
+										if(data.level==2) { //管理员角色可编辑学生信息
+											$(".caozuo").show();
+										}
+									}else {
+										alert("请先登录系统");
+										window.location.href = "./error.html";
+									}
+								}
+							}
+				})
+			}
 		</script>
 	</body>
 

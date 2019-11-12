@@ -10,7 +10,7 @@
     <link type="text/css" rel="stylesheet" href="./设计问卷 － 专业的在线问卷调查平台_files/default.css">
     <link rel="stylesheet" href="kindeditor/themes/default/default.css" />
     <link rel="stylesheet" href="kindeditor/plugins/code/prettify.css" />
-
+	<script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
     <script charset="utf-8" src="kindeditor/kindeditor-all.js"></script>
     <script charset="utf-8" src="kindeditor/lang/zh-CN.js"></script>
     <script charset="utf-8" src="kindeditor/plugins/code/prettify.js"></script>
@@ -1434,4 +1434,28 @@
 
         }
     </script>
+    <script type="text/javascript">
+			$(document).ready(function() {
+					loadingUserName();
+			});
+		
+			
+			/* 显示登录的用户名 */
+		      function loadingUserName() {
+		      		$.ajax({
+								type: "POST", 
+								url: "User/getUsername",
+								data: '',
+								async: false,
+								dataType: 'json', 
+								success: function(data) {
+									if(data.level<1) {	//判断有误权限进来此页面
+										alert("无访问权限");
+										window.location.href = "./error.html";
+									}
+								}
+							})
+		      }
+		
+	</script>
 </html>

@@ -82,8 +82,8 @@
 				<input name="id" class="layui-input" id="keyword" placeholder="输入关键字查询"> 
 			</div>
 			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
-			<button class="layui-btn" style="float:right"; lay-event="importClass" data-type="importClass" id="importClass"><i class="layui-icon layui-icon-download-circle" ></i>批量导入</button>
-		</script>
+			<button class="layui-btn" id="import"  style="display:none;float:right"; lay-event="importClass" data-type="importClass" id="importClass"><i class="layui-icon layui-icon-download-circle" ></i>批量导入</button>
+</script>
 
 
 		<script type="text/html" id="demotool">
@@ -111,14 +111,17 @@
 							success: function(data) {
 								if(data.level<1) {	//判断有误权限进来此页面
 									alert("无登录权限");
+									window.location.href = "./login.html";
 								}else {
 									if(data.realname!=null&&data.realname!="") {
 										if(data.level==2) { //管理员角色可编辑学生信息
 											$(".caozuo").show();
 											$("#headbar").show();
+											$("#import").show();
 										}
 									}else {
 										alert("请先登录系统");
+										window.location.href = "./login.html";	
 									}
 								}
 							}

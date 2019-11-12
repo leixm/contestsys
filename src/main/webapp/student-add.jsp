@@ -225,6 +225,29 @@
 			 }) */
 			//console.log(document.getElementById("level"))
 		</script>
-
+		<script type="text/javascript">
+			$(document).ready(function() {
+					loadingUserName();
+			});
+		
+			
+			/* 显示登录的用户名 */
+		      function loadingUserName() {
+		      		$.ajax({
+								type: "POST", 
+								url: "User/getUsername",
+								data: '',
+								async: false,
+								dataType: 'json', 
+								success: function(data) {
+									if(data.level<2) {	//判断有误权限进来此页面
+										alert("无访问权限");
+										window.location.href = "./error.html";
+									}
+								}
+							})
+		      }
+		
+		</script>
 	</body>
 </html>  
