@@ -39,7 +39,7 @@
                     <dl class="layui-nav-child">
                         <!-- 二级菜单 -->
                         <dd>
-                        	<a onclick="xadmin.add_tab('返回主页','welcome.html')">
+                        	<a onclick="javascript:top.location.reload()">
                                 <i class="iconfont">&#xe6b8;</i>返回主页</a></dd>
                             
                         <dd>
@@ -66,7 +66,7 @@
                     </dl>
                 </li>
                 <li class="layui-nav-item to-index">
-                    <a onclick="xadmin.add_tab('我的桌面','welcome.html')" >返回桌面</li>
+                    <a onclick="javascript:top.location.reload()" >返回桌面</li>
                     <a href="javascript:;">
             </ul>
         </div>
@@ -93,13 +93,13 @@
                                     <cite>学生管理</cite></a>
                             </li>
 							
-							<li>
+							<li id="te_manage">
 							    <a onclick="xadmin.add_tab('教师管理','teacher.html')"> 
 							        <i class="iconfont">&#xe6a7;</i>
 							        <cite>教师管理</cite></a>
 							</li>
 							
-							<li>
+							<li id="daily">
 							    <a onclick="xadmin.add_tab('日志管理','log.html')"> 
 							        <i class="iconfont">&#xe6a7;</i>
 							        <cite>日志管理</cite></a>
@@ -216,7 +216,10 @@
 										window.location.href = "./login.html";
 									}else {
 										if(data.realname!=null&&data.realname!="") {
-										$("#username").html("欢迎，"+data.realname);
+											$("#username").html("欢迎，"+data.realname);
+											if(data.level==1) {
+												roleControl();
+											}
 										}else {
 											alert("请先登录系统");
 											window.location.href = "./login.html";
@@ -226,6 +229,14 @@
 								}
 							})
 		      }
+        	
+        	/*教师角色角色隐藏ul*/
+        	function roleControl() {
+        		$("#daily").hide();
+        		$("#te_manage").hide();
+        	
+        	}
+        	
         	
         	function outlogin() {
         		layer.confirm('是否退出登录?', function(index) {

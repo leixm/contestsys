@@ -13,7 +13,7 @@
 		<link rel="stylesheet" href="css/font.css">
 		<link rel="stylesheet" href="css/xadmin.css">
 		<link rel="stylesheet" href="lib/layui/css/layui.css">
-
+		<script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
 		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 		<script src="./lib/layui/layui.js" charset="utf-8"></script>
 		<script type="text/javascript" src="./js/xadmin.js"></script>
@@ -177,7 +177,6 @@
 						elem: '#startTimeS',
 						type: 'datetime',
 						format: 'yyyy-MM-dd HH:mm:ss',
-						max: '2020-5-20',
 						min: '2019-5-20',
 						done: function(value, date, endDate) {
 							startTime = date;
@@ -188,7 +187,6 @@
 						elem: '#endTimeS',
 						type: 'datetime',
 						format: 'yyyy-MM-dd HH:mm:ss',
-						max: '2020-5-20',
 						min: '2019-5-20',
 						done: function(value, date, endDate) {
 						    endTime = date;
@@ -232,6 +230,29 @@
 			 }) */
 			//console.log(document.getElementById("level"))
 		</script>
-
+		<script type="text/javascript">
+			$(document).ready(function() {
+					loadingUserName();
+			});
+		
+			
+			/* 显示登录的用户名 */
+		      function loadingUserName() {
+		      		$.ajax({
+								type: "POST", 
+								url: "User/getUsername",
+								data: '',
+								async: false,
+								dataType: 'json', 
+								success: function(data) {
+									if(data.level<1) {	//判断有误权限进来此页面
+										alert("无访问权限");
+										window.location.href = "./error.html";
+									}
+								}
+							})
+		      }
+		
+		</script>
 	</body>
 </html>

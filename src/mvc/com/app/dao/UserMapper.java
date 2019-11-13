@@ -1,11 +1,13 @@
 package com.app.dao;
 
-import com.code.model.User;
-import com.code.model.UserExample;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import com.code.model.User;
+import com.code.model.UserExample;
 
 public interface UserMapper {
     int countByExample(UserExample example);
@@ -16,6 +18,10 @@ public interface UserMapper {
 
     int insert(User record);
 
+    int insertStuByExcel(User record); 
+    
+    int insertTeaByExcel(User record);
+    
     int insertSelective(User record);
 
     List<User> selectByExample(UserExample example);
@@ -37,6 +43,8 @@ public interface UserMapper {
 	List<Map<String, Object>> listAllTeachers();
 
 	List<Map<String, Object>> listAllTeachersByKeyword(String keyword);
+	@Select("select * from user where user_id = #{userid}")
+	List<Map<String, Object>> selUserById(String userid);
 	
 	int updateStuInfoByStuId(@Param("stuid") String stuId, @Param("stuname") String stuName,
 			@Param("stuemail") String stuEmail, @Param("newpwd") String newPwd);

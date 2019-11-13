@@ -846,7 +846,18 @@ public class TeacherServiceImpl implements TeacherService{
 		resultList = contestStatusDao.selStuScoreBykeyword(className, stuId, stuName, contestName); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
 		return resultList;
 	}
-
+	
+	/**
+	 * 根据搜索条件模糊查询出学生成绩表
+	 * @return 成绩实体Map对象集合
+	 */
+	@Override
+	public List<Map<String, Object>> selAllStuScore() {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
+		resultList = contestStatusDao.selAllStuScore(); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		return resultList;
+	}
+	
 	/**
 	 * 根据搜索条件更新学生成绩表
 	 * @param cstatusid: 所更新成绩对应的表的主键id
@@ -893,6 +904,9 @@ public class TeacherServiceImpl implements TeacherService{
 		resultList = contestStatusDao.selClassContestAVGbyKeyword(className, contestName);
 		return resultList;
 	}
+
+
+	
 	
 }
 

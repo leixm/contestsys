@@ -7,9 +7,9 @@ package com.code.model;
 
 public class LayResponse {
 
-	private int code;
-	private String msg;
-	private int count;
+	private int code;	// 0表示成功  1 表示失败  
+	private String msg;	
+	private int count;	
 	private Object data;
 	public int getCode() {
 		return code;

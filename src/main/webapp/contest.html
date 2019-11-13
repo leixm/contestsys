@@ -40,7 +40,7 @@
 					<a> <cite>导航元素</cite></a>
 				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
 				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
-				 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "window.open('welcome.html','_self')"
+				 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
 				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>			
 			</div>
 			<div class="layui-fluid">
@@ -80,7 +80,7 @@
 			<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
 						<button class="layui-btn layui-btn-warm" lay-event="add"><i class="layui-icon"></i>添加考试</button>
 						
-						<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
+						<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;width:180px;">
 						<input name="id" class="layui-input" id="keyword" placeholder="id/试卷/负责人/考试名称" autocomplete="off">
 						</div>
 
@@ -125,8 +125,7 @@
 					table.render({
 						id: 'demo',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
-						height: '600', //容器高度
-						width:'',
+						height: '720', //容器高度
 						toolbar: '#header',
 						cols: [
 							[{
@@ -134,39 +133,39 @@
 							}, {
 								field: 'contest_id',
 								title: '考试id',
-								width: 80,
+								minWidth: 80,
 								sort: true,
 								hide:true
 							}, {
 								field: 'title',
 								title: '考试名称',
-								width: 180,
+								minWidth: 180,
 								sort: true
 							}, {
 								field: 'papertitle',
 								title: '试卷',
-								width: 200,
+								minWidth: 200,
 								sort: true
 							}, {
 								field: 'realName',
 								title: '负责人',
-								width: 120,
+								minWidth: 120,
 								sort: true
 							},{
 								field: 'startTime',
 								title: '开始时间',
-								width: 180,
+								minWidth: 180,
 								sort: true
 							},{
 								field: 'endTime',
 								title: '结束时间',
-								width: 180,
+								minWidth: 180,
 								sort: true
 							},{
 								title: '操作',
 								toolbar: '#demotool',
 								'fixed': 'right',
-								width: 350
+								minWidth: 350
 							}]
 						],
 						url: 'Contest/GetAllContest',
@@ -174,17 +173,29 @@
 						limits: [15, 30, 50, 100],
 						limit: 15, //默认采用10
 						loading: true,
-						page: true
+						page: true,
+						done: function(res, curr, count){	  //如果是异步请求数据方式，res即为你接口返回的信息。curr为页码
+    														//如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+						    for(var i in res.data){		//遍历整个表格数据
+						        var item = res.data[i].endTime;	//获取当前行数据
+								item = item.replace(/-/g,"/");
+								var enddate = new Date(item).getTime();
+						      	var now = new Date().getTime();
+						        // 02.如果已结算则整行变绿色
+						        if(now < enddate){ //考试还没结束或者没开始
+						            $("tr[data-index='" + i + "']").attr({"style":"color:#27aa80"});  //将当前行变成绿色
+						        }
+						    }
+						}
 					});
-
-
+					
 					table.on('toolbar(demo)', function(obj) {
 						if (obj.event === 'add') {
 							layer.open({
 								type: 2,
 								title: "添加考试", 
 								shadeClose: false, //点击遮罩关闭层
-								area: ['40%', '70%'],
+								area: ['480px','550px'],  // 宽  高
 								content: "addcontest.do"
 							});
 						}
@@ -202,40 +213,97 @@
 
 					table.on('tool(demo)', function(obj) {
 						if (obj.event == "edit") {
-							//新增
-							console.log("edit")
-							layer.open({
-								type: 2,
-								title: "编辑考试信息",
-								shadeClose: false, //点击遮罩关闭层
-								area: ['40%', '70%'],
-								content: "editcontest.do?id=" + obj.data.contest_id
+							$.ajax({
+								url: "Contest/judgeUserPower?contestId=" + obj.data.contest_id,	//判断是否具有权限
+								type: "post",
+								dataType: 'json',
+								success: function(result) {
+									if (!result.code) {
+										//新增
+										layer.open({
+											type: 2,
+											title: "编辑考试信息",
+											shadeClose: false, //点击遮罩关闭层
+											area: ['480px','580px'],
+											content: "editcontest.do?id=" + obj.data.contest_id
+										});
+									} else {
+										layer.msg(result.msg, {
+											time: 2000
+										});
+										return false;
+									}
+
+								}
 							});
 
 						} else if (obj.event === 'del') {
-							//删除
-							delinventory(obj.data.contest_id);
+							$.ajax({
+								url: "Contest/judgeUserPower?contestId=" + obj.data.contest_id,	//判断是否具有权限
+								type: "post",
+								dataType: 'json',
+								success: function(result) {
+									if (!result.code) {
+										//删除
+										delinventory(obj.data.contest_id);
+									} else {
+										layer.msg(result.msg, {
+											time: 2000
+										});
+										return false;
+									}
+
+								}
+							});
 						}
 						else if (obj.event === 'viewstudent') {
-							
-							layer.open({
-								type: 2,
-								title: "考生名单",
-								shadeClose: false, //点击遮罩关闭层
-								area: ['50%', '100%'],
-								content: "viewContestStudent.do?id=" + obj.data.contest_id
+							$.ajax({
+								url: "Contest/judgeUserPower?contestId=" + obj.data.contest_id,	//判断是否具有权限
+								type: "post",
+								dataType: 'json',
+								success: function(result) {
+									if (!result.code) {
+										layer.open({
+											type: 2,
+											title: "考生名单",
+											shadeClose: false, //点击遮罩关闭层
+											area: ['626px','700px'],
+											content: "viewContestStudent.do?id=" + obj.data.contest_id
+										});
+									} else {
+										layer.msg(result.msg, {
+											time: 2000
+										});
+										return false;
+									}
+
+								}
 							});
-							 
+							
 						}
 						else if (obj.event === 'addstudent') {
-							layer.open({
-								type: 2,
-								title: "添加考试班级",
-								shadeClose: false, //点击遮罩关闭层
-								area: ['80%', '70%'],
-								content: "addContestStudent.do?id=" + obj.data.contest_id
+							$.ajax({
+								url: "Contest/judgeUserPower?contestId=" + obj.data.contest_id,	//判断是否具有权限
+								type: "post",
+								dataType: 'json', 
+								success: function(result) {
+									if (!result.code) {
+										layer.open({
+											type: 2,
+											title: "添加考试班级",
+											shadeClose: false, //点击遮罩关闭层
+											area: ['700px','480px'],
+											content: "addContestStudent.do?id=" + obj.data.contest_id
+										});
+									} else {
+										layer.msg(result.msg, {
+											time: 2000
+										});
+										return false;
+									}
+
+								}
 							});
-							
 						}
 						
 						
@@ -307,7 +375,9 @@
 												layer.msg('删除成功');
 												table.reload('demo', {});
 											} else {
-												layer.msg('删除失败');
+												layer.msg(da.msg, {
+													time: 4000
+												});
 											}
 										},
 										'error': function() {
@@ -346,6 +416,7 @@
 						format : 'yyyy-MM-dd HH:mm:ss',
 						max : '2020-5-20',
 						min : '2019-5-20',
+						closeStop: '#search', //这里代表的意思是：点击 test1 所在元素阻止关闭事件冒泡。如果不设定，则无法弹出控件
 						done : function(value, date, endDate) {
 							startTime = date;
 							startTimeS = value;
@@ -358,6 +429,7 @@
 						format : 'yyyy-MM-dd HH:mm:ss',
 						max : '2020-5-20',
 						min : '2019-5-20',
+						closeStop: '#search', //这里代表的意思是：点击 test1 所在元素阻止关闭事件冒泡。如果不设定，则无法弹出控件
 						done : function(value, date, endDate) {
 							endTime = date;
 							startTimeS = value;
@@ -368,6 +440,30 @@
 				});
 
 			}
+		</script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+					loadingUserName();
+			});
+		
+			
+			/* 显示登录的用户名 */
+		      function loadingUserName() {
+		      		$.ajax({
+								type: "POST", 
+								url: "User/getUsername",
+								data: '',
+								async: false,
+								dataType: 'json', 
+								success: function(data) {
+									if(data.level<1) {	//判断有误权限进来此页面
+										alert("无访问权限");
+										window.location.href = "./error.html";
+									}
+								}
+							})
+		      }
+		
 		</script>
 	</body>
 

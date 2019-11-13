@@ -7,35 +7,29 @@ package com.app.service.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.app.dao.ClassMapper;
 import com.app.dao.UserMapper;
 import com.app.tools.MD5Util;
 import com.app.tools.RandomString;
 import com.app.tools.SendEmail;
-import com.code.model.ClassExample;
 import com.code.model.User;
 import com.code.model.UserExample;
+import com.github.pagehelper.PageHelper;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 
 @Service 
@@ -298,10 +292,17 @@ public class UserService {
 	    
 	}
 	
-	public JSONArray GetAllStudents(String Keyword){
+	public List GetAllStudents(String Keyword,String pageSize,String pageNumber){
         System.out.println("key=" + Keyword);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		
+		//分页所需相关参数的计算
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
 		if(Keyword==null || Keyword.trim().isEmpty())
 			list = userDao.listAllStudents();
 
@@ -311,10 +312,17 @@ public class UserService {
 	    	map.put("registerTime", sdf.format((Date)map.get("registerTime")));
 	    }
 	    System.out.println(JSONArray.fromObject(list).toString());
-	    return JSONArray.fromObject(list);
+	    return list;
 	}
 	
-	public JSONArray GetAllTeachers(String Keyword){
+	public List GetAllTeachers(String Keyword,String pageSize,String pageNumber){
+		//分页所需相关参数的计算
+		//根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
         System.out.println("key=" + Keyword);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
@@ -327,7 +335,7 @@ public class UserService {
 	    	map.put("registerTime", sdf.format((Date)map.get("registerTime")));
 	    }
 	    System.out.println(JSONArray.fromObject(list).toString());
-	    return JSONArray.fromObject(list);
+	    return list;
 	}
 	
 	
@@ -356,6 +364,14 @@ public class UserService {
 		UserExample userExample = new UserExample();
 		UserExample.Criteria criteria = userExample.createCriteria();
 		criteria.andLevelEqualTo(new Integer(1));
+		return userDao.selectByExample(userExample);
+	}
+	
+	public List<User> getTeacherById(String userId)
+	{
+		UserExample userExample = new UserExample();
+		UserExample.Criteria criteria = userExample.createCriteria();
+		criteria.andUserIdEqualTo(userId);
 		return userDao.selectByExample(userExample);
 	}
 	

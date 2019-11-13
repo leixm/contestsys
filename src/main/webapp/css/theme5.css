@@ -1,8 +1,8 @@
 body{
-    background:#EEF5F9 !important;
+    background:rgba(0,0,0,0) !important;
 }
 .container{
-    background:linear-gradient(to left, #7b4397, #2196f3);
+    background:linear-gradient(to left,  #4b8e8d,#6bc5d2 );
 }
 
 .left-nav{
@@ -13,14 +13,14 @@ body{
     color:#686a76 !important;
 }
 .left-nav a.active{
-    background: linear-gradient(to left, #7c8ce4, #2196f3) !important;
+    background: linear-gradient(to left, #6bc5d2, #6bc5d2) !important;
     color: #fff !important;
-    border-color:  #7b4397 !important;
+    border-color:  #4b8e8dx !important;
 }
 .left-nav a:hover{
-    background: linear-gradient(to left, #7c8ce4, #2196f3) !important;
+    background: linear-gradient(to left, #4b8e8d, #4b8e8d) !important;
     color: #fff !important;
-    border-color:  #7b4397 !important;
+    border-color:  #4b8e8d !important;
 }
 .container .logo a{
     background: rgba(0,0,0,0) !important;

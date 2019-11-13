@@ -209,10 +209,11 @@ public class StudentController {
 			onePaper.setSimp(SimproblemList);
 			System.out.println(JSONObject.fromObject(onePaper).toString());
 			model.addObject("paper",JSONObject.fromObject(onePaper).toString());
-
+			Date now_time = new Date();
 			Date start_time = contest.getStarttime();
-			Date end_time = contest.getEndtime();
-			long time_span = end_time.getTime() - start_time.getTime();
+			Date end_time = contest.getEndtime();	
+			long time_span = end_time.getTime() - now_time.getTime();	//计算考试剩余时间
+			System.out.println("剩余时间----"+time_span);
 			model.addObject("student", user);
 			model.addObject("contestStatusId", contestStatusId);
 			model.addObject("contest", contestPaper);
@@ -418,9 +419,12 @@ public class StudentController {
 			List<Map<String,Object>> resultList = studentService.selOwnContest(stuId, keyword, pageSize, pageNumber);
 			
 			//计算考试的状态：未开始，正在进行，已结束
-			String cstatus = "";
 			if(resultList.size()>0) {
 				for (Map<String, Object> map : resultList) {
+					String cstatus = ""; //中文字描述考试状态
+					String status = map.get("status").toString();	// 0、1、2数据库表考试状态;	
+					String firstStatus = "";
+					
 					Date nowDate = new Date();
 					String start = map.get("starttime").toString();
 					String end = map.get("endtime").toString();
@@ -429,12 +433,25 @@ public class StudentController {
 					Date endDate = sdf.parse(end);
 					String contestStatusId = map.get("cstatusid").toString();
 					map.put("cstatusid", contestStatusId);
+					map.put("status", status);
+					//结合时间和数据库status状态来给与cstatus中文描述考试状态
+					switch(status) {
+						case "0":
+							firstStatus = "（未作答）";
+							break;
+						case "1":
+							firstStatus = "（正在批改）";
+							break;
+						case "2":
+							firstStatus = "（已作答）";
+							break;
+					}
 					if(nowDate.getTime()<startDate.getTime()) {
-						cstatus = "未开始";
+						cstatus = "未开始"+firstStatus;
 					}else if(endDate.getTime() >= nowDate.getTime() && nowDate.getTime() >= startDate.getTime()) {
-						cstatus = "正在进行";
+						cstatus = "正在进行"+firstStatus;
 					}else {
-						cstatus = "已结束";
+						cstatus = "已结束"+firstStatus;
 					}
 					map.put("cstatus", cstatus);
 				}
@@ -452,6 +469,110 @@ public class StudentController {
 				
 				return JSONObject.fromObject(layResp).toString();
 			}
+			layResp.setMsg("无数据");
+			return JSONObject.fromObject(layResp).toString();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**zzs
+	 * 根据条件查询已经结束了的考试列表（不能展现考试完成的，不然发生作弊bug）
+	 * @param stuId	用户Id	
+	 * @param keyword	搜索条件
+	 * @return
+	 */
+	@RequestMapping(value="Student/selOwnContestFinished",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String selOwnContestFinished(HttpServletRequest request,HttpServletResponse response) {
+		try {
+			//获取user对象
+			HttpSession session = request.getSession(); 
+			User user = (User)session.getAttribute("user");		
+			String stuId = user.getUserId();
+			System.out.println("userId:----"+user.getUserId());
+			
+			LayResponse layResp = new LayResponse();//layui参数返回格式
+			layResp.setCode(1); //默认设置为1
+			
+			String keyword = request.getParameter("keyword"); 
+			System.out.println(keyword);
+			//判断是否非空后再来去掉前后空格，防止空指针
+			if(keyword!=null||"".equals(keyword)) {
+				keyword = keyword.trim();
+			}
+			
+			//获取分页所需相关数据
+			String pageSize = request.getParameter("limit"); //一页多少个
+			String pageNumber = request.getParameter("page");	//第几页
+			List<Map<String,Object>> resultList = studentService.selOwnContest(stuId, keyword, pageSize, pageNumber);
+			List<Map<String,Object>> overContestList = new ArrayList<Map<String,Object>>(); //挑选已结束的考试进集合
+			//计算考试的状态：未开始，正在进行，已结束
+			if(resultList.size()>0) {
+				List<Integer> leftList = new ArrayList<>();	//记录需要留下来的结果集resultList的下标，
+				int i = 0;//结果集初始下标
+				for (Map<String, Object> map : resultList) {
+					String cstatus = ""; //中文字描述考试状态
+					String status = map.get("status").toString();	// 0、1、2数据库表考试状态;	
+					String firstStatus = "";
+					
+					Date nowDate = new Date();
+					String start = map.get("starttime").toString();
+					String end = map.get("endtime").toString();
+					String paperId = map.get("paper_id").toString();
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					Date startDate = sdf.parse(start);
+					Date endDate = sdf.parse(end);
+					String contestStatusId = map.get("cstatusid").toString();
+					map.put("cstatusid", contestStatusId);
+					map.put("status", status);
+					map.put("paper_id", paperId);
+					//结合时间和数据库status状态来给与cstatus中文描述考试状态
+					switch(status) {
+						case "0":
+							firstStatus = "（未作答）";
+							break;
+						case "1":
+							leftList.add(i);
+							firstStatus = "（正在批改）";
+							break;
+						case "2":
+							firstStatus = "（已作答）";
+							break;
+					}
+					if(nowDate.getTime()<startDate.getTime()) {
+						cstatus = "未开始"+firstStatus;
+					}else if(endDate.getTime() >= nowDate.getTime() && nowDate.getTime() >= startDate.getTime()) {
+						cstatus = "正在进行"+firstStatus;
+					}else {
+						leftList.add(i);
+						cstatus = "已结束"+firstStatus;
+					}
+					i++;
+					map.put("cstatus", cstatus);
+				}
+				System.out.println("leftList+st0----"+leftList);
+				if(!leftList.isEmpty()) {		//挑选已结束的考试进集合
+					for(int j : leftList) {
+						overContestList.add(resultList.get(j));						
+					}
+				}
+			}
+			
+			//获取分页插件的数据只能通过PageInfo来获取
+			PageInfo pInfo = new PageInfo(overContestList);
+			Long total = pInfo.getTotal();
+			
+			if(overContestList.size() > 0) {
+				//返回规定格式给前端
+				layResp.setCode(0);
+				layResp.setCount(total.intValue());
+				layResp.setData(overContestList);
+				
+				return JSONObject.fromObject(layResp).toString();
+			}
+			
 			layResp.setMsg("无数据");
 			return JSONObject.fromObject(layResp).toString();
 		}catch (Exception e) {

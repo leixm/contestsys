@@ -1,10 +1,22 @@
 package com.code.model;
 
+
+/**
+ * 用于导出的年级成绩表实体类
+ * @author zzs
+ *
+ */
 public class ScoreExcel {
+	private String id;
+	
 	String studentId;
+	
 	String name;
-	String contestNname;
+	
+	String contestName;
+	
 	String className;
+	
 	String score;
 	
 	public ScoreExcel() {
@@ -15,15 +27,22 @@ public class ScoreExcel {
 		super();
 		this.studentId = studentId;
 		this.name = name;
-		this.contestNname = contestNname;
+		this.contestName = contestName;
 		this.className = className;
 		this.score = score;
 	}
-	public String getContestNname() {
-		return contestNname;
+	public String getId() {
+		return id;
 	}
-	public void setContestNname(String contestNname) {
-		this.contestNname = contestNname;
+
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getContestName() {
+		return contestName;
+	}
+	public void setContestName(String contestNname) {
+		this.contestName = contestNname;
 	}
 	
 	public String getName() {

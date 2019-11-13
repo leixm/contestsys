@@ -65,7 +65,7 @@
 					<div class="left">
 						<div class="content">
 							<div class="header">
-								<div class="logo text-center"><img src="assets/img/logo-dark.png" alt="Klorofil Logo"></div>
+								<div class="logo text-center"><img src="assets/img/logo.png" alt="Klorofil Logo"></div>
 								<p class="lead">登录你的帐号</p>
 							</div>
 							<form class="form-auth-small layui-form" > 
@@ -107,6 +107,10 @@
 							<h1 class="heading">欢迎登录学生在线考试系统</h1>
 						</div>
 					</div>
+						
+						<div class="content text" style="text-align: center;margin-top: 150px;opacity: 60%;">
+							<h6 class="heading"> Copyright  ©  2019  lxm/zzs.  All  rights  reserved.</h6>
+						</div>
 					<div class="clearfix"></div>
 				</div>
 			</div>
@@ -136,7 +140,7 @@
 		if($('#username').val()=="") {
 			document.getElementById('alert').style.display = 'block';
             document.getElementById('background_fade').style.display = 'block';
-            document.getElementById('confirm_state').innerHTML = "请输入用户名";
+            document.getElementById('confirm_state').innerHTML = "请输入学号/邮箱";
 		}
 		else if($('#password').val()=="") {
 			document.getElementById('alert').style.display = 'block';

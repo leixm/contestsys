@@ -47,6 +47,8 @@
 			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
 		<script type="text/javascript" src="./js/jquery-3.3.1.js"></script>
+		
+		
     </head>
 	
 	<body>
@@ -65,7 +67,7 @@
 									<div class=" ">	
 										<div class="layui-form-item">
 											<label for="signin_form">学号</label>
-											<input type="text" class="form-control" id="stuid1" placeholder="Student ID" lay-verify="required|number" autocomplete="off">
+											<input type="text" class="form-control" name="userId" id="stuid1" placeholder="Student ID" lay-verify="required|number" autocomplete="off">
 										</div><!--/.form-group -->
 										<div class="layui-form-item">
 											<label for="signin_form">确认学号</label>
@@ -73,22 +75,22 @@
 										</div><!--/.form-group -->
 										<div class="layui-form-item">
 											<label for="signin_form">姓名</label>
-											<input type="text" class="form-control" id="signin_form" placeholder="First name" lay-verify="required|checkname|checkChina" autocomplete="off">
+											<input type="text" class="form-control" name="realname" id="signin_form" placeholder="First name" lay-verify="required|checkname|checkChina" autocomplete="off">
 										</div><!--/.form-group -->
 										
 										<div class="layui-form-item">
 											<label for="signin_form">密码</label>
-											<input type="password" class="form-control" id="newpwd1" placeholder="Enter your password" lay-verify="required|pwdlength" autocomplete="off">
+											<input type="password" class="form-control" name="password" id="newpwd1" placeholder="Enter your password" lay-verify="required|pwdlength" autocomplete="off">
 										</div><!--/.form-group -->
 										
 										<div class="layui-form-item">
 											<label for="signin_form">确认密码</label>
-											<input type="password" class="form-control" id="newpwd2" placeholder="Enter your password again" lay-verify="required|repass" autocomplete="off">
+											<input type="password" class="form-control"  id="newpwd2" placeholder="Enter your password again" lay-verify="required|repass" autocomplete="off">
 										</div><!--/.form-group -->
 										
 										<div class="layui-form-item">
 											<label for="signin_form">绑定邮箱</label>
-											<input type="email" class="form-control" id="signin_form" placeholder="Enter your email adress " lay-verify="email|required" autocomplete="off">
+											<input type="email" class="form-control" name="email" id="signin_form" placeholder="Enter your email adress " lay-verify="email|required" autocomplete="off">
 										</div><!--/.form-group -->										
 									</div><!--/.col -->
 								</div><!--/.row -->
@@ -100,7 +102,7 @@
 											<span class="round-boarder">验证码：</span>
 										</div>
 										<div style="float:left;">
-											<input class="form-control" type="text" id="inputNum" value=""  placeholder="" onfocus="showValidate()"
+											<input class="form-control" type="text" name="rancode" id="inputNum" value=""  placeholder="" onfocus="showValidate()"
 											style="height: 30px;width: 70px; background-color:#F7F7F7; text-align: center;" lay-verify="validate" autocomplete="off">
 										</div>
 										<div id="validate" style="float:left;margin-top: 3px; margin-left:250px; display:none" >
@@ -115,7 +117,7 @@
 							</div><!--/.signin-password -->
 					
 							<div class="layui-form-item" style="text-align: center">							
-								<button  class="layui-btn btn signin_btn signin_btn_two" lay-submit="" lay-filter="formDemo" style="background-color: #1C86EE">
+								<button  class="layui-btn btn signin_btn signin_btn_two" lay-submit="" lay-filter="signup" style="background-color: #1C86EE" >
 								立即注册
 								</button>
 								<p>
@@ -143,26 +145,6 @@
 		<!--footer copyright  end -->
 
 
-		 <!-- Include all js compiled plugins (below), or include individual files as needed -->
-
-		<script src="assets/js/jquery.js"></script>
-        
-        <!--modernizr.min.js-->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
-		
-		<!--bootstrap.min.js-->
-        <script src="assets/js/bootstrap.min.js"></script>
-		
-		<!-- bootsnav js -->
-		<script src="assets/js/bootsnav.js"></script>
-		
-		<!-- jquery.sticky.js -->
-		<script src="assets/js/jquery.sticky.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-		
-        
-        <!--Custom JS-->
-        <script src="assets/js/custom.js"></script>
 		<script>
 			 layui.use(['form', 'layer'],
 	            function() {
@@ -193,7 +175,7 @@
 							}
 						},
 						recheck: function(value) {
-							if (value!=$('stuid1').val()) {
+							if (value!=$('#stuid1').val()) {
 								return '两次输入的学号不一致';
 							}
 						}
@@ -205,18 +187,19 @@
 						 ]
 					});
 	                //监听提交
-	                form.on('submit(add)',
+	                form.on('submit(signup)',
 	                function(data) {
+	                alert(JSON.stringify(data.field));
 	                    $.ajax({
 									type: "POST",
-									url: "User/UpdateUser",
+									url: "User/Register?userId=" + $("#stuid1").val() + "&password=" + $("#newpwd1").val() + "&realname=" + $("#signin_form").val() + "&rancode=" + $("#inputNum").val(),
 									dataType: 'json',
-									data: data.field,
+									contentType:'application/json',
 									async: false,
 									success: function(da) {
 										console.log(JSON.stringify(da))
-										if (da.code == 0) {
-											layer.alert('更新成功', {
+										if (da.success == 1) {
+											layer.alert(data.msg, {
 													icon: 6
 												},
 												function() {
@@ -249,7 +232,6 @@
 				$("#img").attr("src","User/GetRanCode?ran=" + Math.random());
 			  }
          		
-		      var confirm = document.getElementById('confirm');
 		      var popup = function(){
 		            if (document.getElementById('alert').style.display != 'none') {
 		              document.getElementById('alert').style.display = 'none';
@@ -271,7 +253,6 @@
 		                }
 		            }
 		        }
-		        EventUtil.addHandle(confirm, 'click', popup);
 		        
 		        //显示验证码
 		        function showValidate() {

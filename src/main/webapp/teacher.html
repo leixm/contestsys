@@ -40,7 +40,7 @@
 					<a> <cite>导航元素</cite></a>
 				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
 				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
-				 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "window.open('welcome.html','_self')"
+				 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
 				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
 			</div>
 			<div class="layui-fluid">
@@ -64,7 +64,7 @@
 
 
 
-		<script id="dateTpl" type="text/html">
+	<script id="dateTpl" type="text/html">
 			{{#  var fn = function(){
         return moment(d.ApplyDate).format("YYYY-MM-DD");
          }; if(true){ }}
@@ -73,18 +73,19 @@
  
     </script>
 
-		<script type="text/html" id="header">
+	<script type="text/html" id="header">
 
 
 
-			<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
-						<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加用户</button>
+		<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
+		<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加用户</button>
 						
-						<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
-										<input name="id" class="layui-input" id="keyword" placeholder="id/名字/班级/邮箱地址">
-									</div>
-									<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
-</script>
+		<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
+			<input name="id" class="layui-input" id="keyword" placeholder="id/名字/班级/邮箱地址">
+		</div>
+		<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
+		<button class="layui-btn" style="float:right"; lay-event="importTeacher" data-type="importTeacher" id="importTeacher"><i class="layui-icon layui-icon-download-circle" ></i>批量导入</button>
+	</script>
 
 		<script type="text/html" id="demotool">
 			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
@@ -94,7 +95,7 @@
 
 		<script>
 			$(document).ready(function() {
-
+				loadingUserName();
 				initTable();
 			});
 			layui.use('laydate', function() {
@@ -122,7 +123,7 @@
 					table.render({
 						id: 'demo',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
-						height: '600', //容器高度
+						height: '720', //容器高度
 						toolbar: '#header',
 						cols: [
 							[{
@@ -130,34 +131,33 @@
 							}, {
 								field: 'user_id',
 								title: '工号',
-								width: 180,
+								minWidth: 180,
 								sort: true
 							}, {
 								field: 'realName',
 								title: '姓名',
-								width: 180,
+								minWidth: 180,
 								sort: true
 							}, { 
 								field: 'email',
 								title: '邮箱地址',
-								width: 200,
+								minWidth: 200,
 								sort: true
 							}, {
 								field: 'registerTime',
 								title: '注册时间',
-								width: 260,
+								minWidth: 260,
 								sort: true
 							}, {
 								title: '操作',
 								toolbar: '#demotool',
-								'fixed': 'right',
-								width: 200
+								minWidth: 200
 							}]
 						],
 						url: 'User/GetAllTeachers',
 						method: 'post',
-						limits: [10, 20, 30, 50, 100],
-						limit: 10, //默认采用10
+						limits: [15, 20, 30, 50, 100],
+						limit: 15, //默认采用10
 						loading: true,
 						page: true
 					});
@@ -169,7 +169,7 @@
 								type: 2,
 								title: "新增",
 								shadeClose: false, //点击遮罩关闭层
-								area: ['40%', '70%'],
+								area: ['500px', '460px'],
 								content: "addteacher.do"
 							});
 						}
@@ -182,6 +182,19 @@
 						var type = $(this).data('type');
 						active[type] ? active[type].call(this) : '';
 						}
+						else if(obj.event === 'importTeacher') {
+								
+							//iframe层-父子操作
+
+							layer.open({
+							  type: 2,
+							  area: ['700px', '450px'],
+							  title: "批量导入",
+							  fixed: false, //不固定
+							  maxmin: true,
+							  content: 'importTeacher.html'
+							});
+					    }
 					});
 
 
@@ -191,9 +204,9 @@
 							console.log("edit")
 							layer.open({
 								type: 2,
-								title: "新增",
+								title: "编辑",
 								shadeClose: false, //点击遮罩关闭层
-								area: ['40%', '70%'],
+								area: ['500px', '480px'],
 								content: "editteacher.do?id=" + obj.data.user_id
 							});
 
@@ -306,6 +319,24 @@
 				});
 
 			}
+			
+	
+        	/* 显示登录的用户名 */
+		      function loadingUserName() {
+		      		$.ajax({
+								type: "POST", 
+								url: "User/getUsername",
+								data: '',
+								async: false,
+								dataType: 'json', 
+								success: function(data) {
+									if(data.level<2) {	//判断有误权限进来此页面
+										alert("无访问权限");
+										window.location.href = "./error.html";
+									}
+								}
+							})
+		      }
 		</script>
 	</body>
 

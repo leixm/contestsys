@@ -23,6 +23,7 @@ import com.code.model.ContestStatus;
 import com.code.model.ContestStatusExample;
 import com.code.model.User;
 import com.code.model.UserExample;
+import com.github.pagehelper.PageHelper;
 
 import net.sf.json.JSONArray;
 
@@ -38,7 +39,14 @@ public class ContestService {
 	@Autowired
 	private UserMapper userDao;
 	
-	public JSONArray GetAllContest(String Keyword,String startTime,String endTime){
+	public List GetAllContest(String Keyword,String startTime,String endTime,String pageSize,String pageNumber){
+		//分页所需相关参数的计算
+		//根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
         System.out.println("key=" + Keyword);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
@@ -64,8 +72,8 @@ public class ContestService {
 	        map.put("startTime", sdf.format((Date)map.get("startTime")));
 	    	map.put("endTime", sdf.format((Date)map.get("endTime")));
 	    }
-	    System.out.println(JSONArray.fromObject(list).toString());
-	    return JSONArray.fromObject(list);
+	    System.out.println("contestList_------"+JSONArray.fromObject(list).toString());
+	    return list;
 	}
 	
 	public int AddContest(Contest contest){
@@ -151,5 +159,27 @@ public class ContestService {
         	contestStatusDao.insert(contestStatus);
 		}
 	}
-
+	
+	/**
+	 * 根据考试id获取contest对象
+	 * @param contest_id
+	 */
+	public List<Map<String,Object>> selOneContestById(String contestId) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+		
+		resultList = contestDao.listAllByKeyword(contestId);
+		return resultList;
+	}
+	
+	/**
+	 * 根据考试userid获取contest对象
+	 * @param userId
+	 */
+	public List<Map<String,Object>> selAllContestByUserId(String userId) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+		
+		resultList = contestDao.selAllByUserId(userId);
+		System.out.println("resultList----"+resultList);
+		return resultList;
+	}
 }

@@ -1,135 +1,144 @@
 <!doctype html>
     <html>
     	<head>
+    		 <script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
     		<style type="text/css">
     			body {
-    				transform: scale(0.25) translate(-1500px,-1100px); 
-    				overflow: hidden;
+    				/*  transform: scale(0.25) translate(-2000px,-100px);   */
+    				  overflow: hidden;  
     				background-color: #f6f6f6;
     			}
-    		
-    			.bigBox {
-    				width: 900px;
-    				height: 900px;
-    			}
+ 		     	.bigCareBox {
+					width:20%;
+					position: absolute;
+					top: 10%;
+					left:6%;
+			    }
+			     #welcome {
+			    	font-family:SimHei;
+			    	font-size: 30px;
+			    	white-space:nowrap;
+			    	color: #C0C0C0;
+			    	position: absolute;
+			    	top: 44%;
+					left:36%;
+			    }
     			
 	   			.cardBox {
-	               width: 640px;
-	               height: 464px;
+	               width: 170px;
+	               height: 120px;
 	               box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	               text-align: center;
-	               border-radius:40px;
-	               
-	               float: left;
-				   margin-right: 17px;
-				   margin-bottom: 150px;
+	               border-radius:8px;
+				   margin-bottom: 40px;
+				   position: relative;
+				   top:8px;
+	               left:8px;
 	            }
 	
 	            .headerBox {
 	                color: #fff;
 	                padding: 8px;
-	                font-size: 100px;
+	                font-size: 28px;
 	                font-family:SimHei;
 	                text-align:center;
-	                height: 416px;
-	                width: 90%;
-	                cursor:pointer; 
-	                background-color: #4baea0;
-	                border-radius:40px;
-	                margin:auto;
-	                margin-top: 18px;
-	               /* 文字居中 */
+	                /* 文字居中 */
 	                display: flex;
 				    align-items: center;
 				    justify-content: space-around;
 				    flex-direction: column;
+				    
+	                height: 75%;
+	                width: 80%;
+	                position: relative;
+	                top:8px;
+	                left:9px;
+	                cursor:pointer; 
+	                background-color: #4baea0;
+	                border-radius:8px;
+		               
 
 	            }
 	            
 				            
 				.cardBox:hover {
-					transition: all 0.2s ease-in-out 0s;
+					transition: all 0.1s ease-in-out 0s;
 			        background-color:#4baea0;
 			    }
 			    
 				.headerBox:hover {
-					transition: all 0.2s ease-in-out 0s;
-			        font-size: 120px;
+					transition: all 0.1s ease-in-out 0s;
+			        font-size: 32px;
 			    }
 			    
 			    #clockDiv {
-			    	position: absolute;
-			    	margin-left: 3800px;
-			    	margin-top: -1200px;
-							    	
+					width:10%;
+					position: absolute;
+					top: 0%;
+					left:80%;
 			    }
+
 			    
 			    .fontClock {
 			    	position: absolute;
-			    	width:100%;;
-			    	font-size: 45px;
-			    	margin-left: -28px;
+			    	font-size: 12px;
 			    	color: #216583;
 			    	white-space:nowrap;
 			    }
-			    
-			    #welcome {
-			    	font-family:SimHei;
-			    	font-size: 120px;
-			    	white-space:nowrap;
-			    	color: #C0C0C0;
-			    	position: absolute;
-			    	margin-left: 1500px;
-			    	margin-top: 200px;
-			    }
+			   
     		</style>
     	</head>
     	<body>
     		<div class="bigBox">
-	          <div class="cardBox" >
-	               <div class="headerBox" onclick="window.open('contestpaper.html','_self')" >
-	               		<p>试卷管理</p>
-	               </div>
-	           </div>
-	           
-	           <div class="cardBox" >
-	               <div class="headerBox"  onclick="window.open('contest.html','_self')" >
-	                   <p>考试管理</p>
-	               </div>
-	           </div>
-	           
-	           <div class="cardBox" onclick="window.open('addnewpaper.html','_self')" >
-	               <div class="headerBox" >
-	                   <p>组卷管理</p>
-	               </div>
-	           </div>
-	           
-	           <div class="cardBox" onclick="window.open('grade.html','_self')" >
-	               <div class="headerBox" >
-	                   <p>成绩管理</p>
-	               </div>
-	           </div>
-	      	</div>
-	      	<div id="clockDiv"> 
-		      	<canvas id="clock" width="500" height="500">
-	    			您的浏览器不支持canvas标签，无法看到时钟
-	    		</canvas>
+    			 <div  class="bigCareBox">
+			          <div class="cardBox" >
+			               <div class="headerBox" onclick="window.open('contestpaper.html','_self')" >
+			               		<p>试卷管理</p>
+			               </div>
+			           </div>
+			           
+			           <div class="cardBox" >
+			               <div class="headerBox"  onclick="window.open('contest.html','_self')" >
+			                   <p>考试管理</p>
+			               </div>
+			           </div>
+			           
+			           <div class="cardBox" onclick="window.open('addnewpaper.html','_self')" >
+			               <div class="headerBox" >
+			                   <p>组卷管理</p>
+			               </div>
+			           </div>
+			           
+			           <div class="cardBox" onclick="window.open('grade.html','_self')" >
+			               <div class="headerBox" >
+			                   <p>成绩管理</p>
+			               </div>
+			           </div>
+	           	</div>
+	           	
+	           	<div id="welcome">
+	    			<span id="text">欢迎使用学生在线考试系统</span>
+	    		</div>
 	    		
-	    		<div class="fontClock">
-			       <span id="nowTime"></span>
-			   </div>
-    		</div>
-    		   
-    		<div id="welcome">
-    			<span id="text">欢迎使用学生在线考试系统</span>
-    		</div>
+	           	<div id="clockDiv"> 
+			      	<canvas id="clock"  height="150">
+		    			您的浏览器不支持canvas标签，无法看到时钟
+		    		</canvas>
+		    		
+		    		<div class="fontClock">
+				       <span id="nowTime"></span>
+				   </div>
+    			</div>
+	    		
+	      	</div>
+	      
     		<script>
     			var clock=document.getElementById('clock');
     			var cxt=clock.getContext('2d');
     			
     		function drawClock(){
     			//清除画布
-    			cxt.clearRect(0,0,500,500);
+    			cxt.clearRect(0,0,500/3,500/3);
     			var now =new Date();
     			var sec=now.getSeconds();
     			var min=now.getMinutes();
@@ -141,10 +150,10 @@
     			hour=hour>12?hour-12:hour;
     			
     			//表盘(颜色)
-    			cxt.lineWidth=10;
+    			cxt.lineWidth=10/3;
     			cxt.strokeStyle="#b6e6bd";
     			cxt.beginPath();
-    			cxt.arc(250,250,150,0,360,false);
+    			cxt.arc(250/3,250/3,150/3,0,360/3,false);
     			cxt.closePath();
     			cxt.stroke();
     			//刻度
@@ -153,17 +162,17 @@
     			for(var i=0;i<12;i++){
     					cxt.save();
     					//设置时针的粗细
-    					cxt.lineWidth=7;
+    					cxt.lineWidth=7/3;
     					//设置时针的颜色
     					cxt.strokeStyle="#63707e";
     					//先设置0,0点
-    					cxt.translate(250,250);
+    					cxt.translate(250/3,250/3);
     					//再设置旋转角度
     					cxt.rotate(i*30*Math.PI/180);//角度*Math.PI/180=弧度
     					cxt.beginPath();
     					//刻画时刻度的长度
-    					cxt.moveTo(0,-120);
-    					cxt.lineTo(0,-140);
+    					cxt.moveTo(0,-120/3);
+    					cxt.lineTo(0,-140/3);
     					
     					cxt.closePath();
     					cxt.stroke();
@@ -174,17 +183,17 @@
     				for(var i=0;i<60;i++){
     					cxt.save();
     					//设置分刻度的粗细
-    					cxt.lineWidth=5;
+    					cxt.lineWidth=5/3;
     					//设置颜色(使用时刻度的颜色)
     					cxt.strokeStyle="#63707e";
     					//设置或者重置画布的0，0点
-    					cxt.translate(250,250);
+    					cxt.translate(250/3,250/3);
     					//设置旋转角度
     					cxt.rotate(i*6*Math.PI/180);
     					//画分针刻度
     					cxt.beginPath();
-    					cxt.moveTo(0,-130);
-    					cxt.lineTo(0,-140);
+    					cxt.moveTo(0,-130/3);
+    					cxt.lineTo(0,-140/3);
     					cxt.closePath();
     					cxt.stroke();
     					cxt.restore();
@@ -193,16 +202,16 @@
     			//时针
     				cxt.save();
     				//设置时针风格
-    				cxt.lineWidth=7;
+    				cxt.lineWidth=7/3;
     				//设置时针的颜色
     				cxt.strokeStyle="#63707e";
     				//设置异次元空间的0，0点
-    				cxt.translate(250,250);
+    				cxt.translate(250/3,250/3);
     				//设置旋转角度
     				cxt.rotate(hour*30*Math.PI/180);
     				cxt.beginPath();
-    				cxt.moveTo(0,-60);
-    				cxt.lineTo(0,10);
+    				cxt.moveTo(0,-60/3);
+    				cxt.lineTo(0,10/3);
     				cxt.closePath();
     				cxt.stroke();
     				cxt.restore();
@@ -211,15 +220,15 @@
     			//分针
     				cxt.save();
     				//设置分针的风格
-    				cxt.lineWidth=5;
+    				cxt.lineWidth=5/3;
     				cxt.strokeStyle="#63707e";
     				//设置异次元空间分针画布的圆心
-    				cxt.translate(250,250);
+    				cxt.translate(250/3,250/3);
     				//设置旋转角度
     				cxt.rotate(min*6*Math.PI/180);
     				cxt.beginPath();
-    				cxt.moveTo(0,-100);
-    				cxt.lineTo(0,15);
+    				cxt.moveTo(0,-100/3);
+    				cxt.lineTo(0,15/3);
     				cxt.closePath();
     				cxt.stroke();
     				cxt.restore();
@@ -232,20 +241,20 @@
     				//颜色红色
     				cxt.strokeStyle="#3c70a4";
     				//粗细 3像素
-    				cxt.lineWidth=3;
+    				cxt.lineWidth=3/3;
     				//重置0，0点
-    				cxt.translate(250,250);
+    				cxt.translate(250/3,250/3);
     				//设置旋转角度
     				cxt.rotate(sec*6*Math.PI/180);
     				//画图
     				cxt.beginPath();
-    				cxt.moveTo(0,-120);
-    				cxt.lineTo(0,20);
+    				cxt.moveTo(0,-120/3);
+    				cxt.lineTo(0,20/3);
     				cxt.closePath();
     				cxt.stroke();
     				//画出时针、分针、秒针的交叉点、
     				cxt.beginPath();
-    				cxt.arc(0,0,5,0,360,false);
+    				cxt.arc(0,0,5/3,0,360/3,false);
     				cxt.closePath();
     				//设置填充样式
     				cxt.fillStyle="gray";
@@ -254,7 +263,7 @@
     				cxt.stroke();
     				//设置秒针前段的小圆点
     				cxt.beginPath();
-    				cxt.arc(0,-100,5,0,360,false);
+    				cxt.arc(0,-100/3,5/3,0,360/3,false);
     				cxt.closePath();
     				//设置填充样式
     				cxt.fillStyle="gray";
@@ -279,7 +288,7 @@
 		        }
 		        return date;
 		    }
-		
+			
 		    function getLangDate(){
 		        var dateObj = new Date(); //表示当前系统时间的Date对象
 		        var year = dateObj.getFullYear(); //当前系统时间的完整年份值
@@ -297,6 +306,29 @@
 		        setTimeout(getLangDate,1000);
 		    }
 		</script>
+		
+		 <script type="text/javascript">
+        //页面加载执行函数
+        	$(document).ready(function() {
+				loadingUserName();
+			});
+        	/* 显示登录的用户名 */
+		      function loadingUserName() {
+		      		$.ajax({
+								type: "POST", 
+								url: "User/getUsername",
+								data: '',
+								async: false,
+								dataType: 'json', 
+								success: function(data) {
+									if(data.level<1) {	//判断有误权限进来此页面
+										alert("无登录权限");
+										window.location.href = "./login.html";
+									}
+								}
+							})
+		      }
+        </script>
     </html>
 
 

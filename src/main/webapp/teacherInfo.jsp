@@ -13,19 +13,25 @@
 <link rel="stylesheet" href="css/theme49.min.css">
 <script src="./lib/layui/layui.js" charset="utf-8"></script>
 <script type="text/javascript" src="./js/xadmin.js"></script>
+ <script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
 <style type="text/css">
 	#ce {
-		margin: 10px 0px 0px 400px;
+		margin: auto ;		
+		margin-left:35%;
+		margin-top:4%;
+		width:620px; 
+		height:700px; 
 	}
 	.personal_des {
 		background-color: white; 
 		padding:20px; 
 		text-align: center; 
-		width:40%; 
-		height:450px; 
+		width:55%; 
+		height:70%; 
 		border-radius: 20px;
 		box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-	}
+		position: relative;
+	}	
 	.layui-form-item {
 		color:#525252
 	}
@@ -37,7 +43,7 @@
 	<div class="x-nav">
 		<a class="layui-btn layui-btn-small" style="line-height: 1.0em; margin-top: 0px; float: right" onclick="location.reload()"
 		 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 40px"></i></a>
-		 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "window.open('studentmodule_welcome.html','_self')"
+		 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
 				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
 	</div>
 	<br>
@@ -53,7 +59,7 @@
 				<!-- 提示：如果你不想用form，你可以换成div等任何一个普通元素 -->
 				<div class="layui-form-item">
 					<label class="layui-form-label" >工号</label>
-					<div class="layui-input-block" style="width: 150px;">
+					<div class="layui-input-block" style="width: 65%;">
 						<input type="text" name="stuid" style="color:#a7a7a7" placeholder="请登录系统" autocomplete="off"
 							class="layui-input" " value="${user.userId}" disabled>
 					</div>
@@ -75,7 +81,7 @@
 				
 				<div class="layui-form-item">
 					<label class="layui-form-label">姓名</label>
-					<div class="layui-input-block" style="width: 120px;">
+					<div class="layui-input-block" style="width: 65%;">
 						<input type="text" name="stuname" placeholder="" autocomplete="off"
 							class="layui-input" lay-verify="required|checkname" value="${user.realname}">
 					</div>
@@ -83,15 +89,15 @@
 				
 				<div class="layui-form-item">
 					<label class="layui-form-label">旧密码</label>
-					<div class="layui-input-block" style="width: 200px;">
+					<div class="layui-input-block" style="width: 65%;">
 						<input type="password" name="oldpwd" placeholder="不改密码可为空" autocomplete="off"
 							class="layui-input" id="oldpwd" lay-verify="checkoldpwd">
 					</div>
 				</div>
 				
-				<div class="layui-form-item" style="width: 10%;">
+				<div class="layui-form-item" style="width: 65%;">
 					<label class="layui-form-label">新密码</label>
-					<div class="layui-input-block" style="width: 200px;">
+					<div class="layui-input-block" style="width: 65%;">
 						<input type="password" name="newpwd1" placeholder="不改密码可为空" autocomplete="off"
 							class="layui-input" id="newpwd1" lay-verify="pwdlength">
 					</div>
@@ -99,7 +105,7 @@
 				
 				<div class="layui-form-item">
 					<label class="layui-form-label">确认密码</label>
-					<div class="layui-input-block" style="width: 200px;">
+					<div class="layui-input-block" style="width: 65%;">
 						<input type="password" name="newpwd2" placeholder="再次输入新密码" autocomplete="off"
 							class="layui-input" id="newpwd2" lay-verify="repass">
 					</div>
@@ -280,12 +286,36 @@
 				click : function(type) {
 					console.log(type);
 					if (type === 'bar1') {
-						alert('点击了bar1')
+						layer.alert('欢迎使用在线考试系统🙂')
 					}
 				}
 			});
 		});
 		
+	</script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+				loadingUserName();
+		});
+	
+		
+		/* 显示登录的用户名 */
+	      function loadingUserName() {
+	      		$.ajax({
+							type: "POST", 
+							url: "User/getUsername",
+							data: '',
+							async: false,
+							dataType: 'json', 
+							success: function(data) {
+								if(data.level<1) {	//判断有误权限进来此页面
+									alert("无访问权限");
+									window.location.href = "./error.html";
+								}
+							}
+						})
+	      }
+	
 	</script>
 	  
 </body>

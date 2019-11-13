@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.app.tools.PathHelper;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -37,11 +35,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.app.service.impl.ClassService;
 import com.app.service.impl.UserService;
+import com.app.tools.PathHelper;
 import com.app.tools.RandomValidateCode;
 import com.code.model.LayResponse;
 import com.code.model.Response;
 import com.code.model.User;
 import com.code.model.loginUser;
+import com.github.pagehelper.PageInfo;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -82,7 +82,7 @@ public class UserController {
 		if (state < 0) {
 			re.setMsg("账号状态异常");
 		} else if (state == 0) {
-			re.setMsg("用户名不存在");
+			re.setMsg("账号/邮箱不存在");
 		} else if (state == 1) {
 			re.setMsg("密码错误");
 		} else { 
@@ -101,15 +101,22 @@ public class UserController {
 	 * @description 用户注册
 	 * @return 响应状态
 	 */
-	@RequestMapping(value = "User/Register", consumes = "application/json", produces = "text/html;charset=UTF-8", method = {
-			RequestMethod.POST })
+	@RequestMapping(value = "User/Register", method = {RequestMethod.POST })
 	@ResponseBody
-	public String Register(HttpServletRequest request, HttpServletResponse response, @RequestBody User user)
+	public String Register(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
+		User user = new User();
+		user.setPassword(request.getParameter("password"));
+		user.setUserId(request.getParameter("userId"));
+		user.setEmail(request.getParameter("email"));
+		user.setRealname(request.getParameter("realname"));
+		System.out.println("pass-----"+user.getUserId());
+		System.out.println("pass-----"+user.getUserId());
+		System.out.println("pass-----"+request.getParameter("rancode"));
 		Response re = new Response();
 		re.setSuccess(0);
 		String rancode = request.getParameter("rancode");
-		if (user == null || user.getUserId() == null || user.getPassword() == null || user.getEmail() == null) {
+		if (user == null || user.getUserId() == null || user.getPassword() == null || user.getUserId() == null) {
 			re.setMsg("参数错误");
 			return JSONObject.fromObject(re).toString();
 		}
@@ -161,7 +168,6 @@ public class UserController {
 		re.setSuccess(0);
 		String email = request.getParameter("email");
 		String rancode = request.getParameter("rancode");
-
 		if (rancode == null || !ValidateRanCode(request, rancode)) {
 			re.setMsg("验证码错误");
 			return JSONObject.fromObject(re).toString();
@@ -242,11 +248,21 @@ public class UserController {
 	@ResponseBody
 	public String GetAllStudents(HttpServletRequest request, HttpServletResponse response, String Keyword)
 			throws Exception {
+		//获取分页所需相关数据
+		String pageSize = request.getParameter("limit"); //一页多少个
+		String pageNumber = request.getParameter("page");	//第几页
+		
+		List resultList =  userService.GetAllStudents(Keyword,pageSize,pageNumber);
+		//获取分页插件的数据只能通过PageInfo来获取
+		PageInfo pInfo = new PageInfo(resultList);
+		Long total = pInfo.getTotal();
+		
 		JSONObject obj = new JSONObject();
-		JSONArray arr = userService.GetAllStudents(Keyword);
+		JSONArray arr = JSONArray.fromObject(resultList);
+	
 		obj.put("code", 0);
 		obj.put("msg", "返回成功");
-		obj.put("count", arr.size());
+		obj.put("count", total.intValue());
 		obj.put("data", arr);
 		return obj.toString();
 	}
@@ -262,7 +278,7 @@ public class UserController {
 	@ResponseBody
 	public ModelAndView PrepareAddUser(HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView();
-		mav.addObject("classes", classService.GetAllClass(""));
+		mav.addObject("classes", classService.GetAllClass("",null,null));
 		mav.setViewName("student-add.jsp");
 		return mav; 
 	}
@@ -300,7 +316,7 @@ public class UserController {
 
 		ModelAndView mav = new ModelAndView();
 		mav.addObject("user", userService.getUser(id));
-		mav.addObject("classes", classService.GetAllClass(""));
+		mav.addObject("classes", classService.GetAllClass("",null,null));
 		mav.setViewName("student-edit.jsp");
 		return mav;
 	}
@@ -382,11 +398,21 @@ public class UserController {
 	@ResponseBody
 	public String GetAllTeachers(HttpServletRequest request, HttpServletResponse response, String Keyword)
 			throws Exception {
+		//获取分页所需相关数据
+		String pageSize = request.getParameter("limit"); //一页多少个
+		String pageNumber = request.getParameter("page");	//第几页
+		
+		List resultList =  userService.GetAllTeachers(Keyword,pageSize,pageNumber);
+		//获取分页插件的数据只能通过PageInfo来获取
+		PageInfo pInfo = new PageInfo(resultList);
+		Long total = pInfo.getTotal();
+		
 		JSONObject obj = new JSONObject();
-		JSONArray arr = userService.GetAllTeachers(Keyword);
+		JSONArray arr = JSONArray.fromObject(resultList);
+		
 		obj.put("code", 0);
 		obj.put("msg", "返回成功");
-		obj.put("count", arr.size());
+		obj.put("count", total.intValue());
 		obj.put("data", arr);
 		return obj.toString();
 	}
@@ -573,9 +599,9 @@ public class UserController {
 						logUser.setClassId(user.getClassId());
 						logUser.setClassName(className);
 					}
-					logUser.setEmail(user.getEmail());
+					logUser.setEmail("");
 					logUser.setLevel(user.getLevel());
-					logUser.setPassword(user.getPassword());
+					logUser.setPassword("");
 					logUser.setRealname(user.getRealname());
 					logUser.setUserId(user.getUserId());
 				}
