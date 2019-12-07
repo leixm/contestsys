@@ -55,7 +55,7 @@
                 </li>
                 <li class="layui-nav-item ">
                     <select name="course_id"  lay-filter="test" id="selCourse" style="height:20px;text-align:center;border-radius: 3px;opacity:80%; cursor: pointer;">
-
+						
 				    </select>
                 </li>
             </ul>
@@ -223,9 +223,16 @@
 						async: false,
 						dataType: 'json', 
 						success: function(data) {
-						    var course = data.data;
-						    console.log(course);
-						   $('#selCourse').append("<option value='0'>请选择课程</option>");
+						    var course = data.data.dataList;	//获取数据库返回结果集
+						    //console.log(course);
+						    console.log(data);
+						    if(data.data.select_id!=null) {
+						    	console.log("课程获取到了");
+						    	$('#selCourse').append("<option value='"+data.data.select_id+"'>"+data.data.select_name+"</option>");
+						    }else {
+						    	console.log("课程mei到了");
+						    	$('#selCourse').append("<option value='0'>请选择课程</option>");
+						    }
 				           //遍历成功返回的json数据，取出对应内容进行展示
 				           $.each(course, function (index,item) {
 
@@ -238,7 +245,7 @@
 					})
 			}
 			
-			
+			 
         	/* 显示登录的用户名 */
 		    function loadingUserName() {
 	      		$.ajax({
@@ -278,8 +285,10 @@
        	    $("#selCourse").change(function(){
     	    	// var checkText=$("#selCourse").find("option:selected").text(); //获取Select选择的Text 
                 var checkValue=$("#selCourse").val();
+                var checkName=$("#selCourse").find("option:selected").text();
 		     	var data = {};
 		     	data['course_id'] = checkValue;
+		     	data['course_name'] = checkName;
 		     	$.ajax({ 
 					 type: "POST", 
 					 url: "User/changeSystemCourse",

@@ -622,10 +622,12 @@ public class UserController {
 	public String saveSystemCourseToSession(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<String,Object> resultMap = new HashMap<String, Object>();
 		String course_id = request.getParameter("course_id");
+		String course_name = request.getParameter("course_name");
 		//System.out.println("course_id--------"+course_id);
 		//获取所登录用户的user对象
 		HttpSession session = request.getSession(); 
 	    session.setAttribute("course_id",course_id);  
+	    session.setAttribute("course_name",course_name);  
 	    //自己把SessionID保存在cookie中  ，即使浏览器禁止了cookie也能用session（！！！！！）
 	    Cookie cookie=new Cookie("JSESSIONID", session.getId());  
 	    //设置cookie保存时间  
@@ -651,21 +653,15 @@ public class UserController {
 	public String getSelectCourse(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		LayResponse layResp = new LayResponse();//layui参数返回格式
 		layResp.setCode(1); //默认设置为1
-
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
-		Map<String,Object> resultMap = new HashMap<String, Object>();
-		resultMap.put("status", 1);  //1表示失败
+		
 		//获取所登录用户的user对象
 		HttpSession session = request.getSession(); 
 	    User user = (User)session.getAttribute("user");
 	    int level = user.getLevel();
 	    String userId = user.getUserId().toString();
 	    String keyword = request.getParameter("keyword");
-	    System.out.println("key=="+keyword);
 	    if(level > 0) {		//管理员或教师
-	    	if(level == 2) {
-	    		userId = null;
-	    	}
 	    	//userId为参，null的时候默认查全部的课程，即管理员角色
 	    	resultList = userService.selCourseNameByTeacherId(userId,keyword);
 	    }else {
@@ -673,9 +669,20 @@ public class UserController {
 			layResp.setMsg("抱歉，权限不足！");
 			return JSONObject.fromObject(layResp).toString();
 	    }
+	    Map<String,Object> resultMap = new HashMap<String, Object>();
+	    //查看session是否有已选择的课程，有的话传回前端
+	    String courseId = (String)session.getAttribute("course_id");
+	    String courseName = (String)session.getAttribute("course_name");
+	    System.out.println("courseObj+++"+courseId+"====name==="+courseName);
+	    if(courseId != null && courseName != null) {
+	    	resultMap.put("select_id", courseId);
+	    	resultMap.put("select_name", courseName);
+	    }
+	    resultMap.put("dataList", resultList);
+	    
 		layResp.setCode(0);
 		layResp.setMsg("请求成功！");
-		layResp.setData(resultList);
+		layResp.setData(resultMap);
 		return JSONObject.fromObject(layResp).toString();
 	}
 	
