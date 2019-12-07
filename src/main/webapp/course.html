@@ -15,7 +15,7 @@
           <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
           <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
-        
+		
 		<style type="text/css">
 			/* 表格行高 等*/
 	        .layui-table-cell{
@@ -40,8 +40,7 @@
 					<a> <cite>导航元素</cite></a>
 				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
 				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
-				 
-				 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
+				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
 				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
 			</div>
 			<div class="layui-fluid">
@@ -61,41 +60,31 @@
 		</body>
 
 
-
-
-
-
-		<script id="dateTpl" type="text/html">
-			{{#  var fn = function(){
-        return moment(d.ApplyDate).format("YYYY-MM-DD");
-         }; if(true){ }}
-        {{ fn() }}
-        {{#  } }}
- 
-    </script>
-
-	<script type="text/html" id="header">
-			<div id="headbar" style="float:left;display:none;" >
-				<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll" ><i class="layui-icon"></i>批量删除</button>
-				<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon" ></i>添加用户</button>
-			</div>			
-			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
-				<input name="id" class="layui-input" id="keyword" placeholder="学号/名字/班级/邮箱地址">
+		<script type="text/html" id="header">
+			<div id="headbar" style="float:left;">
+				<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll" id="btn-delAll"><i class="layui-icon"></i>批量删除课程</button>
+				<button class="layui-btn layui-btn-normal" lay-event="add" id="btn-add"><i class="layui-icon" ></i>添加课程</button>
+				<button class="layui-btn layui-btn-normal" lay-event="addTeach" id="btn-addteach"><i class="layui-icon"></i>添加任课教师</button>
+			</div>		
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px; ">
+				<input name="id" class="layui-input" id="keyword" placeholder="输入 课程/教师姓名"> 
 			</div>
 			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
-			<button class="layui-btn" id="import"  style="display:none;float:right"; lay-event="importStu" data-type="importStu" id="importStu"><i class="layui-icon layui-icon-download-circle" ></i>批量导入</button>
-	</script>
+		</script>
 
-	<script type="text/html" id="demotool">
-		<div  style="display:none;"  class="caozuo">
-			<a class="layui-btn layui-btn-xs" lay-event="edit" >编辑</a>
-            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-		</div>
+
+		<script type="text/html" id="demotool">
+		<div class="caozuo" style="display:none;">
+			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+			<a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="delTeach">移除任课教师</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除课程</a>
+		</div>	
     </script>
 
 
 		<script>
 			$(document).ready(function() {
+
 				initTable();
 			});
 			
@@ -109,90 +98,80 @@
 							dataType: 'json', 
 							success: function(data) {
 								if(data.level<1) {	//判断有误权限进来此页面
-									alert("无访问权限");
+									alert("无登录权限");
 									window.location.href = "./login.html";
 								}else {
 									if(data.realname!=null&&data.realname!="") {
 										if(data.level==2) { //管理员角色可编辑学生信息
 											$(".caozuo").show();
 											$("#headbar").show();
-											$("#import").show();
+										}else {
+											$("#btn-delAll").hide();
+											$("#btn-add").hide();
 										}
 									}else {
 										alert("请先登录系统");
-										window.location.href = "./login.html";
+										window.location.href = "./login.html";	
 									}
 								}
 							}
 				})
 			}
 			
-			
-			layui.use('laydate', function() {
-				var laydate = layui.laydate;
-				//时间选择器
-				laydate.render({
-					elem: '#timearea',
-					range: true
-				});
 
-			});
-			
-			
 			function initTable() {
-				var timeArea = $("#timearea").val();
-				var startTime = "";
-				var endTime = "";
-				if (timeArea) {
-					startTime = timeArea.split(" - ")[0]; //开始时间
-					endTime = timeArea.split(" - ")[1]; //结束时间
-				}
-				
-				layui.use('table',function() {
+				layui.use('table', function() {
 					var table = layui.table;
 					//执行渲染 
-					var tab = table.render({
+					table.render({
 						id: 'demo',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
-						height: '720', //容器高度
 						toolbar: '#header',
 						cols: [
 							[{
 								checkbox: true
+							},
+							{	
+								title: '序号',
+								minWidth: 180,
+								type:'numbers'
+							}, 
+							{
+								field: 'courseId',
+								title: '课程id',
+								minWidth: 180,
+								sort: true,
+								hide: true
 							}, {
-								field: 'user_id',
-								title: '学号',
+								field: 'courseName',
+								title: '课程名称',
 								minWidth: 180,
 								sort: true
-							}, {
-								field: 'realName',
-								title: '姓名',
-								minWidth: 140,
-								sort: true
-							}, {
-								field: 'email',
-								title: '邮箱地址',
+							},{
+                                field: 'teacherId',
+                                title: '教师工号',
+                                minWidth: 180,
+                                sort: true
+                            },{
+                                field: 'teacherName',
+                                title: '任课教师',
+                                minWidth: 180,
+                                sort: true
+                            }, {
+								field: 'createtime',
+								title: '创建时间',
 								minWidth: 200,
 								sort: true
-							}, {
-								field: 'name',
-								title: '班级',
-								minWidth: 130,
-								sort: true
-							}, {
-								field: 'registerTime',
-								title: '注册时间',
-								minWidth: 200,
-								sort: true
-							}, {
+							}, {  
 								title: '操作',
 								toolbar: '#demotool',
-								minWidth: 150
+								'fixed': 'right',
+								minWidth: 200
 							}]
 						],
-						url: 'User/GetAllStudents',
+						url: 'User/getSelectCourse',
 						method: 'post',
-						limits: [15, 20, 30, 50, 100],
+						limits:  [15, 30, 50, 100],
 						limit: 15, //默认采用10
 						loading: true,
 						page: true,
@@ -208,52 +187,47 @@
 								type: 2,
 								title: "新增",
 								shadeClose: false, //点击遮罩关闭层
-								area: ['480px', '500px'],
-								content: "addstudent.do"
+								area: ['480px','300px'],
+								content: "addCourse.do"
 							});
-						}
-						else if (obj.event === 'reload') {
+						}else if (obj.event === 'addTeach') {
+							//添加任课关系
+							layer.open({
+								type: 2,
+								title: "添加任课教师",
+								shadeClose: false, //点击遮罩关闭层
+								area: ['700px','480px'],
+								content: "addCourseTeach.do"
+							});
+						}else if (obj.event === 'reload') {
 							console.log("执行搜索")
 							var type = $(this).data('type');
 							active[type] ? active[type].call(this) : '';
-						}
-						else if (obj.event === 'delAll') {
+						}else if (obj.event === 'delAll') {
 							var type = $(this).data('type');
 							active[type] ? active[type].call(this) : '';
 						}
-						else if(obj.event === 'importStu') {
-								
-							//iframe层-父子操作
-
-							layer.open({
-							  type: 2,
-							  area: ['700px', '450px'],
-							  title: "批量导入",
-							  fixed: false, //不固定
-							  maxmin: true,
-							  content: 'importStudent.html'
-							});
-					    }
-						
-						
 					});
 
 
 					table.on('tool(demo)', function(obj) {
 						if (obj.event == "edit") {
-							//编辑
+							//新增
 							console.log("edit")
 							layer.open({
 								type: 2,
-								title: "编辑",
+								title: "编辑课程信息",
 								shadeClose: false, //点击遮罩关闭层
-								area: ['500px', '500px'],
-								content: "editstudent.do?id=" + obj.data.user_id
+								area: ['480px','380px'],
+								content: "editCourse.do?courseId=" + obj.data.courseId
 							});
 
 						} else if (obj.event === 'del') {
 							//删除
-							delinventory(obj.data.user_id);
+							delinventory(obj.data.courseId);
+						}else if (obj.event === 'delTeach') {
+							//删除任课关系
+							delTeach(obj.data.courseId,obj.data.teacherId);
 						}
 						
 					});
@@ -262,7 +236,7 @@
 					function delinventory(id) {
 						layer.confirm('是否删除?', function(index) {
 							$.ajax({
-								url: "User/DeleteUser?id=" + id,
+								url: "Course/deleteCourse?id=" + id,
 								type: "post",
 								success: function(result) {
 
@@ -283,19 +257,41 @@
 							layer.close(index);
 						})
 					}
-
+					
+						//删除任课关系 函数
+					function delTeach(courseId,teacherId) {
+						layer.confirm('是否移除该课程任课老师?', function(index) {
+							$.ajax({
+								url: "Course/deleteTeach?courseId=" + courseId + "&teacherId=" + teacherId,
+								type: "post",
+								success: function(result) {
+									if (!result.code) {		//code=0成功
+										layer.msg("移除成功!", {
+											time: 1000
+										});
+										active.reload();
+									} else {
+										layer.msg(result.msg, {
+											time: 2000
+										});
+										return false;
+									}
+								}
+							});
+							layer.close(index);
+						})
+					}
 
 
 					active = {
 						reload: function() {
 							//执行重载
-							table
-								.reload('demo', {
+							table.reload('demo', {
 									page: {
 										curr: 1 //重新从第 1 页开始
 									},
 									where: {
-										Keyword: $('#keyword').val()
+										keyword: $('#keyword').val()
 									}
 								});
 						},
@@ -303,15 +299,14 @@
 							var checkStatus = table.checkStatus('demo')
 								var data = checkStatus.data
 								var delList = [];
-								console.log(checkStatus.data)
-							data.forEach(function(n, i) {
-								delList.push(n.user_id);
-							});
+								data.forEach(function(n, i) {
+									delList.push(n.courseId);
+								});
 							console.log(delList)
 							if (delList != '') {
 								layer.confirm('确定删除所选项吗？', function(index) {
 									$.ajax({
-										url: 'User/DelAll',
+										url: 'Course/delAll',
 										type: 'post',
 										contentType : "application/json", 
 										dataType: 'json', 
@@ -319,7 +314,7 @@
 										success: function(da) {
 										console.log(da) 
 											if (da.code == 0) { 
-												layer.msg('删除成功');
+												layer.msg(da.msg);
 												table.reload('demo', {});
 											} else {
 												layer.msg('删除失败');
@@ -360,30 +355,6 @@
 				});
 
 			}
-		</script>
-		<script type="text/javascript">
-			$(document).ready(function() {
-					loadingUserName();
-			});
-		
-			
-			/* 显示登录的用户名 */
-		      function loadingUserName() {
-		      		$.ajax({
-								type: "POST", 
-								url: "User/getUsername",
-								data: '',
-								async: false,
-								dataType: 'json', 
-								success: function(data) {
-									if(data.level<1) {	//判断有误权限进来此页面
-										alert("无访问权限");
-										window.location.href = "./error.html";
-									}
-								}
-							})
-		      }
-		
 		</script>
 	</body>
 

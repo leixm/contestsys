@@ -1150,7 +1150,7 @@ function submitpaper()
 					 	layer.close(layerIndex);	//关闭加载动画
 						//配置一个透明的询问框
 					      layer.msg('提交成功', {
-					        time: 4000, //4s后自动关闭
+					        time: 3000, //4s后自动关闭
 					      });
 					      setTimeout(
 							function(){

@@ -124,7 +124,6 @@ public class TeacherServiceImpl implements TeacherService{
 			ClassExample classExample = new ClassExample();
 			ClassExample.Criteria criteria = classExample.createCriteria();
 			criteria.andNameEqualTo(className);
-			criteria.andTeacherEqualTo(contest.getTeacher());
 			List<Class> classes = classDao.selectByExample(classExample);
 			if(classes.size()==1) {
 				classId = classes.get(0).getClassId();
@@ -550,7 +549,6 @@ public class TeacherServiceImpl implements TeacherService{
     	if(user.getLevel() == 1) {
 			ClassExample classExample = new ClassExample();
 			ClassExample.Criteria criteria = classExample.createCriteria();
-			criteria.andTeacherEqualTo(user.getUserId());
 			List<Class> classes = classDao.selectByExample(classExample);
 			
 			if(classes.size()>0) {
@@ -872,17 +870,12 @@ public class TeacherServiceImpl implements TeacherService{
 		return contestStatusDao.updateScore(cStatusIdInt, scoreDecimal);
 	}
 
-	/**
-	 * 查询所有的班级对象
-	 * @return 所有的班级对象
-	 */
 	@Override
 	public List<Map<String, Object>> selAllClassObj() {
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-		list = classDao.listAll();
-		return list;
+		return null;
 	}
-	
+
+
 	/**
 	 * 查询所有的班级对象
 	 * @return 所有的班级对象

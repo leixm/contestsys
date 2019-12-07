@@ -351,7 +351,7 @@ public class ExcelServiceImpl implements ExcelService{
 			
 			//sheet.getLastRowNum() 的值是 10，所以Excel表中的数据至少是10条；不然报错 NullPointerException
 			
-			if(row.getCell(1) == null) {
+			/*if(row.getCell(1) == null) {
 				throw new MyException("导入失败(第"+(r+1)+"行,工号不能为空)");
 			}
 			row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);//得到每一行的 第一个单元格的值，转为字符串
@@ -370,7 +370,7 @@ public class ExcelServiceImpl implements ExcelService{
 			//System.out.println("teacher===="+userList);
 			if(userList.isEmpty()) {	
 				throw new MyException("导入失败(第"+(r+1)+"行,其任课老师工号不存在，请检查工号正确性，再进行导入)");
-			}
+			}*/
 			
 			
 			if(row.getCell(0) == null) {
@@ -393,7 +393,6 @@ public class ExcelServiceImpl implements ExcelService{
 			
 			com.code.model.Class classObj = new com.code.model.Class();
 			//完整的循环一次 就组成了一个对象
-			classObj.setTeacher(userId);
 			classObj.setName(className);
 			classList.add(classObj);
 			successNum ++;		//成功数加一

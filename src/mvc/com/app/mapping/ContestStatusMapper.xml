@@ -267,7 +267,7 @@
 		left join user as u on b.teacher = u.user_id
 		<where>
 			<if test="stuid!=null and stuid!=''">
-				and a.student like "%"#{stuid}"%"
+				and a.student = #{stuid}
 			</if >
 			<if test="keyword!=null and keyword!=''">
 				and	(b.title like "%"#{keyword}"%" or u.realName like "%"#{keyword}"%")
@@ -339,6 +339,23 @@
 		WHERE 
 		 	cs.student =  #{stuid}
 		
+  </select>
+  
+  <select id="selOneStuScore" resultType="map">
+  		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,date_format(c.startTime,'%Y-%m-%d') as contesttime,a.score,a.contest_status_id
+		from contest_status a 
+		left join user u on a.student = u.user_id 
+		left join class b on u.class_id=b.class_id
+		left join contest c on a.contest_id=c.contest_id
+		<where>
+			and a.status = 2
+			
+			<if test="stuid!=null and stuid!=''">
+				and u.user_id = #{stuid}
+			</if>
+			
+		</where>
+		order by b.class_id,a.contest_id,u.user_id
   </select>
   
   

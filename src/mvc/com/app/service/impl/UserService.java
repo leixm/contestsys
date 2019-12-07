@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.dao.ClassMapper;
+import com.app.dao.CourseMapper;
 import com.app.dao.UserMapper;
 import com.app.tools.MD5Util;
 import com.app.tools.RandomString;
@@ -40,6 +41,9 @@ public class UserService {
 	
 	@Autowired
 	private ClassMapper classDao;
+	
+	@Autowired
+	private CourseMapper courseDao;
 	
 	public int LoginByUserName(String userName,String passWord) throws UnsupportedEncodingException, MessagingException, GeneralSecurityException
 	{
@@ -384,5 +388,78 @@ public class UserService {
 	   } 
 	   return count;
 	} 
-
+	
+	public List<Map<String,Object>> selCourseNameByTeacherId(String teacherId,String keyword) {
+		
+		return courseDao.selCourseNameByTeacherId(teacherId,keyword);
+	}
+	
+	public List<Map<String,Object>> selCourseObjById(String courseId) {
+		
+		return courseDao.selCourseObjById(courseId);
+	}
+	
+	public int addCourse(String courseName) {
+		//根据name查是否存在
+		List<Map<String,Object>> courseList = courseDao.selCourseByName(courseName);
+		if(courseList.isEmpty()) {
+			//插入操作
+			if(courseDao.insCourseByName(courseName) > 0) {
+				return 1;
+			}
+			return 0;
+		}else {
+			return 2; 
+		}
+	}
+	
+	public int addTeach(String courseId,String teacherId) {
+		String[] classIdArr = courseId.split(",");
+		String[] teacherIdArr = teacherId.split(",");
+		int insertNum = 0;
+		if(classIdArr.length > 0 && teacherIdArr.length > 0) {
+			for(String claStr : classIdArr) {
+				courseId = claStr;
+				for(String teaStr : teacherIdArr) {
+					teacherId = teaStr;
+					//校验是否已存在任课关系，有则跳过
+					List<Map<String,Object>> confList = courseDao.selCourseConfByKeyword(courseId, teacherId);
+					if(!confList.isEmpty()) {
+						continue;
+					}
+					//进行插入操作
+					courseDao.insertTeachByKeyword(courseId,teacherId);
+					insertNum ++;
+				}	
+			}
+			return insertNum;
+		}
+		return 0;
+	}
+	
+	public int deleteCourse(String courseId) {
+		int courseIdInt = Integer.parseInt(courseId);
+		return courseDao.delCourseById(courseIdInt);
+	}
+	
+	public int deleteAllCourse(List<String> ids) {
+		 int count = 0;
+		 if(!ids.isEmpty()) {
+			 for(String id : ids){
+				   count += courseDao.delCourseById(Integer.parseInt(id));
+			   } 
+		 }
+		 return count;
+	}
+	
+	public int deleteTeach(String courseId,String teacherId){
+		int courseInt = Integer.parseInt(courseId);
+		return courseDao.deleteTeachById(courseInt,teacherId);
+	}
+	
+	public int updateCourse(int courseId,String courseName) {
+		
+		return courseDao.updateCourseById(courseId,courseName);
+	}
+	
 }
