@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
@@ -848,5 +849,120 @@ public class TeacherController {
 		resultMap.put("status", 1);
 		return JSONObject.fromObject(resultMap).toString();
 	}
+	
+	/**
+	 * 查询通用题库列表
+	 * @return 返回JSON格式的列表信息 
+	 */
+	@RequestMapping(value = "Teacher/selSimproblemList", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String selSimproblemList (HttpServletRequest request) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);  
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		
+		int simCourseId = 0;
+		if(session.getAttribute("course_id")!=null) {
+			simCourseId = Integer.parseInt(session.getAttribute("course_id").toString());
+		}
+		int simType = 0;
+		if(request.getParameter("simType")!=null) {
+			simType = Integer.parseInt(request.getParameter("simType"));
+		}
+		String simPaperTitle = request.getParameter("simPaperTitle");
+		if(simPaperTitle!=null&&!"".equals(simPaperTitle)) {	//去除前后空格
+			simPaperTitle = simPaperTitle.trim();
+		}
+		//获取分页所需相关数据
+		String pageSize = request.getParameter("limit"); //一页多少个
+		String pageNumber = request.getParameter("page");	//第几页
+		
+		List<Map<String,Object>> resultList = teacherService.selSimproblemList(simCourseId, simPaperTitle, simType,pageSize,pageNumber);
+		//获取分页插件的数据只能通过PageInfo来获取
+		PageInfo pInfo = new PageInfo(resultList);
+		Long total = pInfo.getTotal();
+		
+		response.setCode(0);
+		response.setMsg("请求成功");
+		response.setCount(total.intValue());
+		response.setData(resultList);
+		return JSONObject.fromObject(response).toString();
+	}
+	
+	/**
+	 * 删除单条simproblem
+	 * @return 返回JSON格式的列表信息 
+	 */
+	@RequestMapping(value = "Teacher/delSimproblem", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String delSimproblem(HttpServletRequest request,String simId) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);  
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		
+		if(teacherService.delSimproblemById(Integer.parseInt(simId)) > 0) {
+			response.setMsg("删除成功");
+			response.setCode(0);
+			return JSONObject.fromObject(response).toString();
+		}
+		response.setMsg("删除失败");
+		return JSONObject.fromObject(response).toString();
+	}
+	
+	/**
+	 * 删除多条simproblem
+	 * @return 返回JSON格式的列表信息 
+	 */
+	@RequestMapping(value = "Teacher/delBatchSimproblem", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String delBatchSimproblem(HttpServletRequest request,@RequestBody List<String> ids) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);  
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		
+		int count = teacherService.delBatchSimproblemByIds(ids);
+	    if(count>0){
+		   response.setCode(0); 
+		   response.setMsg("成功删除"+count+"条记录"); 
+		   return JSONObject.fromObject(response).toString(); 
+	    }
+	    else{
+		  response.setMsg("删除失败"); 
+		  return JSONObject.fromObject(response).toString(); 
+	    }
+	  
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }

@@ -28,11 +28,13 @@
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
+  
   <servlet-mapping>
     <servlet-name>springMvc</servlet-name>
     <url-pattern>/</url-pattern>
-
   </servlet-mapping>
+
+
   <filter>
     <filter-name>encodingFilter</filter-name>
     <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>

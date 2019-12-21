@@ -9,7 +9,7 @@
 		<link rel="stylesheet" href="css/font.css">
 		<link rel="stylesheet" href="css/xadmin.css">
 		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-		<script src="./lib/layui/layui.all.js" charset="utf-8"></script>
+		<script src="./lib/layui/layui.js" charset="utf-8"></script>
 		<script type="text/javascript" src="./js/xadmin.js"></script>
 		<!--[if lt IE 9]>
           <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
@@ -34,7 +34,7 @@
 	</head>
 
 	<body>
-		<body>
+	
 			<div class="x-nav">
 				<span class="layui-breadcrumb"> <a href="">首页</a> <a href="">演示</a>
 					<a> <cite>导航元素</cite></a>
@@ -58,7 +58,7 @@
 					</div>
 				</div>
 			</div>
-		</body>
+	
 
 
 
@@ -156,38 +156,33 @@
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						height: '720', //容器高度
 						toolbar: '#header',
+						 cellMinWidth: 80,
 						cols: [
 							[{
 								checkbox: true
 							}, {
 								field: 'user_id',
 								title: '学号',
-								minWidth: 180,
 								sort: true
 							}, {
 								field: 'realName',
 								title: '姓名',
-								minWidth: 140,
 								sort: true
 							}, {
 								field: 'email',
 								title: '邮箱地址',
-								minWidth: 200,
 								sort: true
 							}, {
 								field: 'name',
 								title: '班级',
-								minWidth: 130,
 								sort: true
 							}, {
 								field: 'registerTime',
 								title: '注册时间',
-								minWidth: 200,
 								sort: true
 							}, {
 								title: '操作',
-								toolbar: '#demotool',
-								minWidth: 150
+								toolbar: '#demotool'
 							}]
 						],
 						url: 'User/GetAllStudents',

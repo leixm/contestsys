@@ -1,0 +1,457 @@
+<html class="x-admin-sm">
+	<head>
+		<meta charset="UTF-8">
+		<title>欢迎页面-X-admin2.2</title>
+		<meta name="renderer" content="webkit">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+		<link rel="stylesheet" href="lib/layui/css/layui.css">
+		<link rel="stylesheet" href="css/font.css">
+		<link rel="stylesheet" href="css/xadmin.css">
+		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+		<script src="./lib/layui/layui.js" charset="utf-8"></script>
+		<script type="text/javascript" src="./js/xadmin.js"></script>
+		<!--[if lt IE 9]>
+          <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+          <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+		
+		<style type="text/css">
+			/* 表格行高 等*/
+	        .layui-table-cell{
+			    height:28px;
+			    line-height: 28px;
+			    text-align: center;
+			    font-size: 14px;
+			}
+			/* 解决checkbox不居中 */
+			.layui-table-cell .layui-form-checkbox[lay-skin="primary"]{
+				 left:15%;
+			     top: 50%;
+			     transform: translateY(-50%);
+			}
+    	</style>
+	</head>
+
+	<body>
+		<body>
+			<div class="x-nav">
+				<span class="layui-breadcrumb"> <a href="">首页</a> <a href="">演示</a>
+					<a> <cite>导航元素</cite></a>
+				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
+				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
+				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
+				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
+			</div>
+			<div class="layui-fluid" >
+				<div class="layui-row layui-col-space15" >
+					<div class="layui-col-md12">
+						<div class="layui-card" >
+
+
+							<div class="layui-card-body layui-table-body layui-table-main" >
+								<table class="layui-table" id="demo" lay-filter="demo"></table>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</body>
+
+
+
+
+
+
+		<script id="dateTpl" type="text/html">
+			{{#  var fn = function(){
+        return moment(d.ApplyDate).format("YYYY-MM-DD");
+         }; if(true){ }}
+        {{ fn() }}
+        {{#  } }}
+ 
+    </script>
+
+		<script type="text/html" id="header">
+			<div id="headbar" style="float:left;">
+				<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll" id="btn-delAll"><i class="layui-icon"></i>批量删除</button>
+				<button class="layui-btn layui-btn-normal" lay-event="add" id="btn-add"><i class="layui-icon" ></i>添加题目</button>
+				<button class="layui-btn layui-btn-normal" lay-event="addTeach" id="btn-addteach"><i class="layui-icon"></i>添加任课教师</button>
+			</div>
+
+			    <div class="layui-input-inline" style="padding-left: 10px;width:130px;">
+					<select id="simType" name="simType" class="valid" >
+						<option value="0" selected="selected"> 请选择题型  </option>
+						<option value="1" > 单选题  </option>
+						<option value="2" > 多选题  </option>
+						<option value="3" > 判断题 </option>
+						<option value="4" > 填空题  </option>
+						<option value="5" > 简答题/综合题  </option>
+					</select>
+			    </div>	
+	
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px; ">
+				<input name="id" class="layui-input" id="simPaperTitle" placeholder="请输入题目来源试卷名"> 
+			</div>
+			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
+			<button class="layui-btn" id="import"  style="display:none;float:right"; lay-event="importSimproblem" data-type="importSimproblem" id="importSimproblem"><i class="layui-icon layui-icon-download-circle" ></i>批量导入通用题库</button>
+</script>
+
+
+	<script type="text/html" id="demotool">
+		<div class="caozuo" style="display:none;">
+			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+			<a class="layui-btn layui-btn-xs " lay-event="delTeach">复用题目</a>
+			<a class="layui-btn layui-btn-normal " lay-event="delTeach">预览题目</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+		</div>	
+    </script>
+
+
+		<script>
+			$(document).ready(function() {
+				initTable();
+			});
+			
+			
+			/*获取初始化下拉框课程选项（可以不用，直接前端控制下拉框即可）*/ 
+			/* 
+			function getSelectType() {
+				$.ajax({
+						type: "POST", 
+						url: "Teacher/getSelectSimpType",
+						data: '',
+						async: false,
+						dataType: 'json', 
+						success: function(result) {
+						    var simType = result.data;	//获取数据库返回结果集
+						    //console.log(course);
+						    console.log(data);
+						    if(data.data.select_id!=null) {
+						    	$('#selCourse').append("<option value='"+simType.select_id+"'>"+simType.select_name+"</option>");
+						    }else {
+						    	$('#selCourse').append("<option value='0'>全部课程</option>");
+						    }
+				           //遍历成功返回的json数据，取出对应内容进行展示
+				           $.each(simType, function (index,item) {
+				               var type_name = simType[index].typeName;
+				               var type_id = simType[index].typeId;
+				               //构造动态option
+				               $('#selSimType').append("<option value='"+type_id+"'>"+type_name+"</option>")
+				           });
+						}
+					})
+			} */
+			
+			/* 获取用户角色信息 */
+			function roleControl() {
+				$.ajax({
+							type: "POST", 
+							url: "User/getUsername",
+							data: '',
+							async: false,
+							dataType: 'json', 
+							success: function(data) {
+								if(data.level<1) {	//判断有误权限进来此页面
+									alert("无登录权限");
+									window.location.href = "./login.html";
+								}else {
+									if(data.realname!=null&&data.realname!="") {
+										if(data.level==2) { //管理员角色可编辑学生信息
+											$(".caozuo").show();
+											$("#import").show();
+										}else{
+											$("#btn-delAll").hide();
+											$("#btn-add").hide();
+										}
+									}else {
+										alert("请先登录系统");
+										window.location.href = "./login.html";	
+									}
+								}
+							}
+				})
+			}
+			
+			
+		
+			
+			
+			
+			function initTable() {
+				var timeArea = $("#timearea").val();
+				var startTime = "";
+				var endTime = "";
+				if (timeArea) {
+					startTime = timeArea.split(" - ")[0]; //开始时间
+					endTime = timeArea.split(" - ")[1]; //结束时间
+				}
+				layui.use('table', function() {
+					var table = layui.table;
+					//执行渲染 
+					table.render({
+						id: 'demo',
+						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
+						toolbar: '#header',
+						cellMinWidth: 100,
+						cols: [
+							[{
+								checkbox: true
+							},{	
+								title: '序号',
+								type:'numbers',
+								align: 'center'
+								
+							},{
+								field: 'simCourseId',
+								title: '所属课程ID',
+								sort: true,
+								hide:true
+							}, {
+								field: 'simCourseName',
+								title: '所属课程',
+								sort: true,
+								hide:true
+							}, {
+								field: 'simId',
+								title: '题目ID',
+								sort: true
+							},  {
+                                field: 'simType',
+                                title: '题目类型',
+                                sort: true
+                            },  {
+                                field: 'simContent',
+                                title: '题目内容',
+                                sort: true
+                            }, {
+                                field: 'simScore',
+                                title: '题目分数',
+                                sort: true
+                            }, {
+                                field: 'simPaperId',
+                                title: '题目来源试卷ID',
+                                sort: true,
+                                hide:true
+                            },{
+                                field: 'simPaperTitle',
+                                title: '题目来源试卷',
+                                sort: true
+                            }, {
+                                field: 'simPos',
+                                title: '题目题序',
+                                sort: true
+                            }, {
+								title: '操作',
+								toolbar: '#demotool',
+								'fixed': 'right',
+								 width: 305
+							}]
+						],
+						url: 'Teacher/selSimproblemList',
+						method: 'post',
+						limits:  [15, 30, 50, 100],
+						limit: 15, //默认采用10
+						loading: true,
+						page: true,
+						done: function a() {
+							roleControl();
+						}
+					});
+
+
+					table.on('toolbar(demo)', function(obj) {
+						if (obj.event === 'add') {
+							layer.open({
+								type: 2,
+								title: "新增",
+								shadeClose: false, //点击遮罩关闭层
+								area: ['480px','300px'],
+								content: "addclass.do"
+							});
+						}else if (obj.event === 'addTeach') {
+							//添加任课关系
+							layer.open({
+								type: 2,
+								title: "添加任课教师",
+								shadeClose: false, //点击遮罩关闭层
+								area: ['700px','480px'],
+								content: "addClassTeach.do"
+							});
+						}else if (obj.event === 'reload') {
+							//console.log("执行搜索")
+							var type = $(this).data('type');
+							active[type] ? active[type].call(this) : '';
+						}
+						else if (obj.event === 'delAll') {
+							var type = $(this).data('type');
+							active[type] ? active[type].call(this) : '';
+						}
+						else if(obj.event === 'importSimproblem') {
+							//iframe层-父子操作
+
+							layer.open({
+							  type: 2,
+							  area: ['700px', '450px'],
+							  title: "批量导入",
+							  fixed: false, //不固定
+							  maxmin: true,
+							  content: 'importSimproblem.html'
+							});
+					    }
+					});
+
+
+					table.on('tool(demo)', function(obj) {
+						if (obj.event == "edit") {
+							//新增
+							console.log("edit")
+							layer.open({
+								type: 2,
+								title: "编辑班级信息",
+								shadeClose: false, //点击遮罩关闭层
+								area: ['480px','380px'],
+								content: "editclass.do?id=" + obj.data.classId
+							});
+
+						} else if (obj.event === 'del') {
+							//删除
+							delinventory(obj.data.simId);
+						}else if (obj.event === 'delTeach') {
+							//删除任课关系
+							delTeach(obj.data.classId,obj.data.teacherId);
+						}
+						
+					});
+					
+					//删除用户函数
+					function delinventory(id) {
+						layer.confirm('是否删除?', function(index) {
+							$.ajax({
+								url: "Teacher/delSimproblem?simId=" + id,
+								type: "post",
+								success: function(result) {
+
+									if (!result.code) {
+										layer.msg("删除成功!", {
+											time: 1000
+										});
+										active.reload();
+									} else {
+										layer.msg(result.msg, {
+											time: 2000
+										});
+										return false;
+									}
+
+								}
+							});
+							layer.close(index);
+						})
+					}
+					
+					//删除任课关系 函数
+					function delTeach(classId,teacherId) {
+						layer.confirm('是否移除该班级任课老师?', function(index) {
+							$.ajax({
+								url: "Class/deleteTeach?classId=" + classId + "&teacherId=" + teacherId,
+								type: "post",
+								success: function(result) {
+									if (!result.code) {		//code=0成功
+										layer.msg("移除成功!", {
+											time: 1000
+										});
+										active.reload();
+									} else {
+										layer.msg(result.msg, {
+											time: 2000
+										});
+										return false;
+									}
+								}
+							});
+							layer.close(index);
+						})
+					}
+
+					active = {
+						reload: function() {
+							//执行重载
+							table.reload('demo', {
+									page: {
+										curr: 1 //重新从第 1 页开始
+									},
+									where: {
+										simPaperTitle: $('#simPaperTitle').val(),
+										simType: $('#simType').val()
+									}
+								});
+						},
+						delAll: function() {
+							var checkStatus = table.checkStatus('demo')
+								var data = checkStatus.data
+								var delList = [];
+								console.log(checkStatus.data)
+							data.forEach(function(n, i) {
+								delList.push(n.simId);
+							});
+							console.log(delList)
+							if (delList != '') {
+								layer.confirm('确定删除所选项吗？', function(index) {
+									$.ajax({
+										url: 'Teacher/delBatchSimproblem',
+										type: 'post',
+										contentType : "application/json", 
+										dataType: 'json', 
+										data: JSON.stringify(delList), 
+										success: function(da) {
+										console.log(da) 
+											if (da.code == 0) { 
+												layer.msg(da.msg);
+												table.reload('demo', {});
+											} else {
+												layer.msg('删除失败');
+											}
+										},
+										'error': function() {
+											layer.msg('系统错误');
+										}
+									})
+								})
+							} else {
+								layer.tips('请选择需要删除的行', $('#batchDel'), {
+									tips: [3, '#5fb878']
+								})
+							}
+						}
+					};
+
+
+					/*   //将搜索框的值随请求传到后台
+					   $('#keyword').keyup(function () {
+					   console.log('aa')
+					      active['reload'].call(this); 
+					  });  */
+
+
+					/*   $('#keyword').keyup(function () {
+					   console.log($('#keyword').val() )
+					         table.reload('demo', {             //table的id
+					             where: {
+					                 user_id: $('#keyword').val() 
+					             }
+					         });
+					  }); */
+
+
+
+				});
+
+			}
+		</script>
+	</body>
+
+
+
+</html>

@@ -140,10 +140,20 @@
                     </li>
                     <li>
                         <a href="javascript:;">
-                            <i class="iconfont left-nav-li" lay-tips="题库管理">&#xe6a2;</i>
-                            <cite>题库管理</cite>
+                            <i class="iconfont left-nav-li" lay-tips="试题管理">&#xe6a2;</i>
+                            <cite>试题管理</cite>
                             <i class="iconfont nav_right">&#xe697;</i></a>
                         <ul class="sub-menu">
+                        	<li>
+                                <a onclick="xadmin.add_tab('通用题库','simple_problem.html')">
+                                    <i class="iconfont">&#xe6a7;</i> 
+                                    <cite>通用题库</cite></a>
+                            </li>
+                            <li>
+                                <a onclick="xadmin.add_tab('编程题库','programming_problem.html')">
+                                    <i class="iconfont">&#xe6a7;</i> 
+                                    <cite>编程题库</cite></a>
+                            </li>
                             <li>
                                 <a onclick="xadmin.add_tab('试卷管理','contestpaper.html')">
                                     <i class="iconfont">&#xe6a7;</i> 
@@ -227,11 +237,9 @@
 						    //console.log(course);
 						    console.log(data);
 						    if(data.data.select_id!=null) {
-						    	console.log("课程获取到了");
 						    	$('#selCourse').append("<option value='"+data.data.select_id+"'>"+data.data.select_name+"</option>");
 						    }else {
-						    	console.log("课程mei到了");
-						    	$('#selCourse').append("<option value='0'>请选择课程</option>");
+						    	$('#selCourse').append("<option value='0'>全部课程</option>");
 						    }
 				           //遍历成功返回的json数据，取出对应内容进行展示
 				           $.each(course, function (index,item) {

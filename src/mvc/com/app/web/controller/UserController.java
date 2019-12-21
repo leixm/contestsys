@@ -673,7 +673,7 @@ public class UserController {
 	    //查看session是否有已选择的课程，有的话传回前端
 	    String courseId = (String)session.getAttribute("course_id");
 	    String courseName = (String)session.getAttribute("course_name");
-	    System.out.println("courseObj+++"+courseId+"====name==="+courseName);
+	    //System.out.println("courseObj+++"+courseId+"====name==="+courseName);
 	    if(courseId != null && courseName != null) {
 	    	resultMap.put("select_id", courseId);
 	    	resultMap.put("select_name", courseName);

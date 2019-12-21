@@ -62,9 +62,6 @@ import com.code.model.SimsolutionExample;
 import com.code.model.User;
 import com.code.model.UserExample;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-
-import net.sf.json.JSONArray;
 
 @Service
 @Transactional
@@ -898,7 +895,47 @@ public class TeacherServiceImpl implements TeacherService{
 		return resultList;
 	}
 
+	/**
+	 * 查询通用题库列表
+	 * @return 所有对象
+	 */
+	@Override
+	public List<Map<String,Object>> selSimproblemList(int simCourseId,String simPaperTitle,int simType,String pageSize,String pageNumber) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+		//分页所需相关参数的计算
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
+		resultList = simpDao.selSimproblemList(simCourseId, simPaperTitle, simType);
+		return resultList;
+		
+	}
 
+	/**
+	 * 删除单条simproblem
+	 * @param simId 
+	 * @return
+	 */
+	@Override
+	public int delSimproblemById(int simId) {
+		
+		return simpDao.delSimproblemById(simId);
+	}
+
+
+	@Override
+	public int delBatchSimproblemByIds(List<String> ids) {
+		 int count = 0;
+		 if(!ids.isEmpty()) {
+			 for(String id : ids){
+				   simpDao.delSimproblemById(Integer.parseInt(id));
+				   count++;
+			   } 
+		 }
+		 return count;
+	}
 	
 	
 }
