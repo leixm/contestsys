@@ -142,4 +142,25 @@ public interface TeacherService {
 	 * @return 所有对象
 	 */
 	public List<Map<String,Object>> selClassContestAVG(List className,List contestName); 
+	
+	/**
+	 * 查询通用题库列表
+	 * @return 所有对象
+	 */
+	public List<Map<String,Object>> selSimproblemList(int simCourseId,String simPaperTitle,int simType,String pageSize,String pageNumberr); 
+	
+	/**
+	 * 删除单条simproblem
+	 * @param simId 
+	 * @return
+	 */
+	public int delSimproblemById(int simId); 
+	
+	/**
+	 * 删除多条simproblem
+	 * @param ids 
+	 * @return
+	 */
+	public int delBatchSimproblemByIds(List<String> ids); 
+	
 }

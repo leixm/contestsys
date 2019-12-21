@@ -166,14 +166,14 @@ public class ExcelController {
     
     
     /**
-     * 批量导入学生角色（默认激活，用于管理员或老师添加学生使用）
+     * 批量导入对象（默认激活，用于管理员或老师添加学生使用）
      * @param file	前端传来的文件流
-     * @param type	区分是导入何种角色============== 学生—— 0 ， 教师 —— 1， 班级 —— 2
+     * @param type	区分是导入何种角色============== 学生—— 0 ， 教师 —— 1， 班级 —— 2， 通用题（选择填空题等）—— 3
      * @param session	
      * @return	导入结果，或者是导入错误信息
      */
     @RequestMapping("/importObject")
-    public String importStudent(HttpServletRequest request, @RequestParam(value = "file")MultipartFile file, HttpSession session,int type) {
+    public String importObject(HttpServletRequest request, @RequestParam(value = "file")MultipartFile file, HttpSession session,int type) {
 		String fileName = file.getOriginalFilename();	//文件名，用于校验文件格式
 		layResponse.setCode(1); 	//默认设置失败code
 		
@@ -183,7 +183,7 @@ public class ExcelController {
 			//return JSONObject.fromObject(layResponse).toString();
 		}else {
 			if(user.getLevel()==0) {
-				layResponse.setMsg("该用户没有导出excel表格权限");
+				layResponse.setMsg("该用户没有权限");
 				//return JSONObject.fromObject(layResponse).toString();
 			}
 		}
@@ -199,6 +199,10 @@ public class ExcelController {
 	    	else if(type == 2) {			//批量导入班级
 	    		layResponse = excelService.batchImportClass(fileName, file);
 	    	}
+
+			else if(type == 3) {			//批量导入通用题库
+				layResponse = excelService.batchImportSimproblem(fileName, file);
+			}
 			
 	    	else {
 	    		layResponse.setCode(1);  //1表示失败

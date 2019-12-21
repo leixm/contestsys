@@ -27,7 +27,7 @@
     </head>
     <body class="index">
         <!-- 顶部开始 -->
-        <div class="container">
+        <div class="container ">
             <div class="logo"> 
                 <a href="./index.html">考试系统管理端</a></div>
             <div class="left_open">
@@ -52,6 +52,11 @@
                             <a onclick="xadmin.open('百度一下','http://www.baidu.com')">
                                 <i class="iconfont">&#xe6a8;</i>百度一下</a></dd>
                     </dl> 
+                </li>
+                <li class="layui-nav-item ">
+                    <select name="course_id"  lay-filter="test" id="selCourse" style="height:20px;text-align:center;border-radius: 3px;opacity:80%; cursor: pointer;">
+						
+				    </select>
                 </li>
             </ul>
             <ul class="layui-nav right" lay-filter="">
@@ -135,10 +140,20 @@
                     </li>
                     <li>
                         <a href="javascript:;">
-                            <i class="iconfont left-nav-li" lay-tips="题库管理">&#xe6a2;</i>
-                            <cite>题库管理</cite>
+                            <i class="iconfont left-nav-li" lay-tips="试题管理">&#xe6a2;</i>
+                            <cite>试题管理</cite>
                             <i class="iconfont nav_right">&#xe697;</i></a>
                         <ul class="sub-menu">
+                        	<li>
+                                <a onclick="xadmin.add_tab('通用题库','simple_problem.html')">
+                                    <i class="iconfont">&#xe6a7;</i> 
+                                    <cite>通用题库</cite></a>
+                            </li>
+                            <li>
+                                <a onclick="xadmin.add_tab('编程题库','programming_problem.html')">
+                                    <i class="iconfont">&#xe6a7;</i> 
+                                    <cite>编程题库</cite></a>
+                            </li>
                             <li>
                                 <a onclick="xadmin.add_tab('试卷管理','contestpaper.html')">
                                     <i class="iconfont">&#xe6a7;</i> 
@@ -155,14 +170,19 @@
                     </li>
                     <li>
                         <a href="javascript:;">
-                            <i class="iconfont left-nav-li" lay-tips="班级管理">&#xe726;</i>
-                            <cite>班级管理</cite>
+                            <i class="iconfont left-nav-li" lay-tips="教务管理">&#xe726;</i>
+                            <cite>教务管理</cite>
                             <i class="iconfont nav_right">&#xe697;</i></a>
                         <ul class="sub-menu">
                             <li>
                                 <a onclick="xadmin.add_tab('班级管理','class.html')">
                                     <i class="iconfont">&#xe6a7;</i>
                                     <cite>班级管理</cite></a>
+                            </li>
+                            <li>
+                                <a onclick="xadmin.add_tab('课程管理','course.html')">
+                                    <i class="iconfont">&#xe6a7;</i>
+                                    <cite>课程管理</cite></a>
                             </li>
                         </ul>
                     </li>
@@ -201,47 +221,98 @@
         //页面加载执行函数
         	$(document).ready(function() {
 				loadingUserName();
+				getSelectCourse();
 			});
+			
+			/*获取初始化下拉框课程选项*/
+			function getSelectCourse() {
+				$.ajax({
+						type: "POST", 
+						url: "User/getSelectCourse",
+						data: '',
+						async: false,
+						dataType: 'json', 
+						success: function(data) {
+						    var course = data.data.dataList;	//获取数据库返回结果集
+						    //console.log(course);
+						    console.log(data);
+						    if(data.data.select_id!=null) {
+						    	$('#selCourse').append("<option value='"+data.data.select_id+"'>"+data.data.select_name+"</option>");
+						    }else {
+						    	$('#selCourse').append("<option value='0'>全部课程</option>");
+						    }
+				           //遍历成功返回的json数据，取出对应内容进行展示
+				           $.each(course, function (index,item) {
+
+				               var course_name = course[index].courseName;
+				               var course_id = course[index].courseId;
+				               //构造动态option
+				               $('#selCourse').append("<option value='"+course_id+"'>"+course_name+"</option>")
+				           });
+						}
+					})
+			}
+			
+			 
         	/* 显示登录的用户名 */
-		      function loadingUserName() {
-		      		$.ajax({
-								type: "POST", 
-								url: "User/getUsername",
-								data: '',
-								async: false,
-								dataType: 'json', 
-								success: function(data) {
-									if(data.level<1) {	//判断有误权限进来此页面
-										alert("无登录权限");
-										window.location.href = "./login.html";
-									}else {
-										if(data.realname!=null&&data.realname!="") {
-											$("#username").html("欢迎，"+data.realname);
-											if(data.level==1) {
-												roleControl();
-											}
-										}else {
-											alert("请先登录系统");
-											window.location.href = "./login.html";
-											$("#username").html("请先登录系统");
-										}
+		    function loadingUserName() {
+	      		$.ajax({
+						type: "POST", 
+						url: "User/getUsername",
+						data: '',
+						async: false,
+						dataType: 'json', 
+						success: function(data) {
+							if(data.level<1) {	//判断有误权限进来此页面
+								alert("无登录权限");
+								window.location.href = "./login.html";
+							}else {
+								if(data.realname!=null&&data.realname!="") {
+									$("#username").html("欢迎，"+data.realname);
+									if(data.level==1) {
+										roleControl();
 									}
+								}else {
+									alert("请先登录系统");
+									window.location.href = "./login.html";
+									$("#username").html("请先登录系统");
 								}
-							})
+							}
+						}
+					})
 		      }
         	
         	/*教师角色角色隐藏ul*/
         	function roleControl() {
-        		$("#daily").hide();
-        		$("#te_manage").hide();
+        		$("#daily").hide();		//日志管理
+        		$("#te_manage").hide();		//教师管理
         	
         	}
         	
-        	
+        	/*选择考试系统课程*/
+       	    $("#selCourse").change(function(){
+    	    	// var checkText=$("#selCourse").find("option:selected").text(); //获取Select选择的Text 
+                var checkValue=$("#selCourse").val();
+                var checkName=$("#selCourse").find("option:selected").text();
+		     	var data = {};
+		     	data['course_id'] = checkValue;
+		     	data['course_name'] = checkName;
+		     	$.ajax({ 
+					 type: "POST", 
+					 url: "User/changeSystemCourse",
+					 dataType : 'json',
+					 data: data, 
+					 success: function(data){  
+					 	layer.msg('切换课程成功！', {
+					        	time: 2000, //4s后自动关闭
+				      	});
+					 }
+				 })
+		     	
+		    });		
         	function outlogin() {
         		layer.confirm('是否退出登录?', function(index) {
 					window.location.href = "./login.html";
-				 	
 					layer.close(index);
 				})
         	}

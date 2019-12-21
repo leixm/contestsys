@@ -48,4 +48,5 @@ public interface ContestStatusMapper {
     
     List<Map<String, Object>> selStuContestTitleByKeyword(@Param("stuid") String stuId);
     
+    List<Map<String, Object>> selOneStuScore(@Param("stuid") String stuId);
 }

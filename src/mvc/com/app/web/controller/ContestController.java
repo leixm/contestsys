@@ -148,13 +148,11 @@ public class ContestController {
 			mav.addObject("paper",JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,null,null)));
 			mav.addObject("teachers", userService.getAllTeacher());
 			JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,null,null,null,null));
-			for(int i=0;i<arr.size();i++)
-			{
-			if(arr.getJSONObject(i).getInt("contest_id") == Integer.parseInt(id))
-			{
-				mav.addObject("contest",arr.getJSONObject(i));
-				break;
-			}
+			for(int i=0;i<arr.size();i++){
+				if(arr.getJSONObject(i).getInt("contest_id") == Integer.parseInt(id)){
+						mav.addObject("contest",arr.getJSONObject(i));
+						break;
+				}
 			} 
 			 
 			mav.setViewName("contest-edit.jsp"); 
@@ -324,8 +322,10 @@ public class ContestController {
 	public ModelAndView addContestStudent(HttpServletRequest request, String id) {
 
 		ModelAndView mav = new ModelAndView();
-		
-		mav.addObject("classes", classService.GetAllClass("",null,null));
+		//获取登录对象，判断其角色
+		User user = (User)request.getSession().getAttribute("user");
+		String userId = user.getUserId().toString();
+		mav.addObject("classes", classService.GetAllClass(userId,null,null,null));
 		mav.addObject("contest_id", id); 
 		mav.setViewName("conteststudent-add.jsp"); 
 		return mav;

@@ -11,7 +11,9 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import com.code.model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,8 +39,8 @@ public class ClassController {
 	private UserService userService;
 	
 	/**
-	 * @author lxm
-	 * @param Keyword: 过滤条件
+	 * @author lxm、zzs
+	 * @param Keyword: 班级或教师姓名
 	 * @description 查询班级
 	 * @return 班级信息
 	 */
@@ -46,22 +48,36 @@ public class ClassController {
 	@ResponseBody
 	public String GetAllClass(HttpServletRequest request, HttpServletResponse response, String Keyword)
 			throws Exception {
+		JSONObject obj = new JSONObject();
 		//获取分页所需相关数据
 		String pageSize = request.getParameter("limit"); //一页多少个
 		String pageNumber = request.getParameter("page");	//第几页
-		
-		List resultList =  classService.GetAllClass(Keyword,pageSize,pageNumber);
-		//获取分页插件的数据只能通过PageInfo来获取
-		PageInfo pInfo = new PageInfo(resultList);
-		Long total = pInfo.getTotal();
-		
-		JSONObject obj = new JSONObject();
-		JSONArray arr = JSONArray.fromObject(resultList);
-		
-		obj.put("code", 0);
-		obj.put("msg", "返回成功");
-		obj.put("count", total.intValue());
-		obj.put("data", arr);
+
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		String teacherId = user.getUserId().toString();
+		if(level > 0) {		//管理员或教师
+			if(level == 2) {
+				teacherId = null;
+			}
+			//userId为参，null的时候默认查全部的课程，即管理员角色
+			String className = Keyword == null ? null : Keyword.trim();
+			List resultList =  classService.GetAllClass(teacherId,className,pageSize,pageNumber);
+			JSONArray arr = JSONArray.fromObject(resultList);
+			//获取分页插件的数据只能通过PageInfo来获取
+			PageInfo pInfo = new PageInfo(resultList);
+			Long total = pInfo.getTotal();
+			obj.put("code", 0);
+			obj.put("msg", "返回成功");
+			obj.put("count", total.intValue());
+			obj.put("data", arr);
+		}else {
+			obj.put("code", 0);
+			obj.put("msg", "抱歉，权限不足！");
+			return obj.toString();
+		}
 		return obj.toString();
 	}
 	
@@ -75,8 +91,32 @@ public class ClassController {
 	@ResponseBody
 	public ModelAndView PrepareAddClass(HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView();
-		mav.addObject("teachers", userService.getAllTeacher() );
 		mav.setViewName("class-add.jsp");
+		return mav;
+	}
+	
+	/**
+	 * @author zzs
+	 * @description 跳转添加任课教师页面
+	 * @return 视图
+	 */
+	@RequestMapping(value = "addClassTeach.do", method = { RequestMethod.POST,
+			RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public ModelAndView preAddTeach(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView();
+		//获取登录对象，判断其角色
+		User user = (User)request.getSession().getAttribute("user");
+		String userId = user.getUserId().toString();
+		int level = user.getLevel();
+		
+		if(level == 2) {
+			 mav.addObject("teachers",userService.getAllTeacher());
+		}else {
+			 mav.addObject("teachers",userService.getTeacherById(userId));
+		}
+		mav.addObject("classes", classService.GetAllClass(userId,null,null,null));
+		mav.setViewName("class-addTeach.jsp");
 		return mav;
 	}
 	
@@ -89,11 +129,24 @@ public class ClassController {
 	@RequestMapping(value = "Class/AddClass", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public String AddClass(HttpServletRequest request, com.code.model.Class cla) {
-		System.out.println(JSONObject.fromObject(cla).toString());
 		LayResponse response = new LayResponse();
 		response.setCode(1);
-		if (classService.AddClass(cla) > 0) {
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 2) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		
+		int result = classService.AddClass(cla);
+		if ( result == 1) {		//返回0表示插入失败，返回1成功，返回2表示班级已存在无法
 			response.setCode(0);
+			response.setMsg("添加成功!");
+			return JSONObject.fromObject(response).toString();
+		}else if(result == 2) {
+			response.setMsg("班级已存在");
 			return JSONObject.fromObject(response).toString();
 		}
 		response.setMsg("添加失败");
@@ -111,9 +164,9 @@ public class ClassController {
 	public ModelAndView EditClass(HttpServletRequest request, String id) {
 
 		ModelAndView mav = new ModelAndView();
-		System.out.println(JSONObject.fromObject(classService.GetClass(id)).toString());
+		System.out.println("id---"+id);
+		//System.out.println(JSONObject.fromObject(classService.GetClass(id)).toString());
 		mav.addObject("classes", classService.GetClass(id));
-		mav.addObject("teachers", userService.getAllTeacher());
 		mav.setViewName("class-edit.jsp");
 		return mav;
 	}
@@ -127,10 +180,19 @@ public class ClassController {
 	@RequestMapping(value = "Class/UpdateClass", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public String UpdateClass(HttpServletRequest request,com.code.model.Class cla) {
-		System.out.println(JSONObject.fromObject(cla).toString());
 		LayResponse response = new LayResponse();
 		response.setCode(1);
+		
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 2) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
 		if (classService.UpdateClass(cla) > 0) {
+			response.setMsg("更新成功");
 			response.setCode(0);
 			return JSONObject.fromObject(response).toString();
 		} else {
@@ -148,10 +210,50 @@ public class ClassController {
 	@RequestMapping(value = "Class/DeleteClass", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public String DeleteClass(HttpServletRequest request, String id) {
-
+		
 		LayResponse response = new LayResponse();
 		response.setCode(1);
+		
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 2) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		
 		if (classService.DeleteClass(id) > 0) {
+			response.setCode(0);
+			return JSONObject.fromObject(response).toString();
+		} else {
+			response.setMsg("更新失败");
+			return JSONObject.fromObject(response).toString();
+		}
+	}
+	
+	/**
+	 * @author zzs
+	 * @param classId,teacherId
+	 * @description 移除任课关系
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Class/deleteTeach", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String deleteTeach(HttpServletRequest request, String classId, String teacherId) {
+		
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 2) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+				
+		if (classService.deleteTeach(classId,teacherId) > 0) {
 			response.setCode(0);
 			return JSONObject.fromObject(response).toString();
 		} else {
@@ -169,9 +271,17 @@ public class ClassController {
 	@RequestMapping(value = "Class/DelAll", consumes = "application/json", produces = "text/html;charset=UTF-8", method = {RequestMethod.POST })
 	@ResponseBody
 	public String DelAll(HttpServletRequest request, @RequestBody List<String> ids) {
-
-		System.out.println(JSONArray.fromObject(ids).toString());
-		  LayResponse response = new LayResponse(); response.setCode(1);
+		  LayResponse response = new LayResponse(); 
+		  response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 2) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+			
 		  if(classService.DeleteAllClass(ids)>0){
 		   response.setCode(0); 
 		   System.out.println(JSONObject.fromObject(response).toString());
@@ -182,4 +292,42 @@ public class ClassController {
 		  return JSONObject.fromObject(response).toString(); }
 		 
 	}
+	
+	/**
+	 * @author zzs
+	 * @param cla: 班级信息
+	 * @description 添加任课关系
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Class/AddTeach", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String AddTeach(HttpServletRequest request) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		
+		String classId = request.getParameter("classId"); 
+		String teacherId = request.getParameter("teacherId");
+		if(classId != null && !"".equals(classId) && teacherId != null && !"".equals(teacherId)) {
+			int resultNum = classService.AddTeach(classId,teacherId);
+			if(resultNum > 0) {
+				response.setCode(0);
+				response.setMsg("添加成功!成功增加"+ resultNum +"条记录");
+				return JSONObject.fromObject(response).toString();
+			}else {
+				response.setMsg("添加失败,所选任课教师可能已存在");
+				return JSONObject.fromObject(response).toString();
+			}
+		}
+		response.setMsg("添加失败,请选择班级/任课教师");
+		return JSONObject.fromObject(response).toString();
+	}
+	
 }

@@ -5,7 +5,7 @@
 		<%@ page contentType="text/html;charset=UTF-8" language="java"%>
 		<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 		<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-		<title>添加考试班级</title>
+		<title>添加任课教师</title>
 		<link rel="stylesheet" href="css/font.css">
 		<link rel="stylesheet" href="css/xadmin.css">
 		<link rel="stylesheet" href="lib/layui/css/layui.css">
@@ -27,10 +27,10 @@
 		</script>
 		 
 		
-		<script type="text/javascript">
+		<!-- <script type="text/javascript">
 		    var formSelects = layui.formSelects;
 		     
-		</script>
+		</script> -->
 		
 	</head>
 
@@ -43,10 +43,28 @@
 	               	<div style="height: 30px">
 	               	</div>
 					<div>
-			            <select id="classId" name="classId" class="valid" lay-filter="classId" xm-select="select1" xm-select-search="" xm-select-search-type="dl">
-							<c:forEach var="obj" items="${classes}" varStatus="s">
+			            <select id="classId" name="courseId" class="valid" lay-filter="classId" xm-select="select1" xm-select-search="" xm-select-search-type="dl" >
+			            	<option value="">请选择课程(可多选)</option>
+							<c:forEach var="obj" items="${courses}" varStatus="s">
 			
-								<option value="${obj.classId}">${obj.className}</option>
+								<option value="${obj.courseId}">${obj.courseName}</option>
+			
+							</c:forEach>
+			            </select>
+			        </div>	
+			        
+			        
+			        <!-- 无用div控制布局作用 -->
+	               	<div style="height: 30px">
+	               	</div>
+			        
+			        
+			        <div>
+			            <select id="teacherId" name="teacherId" class="valid" lay-filter="teacherId" xm-select="select2" xm-select-search="" xm-select-search-type="dl">
+			            	<option value="">请选择任课教师(可多选)</option>
+							<c:forEach var="obj" items="${teachers}" varStatus="s">
+			
+								<option value="${obj.userId}">${obj.realname}</option>
 			
 							</c:forEach>
 			            </select>
@@ -88,12 +106,12 @@
 							console.log(data)
 							$.ajax({  
 								type: "POST",
-								url: "Contest/AddContestClass?contestId=" + '${contest_id}' + "&classId=" + data.field.classId,
+								url: "Course/addTeach?courseId=" + data.field.courseId + "&teacherId=" + data.field.teacherId,
 								dataType: 'json',
 								async: false,
 								success: function(da) {
 									if (da.code == 0) {
-										layer.alert('添加成功', {
+										layer.alert(da.msg, {
 												icon: 6 
 											},
 											function() {

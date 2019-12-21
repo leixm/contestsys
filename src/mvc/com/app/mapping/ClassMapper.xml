@@ -4,7 +4,6 @@
   <resultMap id="BaseResultMap" type="com.code.model.Class" >
     <id column="class_id" property="classId" jdbcType="INTEGER" />
     <result column="name" property="name" jdbcType="VARCHAR" />
-    <result column="teacher" property="teacher" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -65,7 +64,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    class_id, name, teacher
+    class_id, name
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.code.model.ClassExample" >
     select
@@ -87,13 +86,27 @@
     from class
     where class_id = #{classId,jdbcType=INTEGER}
   </select>
-  
-  <select id="listAll" resultType="map" >
-  select class.class_id,name,realName from user,class where class.teacher = user.user_id
-  </select>
-    
+
   <select id="listAllByKeyword" resultType="map" parameterType="java.lang.String">
- select class.class_id,name,realName from user,class where class.teacher = user.user_id and (class.class_id = #{0} or name=#{0} or realName=#{0})
+     select t.class_id classId ,t.name className ,u.fk_teacher_id teacherId, v.realName teacherName from class t
+      left join configuration_teacher_class u on t.class_id = u.fk_class_id
+      left join user v on u.fk_teacher_id = v.user_id
+        <where>
+          <if test="teacherId!=null and teacherId!=''">
+            and u.fk_teacher_id = #{teacherId}
+          </if>
+
+          <if test="className!=null and className!=''">
+            and t.name = #{className}
+            or v.realName = #{className}
+          </if>
+        </where>
+       order by t.class_id
+   </select>
+   
+  <select id="selClassConfByKeyword" resultType="map" parameterType="java.lang.String">
+     select * from configuration_teacher_class u 
+     where u.fk_class_id = #{0} and u.fk_teacher_id = #{1}
    </select>
   
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
@@ -106,10 +119,16 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
+  
+  <delete id="deleteTeachById"  >
+    delete from configuration_teacher_class
+    where fk_class_id = #{0} and fk_teacher_id = #{1}
+  </delete>
+  
   <insert id="insert" parameterType="com.code.model.Class" >
-    insert into class (class_id, name, teacher
+    insert into class (class_id, name
       )
-    values (#{classId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{teacher,jdbcType=VARCHAR}
+    values (#{classId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.code.model.Class" >
@@ -121,9 +140,7 @@
       <if test="name != null" >
         name,
       </if>
-      <if test="teacher != null" >
-        teacher,
-      </if>
+
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="classId != null" >
@@ -132,11 +149,31 @@
       <if test="name != null" >
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="teacher != null" >
-        #{teacher,jdbcType=VARCHAR},
+    </trim>
+  </insert>
+  
+  <insert id="insertSelectiveToConfiguration" parameterType="com.code.model.Class" >
+    insert into configuration_teacher_class
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+   	 	fk_teacher_id,
+      <if test="classId != null" >
+        fk_class_id,
+      </if>
+    </trim>
+    
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+    	'root',
+      <if test="classId != null" >
+        #{classId,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
+  
+  <insert id="insertTeachByKeyword" parameterType="java.lang.String" >
+    insert into configuration_teacher_class (fk_class_id,fk_teacher_id) 
+    values (#{0},#{1})
+  </insert>
+  
   <select id="countByExample" parameterType="com.code.model.ClassExample" resultType="java.lang.Integer" >
     select count(*) from class
     <if test="_parameter != null" >
@@ -152,9 +189,7 @@
       <if test="record.name != null" >
         name = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.teacher != null" >
-        teacher = #{record.teacher,jdbcType=VARCHAR},
-      </if>
+
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -163,8 +198,8 @@
   <update id="updateByExample" parameterType="map" >
     update class
     set class_id = #{record.classId,jdbcType=INTEGER},
-      name = #{record.name,jdbcType=VARCHAR},
-      teacher = #{record.teacher,jdbcType=VARCHAR}
+      name = #{record.name,jdbcType=VARCHAR}
+
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -175,16 +210,14 @@
       <if test="name != null" >
         name = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="teacher != null" >
-        teacher = #{teacher,jdbcType=VARCHAR},
-      </if>
+
     </set>
     where class_id = #{classId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.code.model.Class" >
     update class
-    set name = #{name,jdbcType=VARCHAR},
-      teacher = #{teacher,jdbcType=VARCHAR}
+    set name = #{name,jdbcType=VARCHAR}
+
     where class_id = #{classId,jdbcType=INTEGER}
   </update>
 </mapper>

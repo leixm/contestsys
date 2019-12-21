@@ -43,13 +43,13 @@
 				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
 				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
 			</div>
-			<div class="layui-fluid">
-				<div class="layui-row layui-col-space15">
+			<div class="layui-fluid" >
+				<div class="layui-row layui-col-space15" >
 					<div class="layui-col-md12">
-						<div class="layui-card">
+						<div class="layui-card" >
 
 
-							<div class="layui-card-body layui-table-body layui-table-main">
+							<div class="layui-card-body layui-table-body layui-table-main" >
 								<table class="layui-table" id="demo" lay-filter="demo"></table>
 							</div>
 
@@ -74,22 +74,24 @@
     </script>
 
 		<script type="text/html" id="header">
-			<div id="headbar" style="float:left; display:none;">
-				<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
-				<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加班级</button>
+			<div id="headbar" style="float:left;">
+				<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll" id="btn-delAll"><i class="layui-icon"></i>批量删除班级</button>
+				<button class="layui-btn layui-btn-normal" lay-event="add" id="btn-add"><i class="layui-icon" ></i>添加班级</button>
+				<button class="layui-btn layui-btn-normal" lay-event="addTeach" id="btn-addteach"><i class="layui-icon"></i>添加任课教师</button>
 			</div>		
 			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px; ">
-				<input name="id" class="layui-input" id="keyword" placeholder="输入关键字查询"> 
+				<input name="id" class="layui-input" id="keyword" placeholder="输入 班级/教师姓名"> 
 			</div>
 			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
-			<button class="layui-btn" id="import"  style="display:none;float:right"; lay-event="importClass" data-type="importClass" id="importClass"><i class="layui-icon layui-icon-download-circle" ></i>批量导入</button>
+			<button class="layui-btn" id="import"  style="display:none;float:right"; lay-event="importClass" data-type="importClass" id="importClass"><i class="layui-icon layui-icon-download-circle" ></i>批量导入新班级</button>
 </script>
 
 
 		<script type="text/html" id="demotool">
 		<div class="caozuo" style="display:none;">
 			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+			<a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="delTeach">移除任课教师</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除班级</a>
 		</div>	
     </script>
 
@@ -116,8 +118,10 @@
 									if(data.realname!=null&&data.realname!="") {
 										if(data.level==2) { //管理员角色可编辑学生信息
 											$(".caozuo").show();
-											$("#headbar").show();
 											$("#import").show();
+										}else{
+											$("#btn-delAll").hide();
+											$("#btn-add").hide();
 										}
 									}else {
 										alert("请先登录系统");
@@ -158,22 +162,33 @@
 						cols: [
 							[{
 								checkbox: true
+							},{	
+								title: '序号',
+								type:'numbers',
+								align: 'center'
+								
 							}, {
-								field: 'class_id',
+								field: 'classId',
 								title: '班级id',
 								minWidth: 180,
-								sort: true
+								sort: true,
+								hide:true
 							}, {
-								field: 'name',
+								field: 'className',
 								title: '班级名称',
 								minWidth: 180,
 								sort: true
-							}, {
-								field: 'realName',
-								title: '任课老师',
-								minWidth: 200,
-								sort: true
-							}, {  
+							},  {
+                                field: 'teacherId',
+                                title: '教师工号',
+                                minWidth: 180,
+                                sort: true
+                            },  {
+                                field: 'teacherName',
+                                title: '任课教师',
+                                minWidth: 180,
+                                sort: true
+                            }, {
 								title: '操作',
 								toolbar: '#demotool',
 								'fixed': 'right',
@@ -201,15 +216,23 @@
 								area: ['480px','300px'],
 								content: "addclass.do"
 							});
-						}
-						else if (obj.event === 'reload') {
-						console.log("执行搜索")
-						var type = $(this).data('type');
-						active[type] ? active[type].call(this) : '';
+						}else if (obj.event === 'addTeach') {
+							//添加任课关系
+							layer.open({
+								type: 2,
+								title: "添加任课教师",
+								shadeClose: false, //点击遮罩关闭层
+								area: ['700px','480px'],
+								content: "addClassTeach.do"
+							});
+						}else if (obj.event === 'reload') {
+							//console.log("执行搜索")
+							var type = $(this).data('type');
+							active[type] ? active[type].call(this) : '';
 						}
 						else if (obj.event === 'delAll') {
-						var type = $(this).data('type');
-						active[type] ? active[type].call(this) : '';
+							var type = $(this).data('type');
+							active[type] ? active[type].call(this) : '';
 						}
 						else if(obj.event === 'importClass') {
 								
@@ -236,16 +259,19 @@
 								title: "编辑班级信息",
 								shadeClose: false, //点击遮罩关闭层
 								area: ['480px','380px'],
-								content: "editclass.do?id=" + obj.data.class_id
+								content: "editclass.do?id=" + obj.data.classId
 							});
 
 						} else if (obj.event === 'del') {
 							//删除
-							delinventory(obj.data.class_id);
+							delinventory(obj.data.classId);
+						}else if (obj.event === 'delTeach') {
+							//删除任课关系
+							delTeach(obj.data.classId,obj.data.teacherId);
 						}
 						
 					});
-
+					
 					//删除用户函数
 					function delinventory(id) {
 						layer.confirm('是否删除?', function(index) {
@@ -271,14 +297,37 @@
 							layer.close(index);
 						})
 					}
+					
+					//删除任课关系 函数
+					function delTeach(classId,teacherId) {
+						layer.confirm('是否移除该班级任课老师?', function(index) {
+							$.ajax({
+								url: "Class/deleteTeach?classId=" + classId + "&teacherId=" + teacherId,
+								type: "post",
+								success: function(result) {
+									if (!result.code) {		//code=0成功
+										layer.msg("移除成功!", {
+											time: 1000
+										});
+										active.reload();
+									} else {
+										layer.msg(result.msg, {
+											time: 2000
+										});
+										return false;
+									}
+								}
+							});
+							layer.close(index);
+						})
+					}
 
 
 
 					active = {
 						reload: function() {
 							//执行重载
-							table
-								.reload('demo', {
+							table.reload('demo', {
 									page: {
 										curr: 1 //重新从第 1 页开始
 									},
@@ -293,7 +342,7 @@
 								var delList = [];
 								console.log(checkStatus.data)
 							data.forEach(function(n, i) {
-								delList.push(n.class_id);
+								delList.push(n.classId);
 							});
 							console.log(delList)
 							if (delList != '') {

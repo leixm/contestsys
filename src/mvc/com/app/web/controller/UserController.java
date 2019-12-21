@@ -9,14 +9,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -37,6 +40,7 @@ import com.app.service.impl.ClassService;
 import com.app.service.impl.UserService;
 import com.app.tools.PathHelper;
 import com.app.tools.RandomValidateCode;
+import com.code.model.Course;
 import com.code.model.LayResponse;
 import com.code.model.Response;
 import com.code.model.User;
@@ -97,7 +101,6 @@ public class UserController {
 	
 	/**
 	 * @author lxm
-	 * @param 用户实例
 	 * @description 用户注册
 	 * @return 响应状态
 	 */
@@ -278,7 +281,7 @@ public class UserController {
 	@ResponseBody
 	public ModelAndView PrepareAddUser(HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView();
-		mav.addObject("classes", classService.GetAllClass("",null,null));
+		mav.addObject("classes", classService.GetAllClass("root",null,null,null));
 		mav.setViewName("student-add.jsp");
 		return mav; 
 	}
@@ -316,7 +319,7 @@ public class UserController {
 
 		ModelAndView mav = new ModelAndView();
 		mav.addObject("user", userService.getUser(id));
-		mav.addObject("classes", classService.GetAllClass("",null,null));
+		mav.addObject("classes", classService.GetAllClass("root",null,null,null));
 		mav.setViewName("student-edit.jsp");
 		return mav;
 	}
@@ -608,6 +611,347 @@ public class UserController {
 				return JSONObject.fromObject(logUser).toString();
 	}
 	
+	/**
+	 * @author zzs
+	 * @description 将用户选择的系统课程类型存入session
+	 * @return 
+	 */
+	@RequestMapping(value = "User/changeSystemCourse", method = {
+			RequestMethod.POST }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String saveSystemCourseToSession(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		Map<String,Object> resultMap = new HashMap<String, Object>();
+		String course_id = request.getParameter("course_id");
+		String course_name = request.getParameter("course_name");
+		//System.out.println("course_id--------"+course_id);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession(); 
+	    session.setAttribute("course_id",course_id);  
+	    session.setAttribute("course_name",course_name);  
+	    //自己把SessionID保存在cookie中  ，即使浏览器禁止了cookie也能用session（！！！！！）
+	    Cookie cookie=new Cookie("JSESSIONID", session.getId());  
+	    //设置cookie保存时间  
+	    cookie.setMaxAge(60*20);  
+	    //被创建的cookie返回浏览器  
+	    response.addCookie(cookie);  
+	    
+	    //System.out.println("sessionCourseId_----"+session.getAttribute("course_id"));
+	    
+		resultMap.put("msg", "请求成功！");
+		resultMap.put("status", 0);
+		return JSONObject.fromObject(resultMap).toString();
+	}
+	
+	/**
+	 * @author zzs
+	 * @description 获取所有/某位教师所任课的课程列表
+	 * @return 
+	 */
+	@RequestMapping(value = "User/getSelectCourse", method = {
+			RequestMethod.POST }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String getSelectCourse(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		LayResponse layResp = new LayResponse();//layui参数返回格式
+		layResp.setCode(1); //默认设置为1
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+		
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession(); 
+	    User user = (User)session.getAttribute("user");
+	    int level = user.getLevel();
+	    String userId = user.getUserId().toString();
+	    String keyword = request.getParameter("keyword");
+	    if(level > 0) {		//管理员或教师
+	    	//userId为参，null的时候默认查全部的课程，即管理员角色
+	    	resultList = userService.selCourseNameByTeacherId(userId,keyword);
+	    }else {
+			layResp.setCode(0);
+			layResp.setMsg("抱歉，权限不足！");
+			return JSONObject.fromObject(layResp).toString();
+	    }
+	    Map<String,Object> resultMap = new HashMap<String, Object>();
+	    //查看session是否有已选择的课程，有的话传回前端
+	    String courseId = (String)session.getAttribute("course_id");
+	    String courseName = (String)session.getAttribute("course_name");
+	    //System.out.println("courseObj+++"+courseId+"====name==="+courseName);
+	    if(courseId != null && courseName != null) {
+	    	resultMap.put("select_id", courseId);
+	    	resultMap.put("select_name", courseName);
+	    }
+	    resultMap.put("dataList", resultList);
+	    
+		layResp.setCode(0);
+		layResp.setMsg("请求成功！");
+		layResp.setData(resultMap);
+		return JSONObject.fromObject(layResp).toString();
+	}
+	
+	
+	/**
+	 * @author lxm
+	 * @description 跳转添加课程页面
+	 * @return 视图及教师实例列表
+	 */
+	@RequestMapping(value = "addCourse.do", method = { RequestMethod.POST,
+			RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public ModelAndView PrepareAddCourse(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView();
+		mav.setViewName("course-add.jsp");
+		return mav;
+	}
+	
+	/**
+	 * @author zzs
+	 * @description 跳转添加任课教师页面
+	 * @return 视图
+	 */
+	@RequestMapping(value = "addCourseTeach.do", method = { RequestMethod.POST,
+			RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public ModelAndView preAddTeach(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView();
+		//获取登录对象，判断其角色
+		User user = (User)request.getSession().getAttribute("user");
+		String userId = user.getUserId().toString();
+		int level = user.getLevel();
+		
+		if(level == 2) {
+			 mav.addObject("teachers",userService.getAllTeacher());
+		}else {
+			 mav.addObject("teachers",userService.getTeacherById(userId));
+		}
+		mav.addObject("courses", userService.selCourseNameByTeacherId(userId, null));
+		mav.setViewName("course-addTeach.jsp");
+		return mav;
+	}
+	
+	/**
+	 * @author zzs
+	 * @param cla: 班级信息
+	 * @description 添加任课关系
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Course/addTeach", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String AddTeach(HttpServletRequest request) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		
+		String courseId = request.getParameter("courseId"); 
+		String teacherId = request.getParameter("teacherId");
+		if(courseId != null && !"".equals(courseId) && teacherId != null && !"".equals(teacherId)) {
+			int resultNum = userService.addTeach(courseId,teacherId);
+			if(resultNum > 0) {
+				response.setCode(0);
+				response.setMsg("添加成功!成功增加"+ resultNum +"条记录");
+				return JSONObject.fromObject(response).toString();
+			}else {
+				response.setMsg("添加失败,所选任课教师可能已存在");
+				return JSONObject.fromObject(response).toString();
+			}
+		}
+		response.setMsg("添加失败,请选择班级/任课教师");
+		return JSONObject.fromObject(response).toString();
+	}
+	
+	/**
+	 * @author zzs
+	 * @description 添加课程
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Course/addCourse", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String AddCourse(HttpServletRequest request) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 2) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		String courseName = request.getParameter("courseName");
+		if(courseName==null || "".equals(courseName)) {
+			response.setMsg("课程名称不能为空！");
+			return JSONObject.fromObject(response).toString();
+		}
+		courseName = courseName.replaceAll(" ", "");	//去除空格
+		int result = userService.addCourse(courseName);
+		if ( result == 1) {		//返回0表示插入失败，返回1成功，返回2表示班级已存在无法
+			response.setCode(0);
+			response.setMsg("添加成功!");
+			return JSONObject.fromObject(response).toString();
+		}else if(result == 2) {
+			response.setMsg("班级已存在");
+			return JSONObject.fromObject(response).toString();
+		}
+		response.setMsg("添加失败");
+		return JSONObject.fromObject(response).toString();
+	}
+	
+	/**
+	 * @author zzs
+	 * @param courseId: 课程id
+	 * @description 跳转更新课程页面
+	 * @return 视图、班级信息、教师信息
+	 */
+	@RequestMapping(value = "editCourse.do", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public ModelAndView editCourse(HttpServletRequest request, String courseId) {
+		ModelAndView mav = new ModelAndView();
+		//System.out.println(JSONObject.fromObject(classService.GetClass(id)).toString());
+		List<Map<String,Object>> courseList = userService.selCourseObjById(courseId);
+		int cId = Integer.parseInt(courseList.get(0).get("course_id").toString());
+		String cName = courseList.get(0).get("course_name").toString();
+		
+		Course cour = new Course();
+		cour.setCourseId(cId);
+		cour.setCourseName(cName);
+		
+		mav.addObject("courses",cour);
+		mav.setViewName("course-edit.jsp");
+		return mav;
+	}
+	
+	/**
+	 * @author zzs
+	 * @param cla: 班级id
+	 * @description 更新班级
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Course/updateCourse", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String updateCourse(HttpServletRequest request) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 2) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		int courseId = Integer.parseInt(request.getParameter("courseId"));
+		String courseName = request.getParameter("courseName").replaceAll(" ", "");
+		System.out.println("course"+courseId+"3213"+courseName);
+		
+		if (userService.updateCourse(courseId,courseName) > 0) {
+			response.setMsg("更新成功");
+			response.setCode(0);
+			return JSONObject.fromObject(response).toString();
+		} else {
+			response.setMsg("更新失败");
+			return JSONObject.fromObject(response).toString();
+		}
+	}
+	
+	/**
+	 * @author zzs
+	 * @param id: 班级id
+	 * @description 删除单个课程
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Course/deleteCourse", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String deleteCourse(HttpServletRequest request, String id) {
+		
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 2) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		
+		if (userService.deleteCourse(id) > 0) {
+			response.setCode(0);
+			return JSONObject.fromObject(response).toString();
+		} else {
+			response.setMsg("更新失败");
+			return JSONObject.fromObject(response).toString();
+		}
+	}
+	
+	/**
+	 * @author zzs
+	 * @param classId,teacherId
+	 * @description 移除任课关系
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Course/deleteTeach", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String deleteTeach(HttpServletRequest request, String courseId, String teacherId) {
+		
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 2) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+				
+		if (userService.deleteTeach(courseId,teacherId) > 0) {
+			response.setCode(0);
+			return JSONObject.fromObject(response).toString();
+		} else {
+			response.setMsg("更新失败");
+			return JSONObject.fromObject(response).toString();
+		}
+	}
+	
+	/**
+	 * @author zzs
+	 * @param ids: 课程id列表
+	 * @description 删除多个k课程
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Course/delAll", consumes = "application/json", produces = "text/html;charset=UTF-8", method = {RequestMethod.POST })
+	@ResponseBody
+	public String delAllCourse(HttpServletRequest request, @RequestBody List<String> ids) {
+		  LayResponse response = new LayResponse(); 
+		  response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 2) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		int count = userService.deleteAllCourse(ids);
+	    if(count>0){
+		   response.setCode(0); 
+		   response.setMsg("成功删除"+count+"门课程"); 
+		   return JSONObject.fromObject(response).toString(); 
+	    }
+	    else{
+		  response.setMsg("删除失败"); 
+		  return JSONObject.fromObject(response).toString(); 
+	    }
+	}
+	
+	
+	//复用方法
 	private String getError(String message) {
 		JSONObject obj = new JSONObject();
 		obj.put("error", 1);

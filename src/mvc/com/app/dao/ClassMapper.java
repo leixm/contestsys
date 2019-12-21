@@ -2,11 +2,11 @@ package com.app.dao;
 
 import com.code.model.Class;
 import com.code.model.ClassExample;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
+import java.util.Map;
 
 public interface ClassMapper {
     int countByExample(ClassExample example);
@@ -14,10 +14,16 @@ public interface ClassMapper {
     int deleteByExample(ClassExample example);
 
     int deleteByPrimaryKey(Integer classId);
+    
+    int deleteTeachById(int classId,String teacherId);
 
     int insert(Class record);
 
     int insertSelective(Class record);
+    
+    int insertSelectiveToConfiguration(Class record);
+    
+    int insertTeachByKeyword(String classId,String teacherId);
 
     List<Class> selectByExample(ClassExample example);
 
@@ -30,10 +36,10 @@ public interface ClassMapper {
     int updateByPrimaryKeySelective(Class record);
 
     int updateByPrimaryKey(Class record);
+
+    List<Map<String,Object>> listAllByKeyword(@Param("teacherId") String teacherId,@Param("className") String className);
     
-    List<Map<String,Object>> listAll();
-    
-    List<Map<String,Object>> listAllByKeyword(String keyword);
+    List<Map<String,Object>> selClassConfByKeyword(String classId,String teacherId);
     
     @Select("select class_id from class where name = #{classname}")
     List<Map<String,Object>> selByClassname(String classname);
