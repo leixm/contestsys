@@ -18,7 +18,8 @@ public class test extends TestCase {
 	
 	@Test
 	public void test() {
-		logger.info("Logger works!");
+		PropertyFileUtil.init();
+		System.out.println(PropertyFileUtil.getValue("pdf_dir"));
 	}
 	
 }

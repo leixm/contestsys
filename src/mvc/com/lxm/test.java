@@ -1,23 +1,10 @@
 package com.lxm;
-import com.app.tools.PropertyFileUtil;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import java.util.Date;
 import java.util.List;
 
-import com.code.model.Answer;
-import com.code.model.Contestpaper;
-import com.code.model.OnePaper;
-import com.code.model.OneProblem;
-import com.code.model.OneSimproblem;
-import com.code.model.Options;
-import com.code.model.ProblemWithBLOBs;
-import com.code.model.Simproblem;
-
 import java.sql.Timestamp;
-import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Calendar;
@@ -72,12 +59,10 @@ public class test {
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static void main(String[] args) throws SQLException, ClassNotFoundException {
-		PropertyFileUtil.init();
-		String path = PropertyFileUtil.getProperty("pdf_dir");
-		System.out.println(path);
-	}  
 
+	public static void main(String[] args) throws SQLException, ClassNotFoundException {
+
+	}
 }
 
 

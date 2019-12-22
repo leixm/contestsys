@@ -470,7 +470,7 @@ class MyThread extends Thread{
 
 
 					oneContest.setPaper(paper);
-					(new PdfHelper()).GeneratePDFForContestStatus(oneContest,contestStatus.getContestId(),contestStatus.getScore().setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue());
+					(new PdfHelper()).GeneratePDFForContestStatus(oneContest,contestStatus.getContestStatusId(),contestStatus.getScore().setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue());
 				}
 			}
 			catch (Exception e){

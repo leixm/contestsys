@@ -31,7 +31,7 @@ import net.sf.json.JSONObject;
 
 public class PdfHelper {
 
-
+	public static String pdf_dir  = "F:/pdf/";
 	private  Font headfont ;// ���������С 
     private  Font keyfont;// ���������С 
     private  Font textfont;// ���������С 
@@ -313,9 +313,7 @@ public class PdfHelper {
 			
 		}
 
-		PropertyFileUtil.init();
-//		String path = PropertyFileUtil.getProperty("pdf_dir");
-		String path = "F:/pdf/" + String.valueOf(contestStatusId) + ".pdf";
+		String path = pdf_dir + String.valueOf(contestStatusId) + ".pdf";
 		 File file = new File(path);
          if(!file.getParentFile().exists()) file.getParentFile().mkdirs();
          file.createNewFile(); 
