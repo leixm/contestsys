@@ -50,4 +50,14 @@ public interface ExcelService {
 	 * @throws Exception	抛出导入带有的错误信息
 	 */
 	LayResponse batchImportClass(String fileName, MultipartFile file) throws Exception;
+
+	/**
+	 *
+	 * 批量导入通用题
+	 * @param fileName	文件名 带文件类型结尾
+	 * @param file		文件流
+	 * @return		导入结果等信息
+	 * @throws Exception	抛出导入带有的错误信息
+	 */
+	LayResponse batchImportSimproblem(String fileName, MultipartFile file) throws Exception;
 }

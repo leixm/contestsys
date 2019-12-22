@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.CourseMapper" >
+  <resultMap id="BaseResultMap" type="com.code.model.Course" >
+    <id column="course_id" property="courseId" jdbcType="INTEGER" />
+    <result column="course_name" property="courseName" jdbcType="VARCHAR" />
+    <result column="course_createtime" property="courseCreatetime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <select id="selCourseNameByTeacherId" resultType="map">
+  		select t.course_id courseId,u.fk_teacher_id teacherId,v.realName teacherName,t.course_name courseName,
+	  date_format(t.course_createtime,'%Y-%m-%d %H:%i') as createtime from COURSE t
+		left join CONFIGURATION_TEACHER_COURSE u on u.fk_course_id = t.course_id 	
+		left join user v on u.fk_teacher_id = v.user_id
+		<where>
+			<if test="teacherId!=null and teacherId!=''">
+				and u.fk_teacher_id = #{teacherId}
+			</if>
+			
+			 <if test="keyword!=null and keyword!=''">
+	            and t.course_name = #{keyword}
+	            or v.realName = #{keyword}
+	        </if>
+		</where>
+		order by t.course_createtime
+  </select>
+  
+  
+</mapper>

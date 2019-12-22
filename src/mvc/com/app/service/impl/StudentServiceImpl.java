@@ -105,7 +105,7 @@ public class StudentServiceImpl implements StudentService{
 	 * @return 成绩实体Map对象集合
 	 */
 	@Override
-	public List<Map<String, Object>> selOneStuScore(String className, String stuId, String stuName, String contestName,String pageSize,String pageNumber) {
+	public List<Map<String, Object>> selOneStuScore(String stuId,String pageSize,String pageNumber) {
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
 		//分页所需相关参数的计算
 		if(pageSize!=null&&pageNumber!=null) {
@@ -113,7 +113,7 @@ public class StudentServiceImpl implements StudentService{
 			int pageNumberInt = Integer.parseInt(pageNumber);
 			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
 		}
-		resultList = contestStatusDao.selStuScoreBykeyword(className, stuId, stuName, contestName); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		resultList = contestStatusDao.selOneStuScore(stuId); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
 		return resultList;
 	}
 	

@@ -138,7 +138,7 @@ public class ContestService {
 				}
 			}
 		}
-		System.out.println("existentUserId-----"+existentUserId);
+		//System.out.println("existentUserId-----"+existentUserId);
 		
 		if(existentUserId.size()>0) {
 			for(int i=0; i<users.size(); i++) {

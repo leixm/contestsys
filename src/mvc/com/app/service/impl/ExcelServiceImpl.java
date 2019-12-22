@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.math.BigDecimal;
 
+import com.app.dao.*;
+import com.code.model.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -23,12 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.app.common.MyException;
-import com.app.dao.ClassMapper;
-import com.app.dao.ContestStatusMapper;
-import com.app.dao.UserMapper;
 import com.app.service.ExcelService;
-import com.code.model.LayResponse;
-import com.code.model.User;
 import com.github.pagehelper.PageHelper;
 
 @Service
@@ -42,7 +40,13 @@ public class ExcelServiceImpl implements ExcelService{
 	
 	@Autowired
 	private ContestStatusMapper contestStatusMapper;
-	
+
+	@Autowired
+	private SimproblemMapper simproblemMapper;
+	@Autowired
+	private OptionsMapper optionMapper;
+	@Autowired
+	private AnswerMapper answerMapper;
 	
 	private LayResponse layResponse = new LayResponse();
 	
@@ -351,7 +355,7 @@ public class ExcelServiceImpl implements ExcelService{
 			
 			//sheet.getLastRowNum() 的值是 10，所以Excel表中的数据至少是10条；不然报错 NullPointerException
 			
-			if(row.getCell(1) == null) {
+			/*if(row.getCell(1) == null) {
 				throw new MyException("导入失败(第"+(r+1)+"行,工号不能为空)");
 			}
 			row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);//得到每一行的 第一个单元格的值，转为字符串
@@ -370,7 +374,7 @@ public class ExcelServiceImpl implements ExcelService{
 			//System.out.println("teacher===="+userList);
 			if(userList.isEmpty()) {	
 				throw new MyException("导入失败(第"+(r+1)+"行,其任课老师工号不存在，请检查工号正确性，再进行导入)");
-			}
+			}*/
 			
 			
 			if(row.getCell(0) == null) {
@@ -393,7 +397,6 @@ public class ExcelServiceImpl implements ExcelService{
 			
 			com.code.model.Class classObj = new com.code.model.Class();
 			//完整的循环一次 就组成了一个对象
-			classObj.setTeacher(userId);
 			classObj.setName(className);
 			classList.add(classObj);
 			successNum ++;		//成功数加一
@@ -413,5 +416,217 @@ public class ExcelServiceImpl implements ExcelService{
 		System.out.println(layResponse.getMsg());
 		return layResponse;
 	}
-	
+
+	/**
+	 *
+	 * 批量导入通用题
+	 * @param fileName	文件名 带文件类型结尾
+	 * @param file		文件流
+	 * @return		导入结果等信息
+	 * @throws Exception	抛出导入带有的错误信息
+	 */
+	@Override
+	public LayResponse batchImportSimproblem(String fileName, MultipartFile file) throws Exception {
+		List<com.code.model.Class> classList = new ArrayList<>();
+		String extraMessage = ""; //附加通知，用来通知有几条信息是数据库已经存在的等信息
+
+		if (!fileName.matches("^.+\\.(?i)(xls)$") && !fileName.matches("^.+\\.(?i)(xlsx)$")) {
+			throw new MyException("上传文件格式不正确");
+		}
+		boolean isExcel2003 = true;
+		if (fileName.matches("^.+\\.(?i)(xlsx)$")) {
+			isExcel2003 = false;
+		}
+		InputStream is = file.getInputStream();
+		Workbook wb = null;
+		if (isExcel2003) {
+			wb = new HSSFWorkbook(is);
+		} else {
+			wb = new XSSFWorkbook(is);
+		}
+		is.close();   //释放流（否则会读取不到新的文件）
+
+		for (int i = 0; i < wb.getNumberOfSheets(); i++) {//获取每个Sheet表
+			//获取第一个sheet
+			Sheet sheet = wb.getSheetAt(i);		//获取第i个sheet表格
+			String sheelName = sheet.getSheetName();
+			sheelName = sheelName.replaceAll(" ", "");
+			if(sheelName.isEmpty()){
+				continue;
+			}
+			switch(sheelName){
+				case "单选题":
+					extraMessage += importOneChoice(sheet);
+					break;
+				case "多选题":
+//					extraMessage += importMoreChoice(sheet);
+					break;
+				case "填空题":
+//					extraMessage += importFillBlank(sheet);
+					break;
+				case "判断题":
+//					extraMessage += importJudgment(sheet);
+					break;
+				case "简答题":
+//					extraMessage += importShortAnswer(sheet);
+					break;
+				default :
+					break;
+			}
+
+		}
+		layResponse.setCode(0);
+		layResponse.setMsg(extraMessage);
+		System.out.println(layResponse.getMsg());
+		return layResponse;
+	}
+
+	/**
+	 * 导入单选题方法
+	 * @param sheet		单选题sheet页
+	 * @return		导入成功后等的附加信息
+	 */
+	private String importOneChoice(Sheet sheet) throws Exception{
+		String resultMessage = "";
+		String existMessage = "";
+		int importNum = 0; //导入成功数量
+		int existNum = 0; //已存在数量
+		int lastRowNum = sheet.getLastRowNum(); // 获得总共有多少行数据
+
+		if (lastRowNum <= 1) {
+			return "单选题数据为空！";
+		}else {
+			for (int r = 2; r <= lastRowNum; r++) {        //r = 2 表示从第三行开始循环 ，第一行(r=0)为表头，第二行为样例数据
+				Row row = sheet.getRow(r);        //通过sheet表单对象得到 行对象
+				if (row == null) {
+					continue;
+				}
+
+				if(row.getCell(1) == null) {		//表示第二个单元格
+					throw new MyException("单选题数据导入失败(第"+(r+1)+"行,题目分值不能为空)");
+				}
+				row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);//设置每一行的 第二个单元格的值为字符串
+				String score = row.getCell(1).getStringCellValue().replaceAll(" ",""); //去掉所有空格
+				BigDecimal scoreDecimal = new BigDecimal("2.0");		//默认分数
+				if(!score.equals("")&&checkIsNum(score)) {		//非空且为数值
+					scoreDecimal = new BigDecimal(score);
+				}else if("".equals(score)) {
+					throw new MyException("单选题数据导入失败(第"+(r+1)+"行,题目分值不能为空)");
+				}else {
+					throw new MyException("单选题数据导入失败(第"+(r+1)+"行,题目分值所填写内容数据类型有误)");
+				}
+
+				if(row.getCell(2) == null) {
+					throw new MyException("单选题数据导入失败(第"+(r+1)+"行,题目内容不能为空)");
+				}
+				row.getCell(2).setCellType(Cell.CELL_TYPE_STRING);//设置每一行的 第x个单元格的值为字符串
+				String content = row.getCell(2).getStringCellValue().replaceAll(" ",""); //去掉所有空格
+				if("".equals(score)) {
+					throw new MyException("单选题数据导入失败(第"+(r+1)+"行,题目内容不能为空)");
+				}
+
+				if(row.getCell(3) == null) {
+					throw new MyException("单选题数据导入失败(第"+(r+1)+"行,选项1不能为空)");
+				}
+				row.getCell(3).setCellType(Cell.CELL_TYPE_STRING);//设置每一行的 第x个单元格的值为字符串
+				String opTemp = row.getCell(3).getStringCellValue().replaceAll(" ",""); //去掉所有空格
+				if("".equals(opTemp)) {	// 看第一个选项是否为空，空则报错
+					throw new MyException("单选题数据导入失败(第" + (r + 1) + "行,选项1不能为空)");
+				}
+
+				List<String> optionList = new ArrayList<>();		//选项集合
+				for(int i=3; i<16; i++) {		//遍历选项单元格，遇到空单元格跳出循环(因为选项个数不确定)
+					if(row.getCell(i) == null) {		//遇到空单元格跳出循环
+						break;
+					}
+					row.getCell(i).setCellType(Cell.CELL_TYPE_STRING);//设置每一行的 第x个单元格的值为字符串
+					String option = row.getCell(i).getStringCellValue().replaceAll(" ",""); //去掉所有空格
+					if("".equals(option)) {
+						break;
+					}
+					optionList.add(option);
+				}
+
+				List<String> answerOptionList = new ArrayList<>();		// 答案集合
+				if(!optionList.isEmpty()) {
+					for (int j=0; j<optionList.size(); j++) {		// 遍历并获取正确答案（选项末尾有*表示是正确答案）
+						String opStr = optionList.get(j);
+						if(opStr.substring(opStr.length()-1,opStr.length()).equals("*")){
+							String answerOptionStr = opStr.substring(0,opStr.length()-1);	// 去掉*号
+							optionList.set(j,answerOptionStr);	// 替换没有*号的值进选项集合
+							answerOptionList.add(answerOptionStr);
+						}
+					}
+				} else {
+					throw new MyException("单选题数据导入失败(第" + (r + 1) + "行,选项不能为空)");
+				}
+				if(answerOptionList.isEmpty()) {
+					throw new MyException("单选题数据导入失败(第" + (r + 1) + "行,答案不能为空)");
+				}
+
+				/**进行实体类赋值并进行数据库操作--start--**/
+				List<Map<String,Object>> existSimList = simproblemMapper.selSimByContent(content);		// 根据内容查通用题是否存在
+				if(!existSimList.isEmpty()) {
+					existMessage += r+1+"、"; // 记录第几行数据数据库已经存在
+					existNum ++;
+					continue ;		//跳过此次循环（单次而已）
+				}
+
+				// 因为插入答案和选项等需要外键SimpleProblemId，所以需要查询sim表中最大的simId是多少
+				int maxSimpId = simproblemMapper.selMaxSimpId();
+				int newSimId = 1001;	// 数据库表空时，默认id从1001开始
+				if(maxSimpId > 0) {
+					newSimId = maxSimpId + 1;
+				}
+				Simproblem simproblem = new Simproblem();
+				simproblem.setBlanks(0);
+				simproblem.setContent(content);
+				simproblem.setScore(scoreDecimal);
+				simproblem.setType(1);
+				simproblem.setSimproblemId(newSimId);
+				simproblemMapper.insert(simproblem);
+
+				for(int i=0; i<optionList.size(); i++) {
+					Options o = new Options();
+					o.setContent(optionList.get(i));
+					o.setPos(i+1);
+					o.setSimproblemId(newSimId);
+					optionMapper.insertSelective(o);
+				}
+
+				for(int i=0; i<answerOptionList.size(); i++) {
+					Answer a = new Answer();
+					a.setContent(answerOptionList.get(i));
+					a.setPos(i);
+					a.setSimproblemId(newSimId);
+					answerMapper.insertSelective(a);
+				}
+				/**进行实体类赋值并进行数据库操作--end--**/
+				importNum ++;
+			}
+		}
+		//组装信息
+		if(!existMessage.equals("")) {
+			resultMessage =  "--单选题导入提示： 第" + existMessage.substring(0,existMessage.length()-1) 	// 去掉最后的、号
+					+ "行,共" + existNum + "条数据已存在，跳过导入。" + "成功导入"+ importNum + "条数据！";
+		}else {
+			resultMessage = "--单选题导入提示： "+ "成功导入"+ importNum + "条数据！";
+		}
+		return resultMessage;
+	}
+
+	/**
+	 * 校验是否为数字复用方法（包括正负数和小数等）
+	 * @param str	需要检验的字符串
+	 * @return	true、false
+	 */
+	private boolean checkIsNum(String str) {
+		//校验是否为数字格式(正负包括小数等)
+		String pattern = "^[\\+\\-]?[\\d]+(\\.[\\d]+)?$";
+		Pattern p = Pattern.compile(pattern);
+		Matcher isNum = p.matcher(str);
+
+		return isNum.matches();
+	}
+
 }

@@ -287,6 +287,7 @@ public class StudentController {
 	@ResponseBody
 	public String selStuScore(HttpServletRequest request,HttpServletResponse response) {
 		//获取所登录用户的user对象
+		LayResponse layResp = new LayResponse();//layui参数返回格式
 		HttpSession session = request.getSession(); 
 		User user = (User)session.getAttribute("user");	
 		String userId;
@@ -294,34 +295,20 @@ public class StudentController {
 		if(session.getAttribute("user")!=null) {
 			userId = user.getUserId();
 		}else {
-			userId = "1614080902233";
+			layResp.setMsg("无数据");
+			return JSONObject.fromObject(layResp).toString();
 		}
+		System.out.println("userId==="+userId);
 		
 		
-		LayResponse layResp = new LayResponse();//layui参数返回格式
 		layResp.setCode(1); //默认设置为1
 		
-		String className = request.getParameter("classname"); 
 		String stuId = userId;
-		String stuName = request.getParameter("stuname");
-		String contestName = request.getParameter("contestname");
-		//判断是否非空后再来去掉前后空格，防止空指针
-		if(className!=null||"".equals(className)) {
-			className = className.trim();
-		}
-		if(stuId!=null||"".equals(stuId)) {
-			stuId = stuId.trim();	
-		}
-		if(stuName!=null||"".equals(stuName)) {
-			stuName = stuName.trim();
-		}
-		if(contestName!=null||"".equals(contestName)) {
-			contestName = contestName.trim();
-		}
+		
 		//获取分页所需相关数据
 		String pageSize = request.getParameter("limit"); //一页多少个
 		String pageNumber = request.getParameter("page");	//第几页
-		List<Map<String,Object>> resultList = studentService.selOneStuScore(className, stuId, stuName, contestName,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
+		List<Map<String,Object>> resultList = studentService.selOneStuScore(stuId,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
 		//获取分页插件的数据只能通过PageInfo来获取
 		PageInfo pInfo = new PageInfo(resultList);
 		Long total = pInfo.getTotal();

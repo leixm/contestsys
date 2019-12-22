@@ -316,4 +316,27 @@
       blanks = #{blanks,jdbcType=INTEGER}
     where simproblem_id = #{simproblemId,jdbcType=INTEGER}
   </update>
+  
+  <select id="selSimproblemList" resultType="map" >
+    SELECT t.fk_course_id simCourseId,u.course_name simCourseName,t.simproblem_id simId,t.type simType,t.content simContent,
+	t.score simScore,t.paper_id simPaperId,v.title simPaperTitle,t.pos simPos
+	FROM simproblem t 
+	LEFT JOIN course u on t.fk_course_id = u.course_id
+	LEFT JOIN contestpaper v on t.paper_id = v.paper_id
+        <where>
+          <if test="simCourseId!=null and simCourseId!=0">
+            and t.fk_course_id = #{simCourseId}
+          </if>
+
+          <if test="simPaperTitle!='' and simPaperTitle!=null ">
+            and v.title like  "%"#{simPaperTitle}"%"
+          </if>
+          
+          <if test="simType!=null and simType!=0">
+            and t.type = #{simType}
+          </if>
+        </where>
+      ORDER BY simCourseId,simPaperId,simId
+   </select>
+  
 </mapper>

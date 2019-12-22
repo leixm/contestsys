@@ -35,31 +35,29 @@
 				<!-- 无用div控制布局作用 -->
                	<div style="height: 30px">
                	</div>
-                	
 
 				<div class="layui-form-item">
 					<label for="classId" class="layui-form-label"> <span
-						class="x-red">*</span>班级id
+						class="x-red">*</span>课程id
 					</label>
 					<div class="layui-input-inline">
-						<input type="text" id="classId" name="classId" required=""
+						<input type="text" id="courseId" name="courseId" required=""
 							lay-verify="required" autocomplete="off" class="layui-input"
-							value="${classes.classId}" disabled="disabled"> 
+							value="${courses.courseId}" disabled="disabled"> 
 					</div>
 					<div class="layui-form-mid layui-word-aux">
 						<span class="x-red">*</span>
 					</div>
 				</div>
 
-
 				<div class="layui-form-item">
 					<label for="name" class="layui-form-label"> <span
-						class="x-red">*</span>班级名称
+						class="x-red">*</span>课程名称
 					</label>
 					<div class="layui-input-inline">
-						<input type="text" id="name" name="name" required=""
+						<input type="text" id="courseName" name="courseName" required=""
 							lay-verify="required" autocomplete="off" class="layui-input"
-							value="${classes.name}">
+							value="${courses.courseName}">
 					</div>
 					<div class="layui-form-mid layui-word-aux">
 						<span class="x-red">*</span>
@@ -79,20 +77,17 @@
 				var form = layui.form,
 					layer = layui.layer;
 	
-	
 				//监听提交
 				form.on('submit(add)',
 					function(data) {
 	
-	
 						$.ajax({
 							type : "POST",
-							url : "Class/UpdateClass",
+							url : "Course/updateCourse",
 							dataType : 'json',
 							data : data.field,
 							async : false,
 							success : function(da) {
-								console.log(JSON.stringify(da))
 								if (da.code == 0) {
 									layer.alert(da.msg, {
 										icon : 6
@@ -104,8 +99,6 @@
 											// 可以对父窗口进行刷新 
 											xadmin.father_reload();
 										});
-	
-	
 								} else {
 									layer.alert(da.msg, {
 										icon : 5

@@ -62,9 +62,6 @@ import com.code.model.SimsolutionExample;
 import com.code.model.User;
 import com.code.model.UserExample;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-
-import net.sf.json.JSONArray;
 
 @Service
 @Transactional
@@ -124,7 +121,6 @@ public class TeacherServiceImpl implements TeacherService{
 			ClassExample classExample = new ClassExample();
 			ClassExample.Criteria criteria = classExample.createCriteria();
 			criteria.andNameEqualTo(className);
-			criteria.andTeacherEqualTo(contest.getTeacher());
 			List<Class> classes = classDao.selectByExample(classExample);
 			if(classes.size()==1) {
 				classId = classes.get(0).getClassId();
@@ -550,7 +546,6 @@ public class TeacherServiceImpl implements TeacherService{
     	if(user.getLevel() == 1) {
 			ClassExample classExample = new ClassExample();
 			ClassExample.Criteria criteria = classExample.createCriteria();
-			criteria.andTeacherEqualTo(user.getUserId());
 			List<Class> classes = classDao.selectByExample(classExample);
 			
 			if(classes.size()>0) {
@@ -872,17 +867,12 @@ public class TeacherServiceImpl implements TeacherService{
 		return contestStatusDao.updateScore(cStatusIdInt, scoreDecimal);
 	}
 
-	/**
-	 * 查询所有的班级对象
-	 * @return 所有的班级对象
-	 */
 	@Override
 	public List<Map<String, Object>> selAllClassObj() {
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-		list = classDao.listAll();
-		return list;
+		return null;
 	}
-	
+
+
 	/**
 	 * 查询所有的班级对象
 	 * @return 所有的班级对象
@@ -905,7 +895,47 @@ public class TeacherServiceImpl implements TeacherService{
 		return resultList;
 	}
 
+	/**
+	 * 查询通用题库列表
+	 * @return 所有对象
+	 */
+	@Override
+	public List<Map<String,Object>> selSimproblemList(int simCourseId,String simPaperTitle,int simType,String pageSize,String pageNumber) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+		//分页所需相关参数的计算
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
+		resultList = simpDao.selSimproblemList(simCourseId, simPaperTitle, simType);
+		return resultList;
+		
+	}
 
+	/**
+	 * 删除单条simproblem
+	 * @param simId 
+	 * @return
+	 */
+	@Override
+	public int delSimproblemById(int simId) {
+		
+		return simpDao.delSimproblemById(simId);
+	}
+
+
+	@Override
+	public int delBatchSimproblemByIds(List<String> ids) {
+		 int count = 0;
+		 if(!ids.isEmpty()) {
+			 for(String id : ids){
+				   simpDao.delSimproblemById(Integer.parseInt(id));
+				   count++;
+			   } 
+		 }
+		 return count;
+	}
 	
 	
 }

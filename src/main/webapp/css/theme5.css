@@ -2,7 +2,7 @@ body{
     background:rgba(0,0,0,0) !important;
 }
 .container{
-    background:linear-gradient(to left,  #4b8e8d,#6bc5d2 );
+    background:linear-gradient(to left,  #4b8e8d, #6bc5d2 )!important;
 }
 
 .left-nav{
@@ -15,7 +15,7 @@ body{
 .left-nav a.active{
     background: linear-gradient(to left, #6bc5d2, #6bc5d2) !important;
     color: #fff !important;
-    border-color:  #4b8e8dx !important;
+    border-color:  #4b8e8d !important;
 }
 .left-nav a:hover{
     background: linear-gradient(to left, #4b8e8d, #4b8e8d) !important;

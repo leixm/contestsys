@@ -47,7 +47,7 @@ public interface StudentService {
 	 * @param 4、考试名称
 	 * @return 成绩实体Map对象集合
 	 */
-	public List<Map<String,Object>> selOneStuScore(String className,String stuId,String stuName,String contestName,String pageSize,String pageNumber); 
+	public List<Map<String,Object>> selOneStuScore(String stuId,String pageSize,String pageNumber); 
 	
 	 /**
 	  * 根据条件更新学生用户的个人信息

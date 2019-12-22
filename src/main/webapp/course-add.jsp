@@ -30,10 +30,10 @@
 					
 					<div class="layui-form-item">
 						<label for="name" class="layui-form-label">
-							<span class="x-red">*</span>班级名称
+							<span class="x-red">*</span>课程名称
 						</label>
 						<div class="layui-input-inline">
-							<input type="text" id="name" name="name" required="" lay-verify="required" autocomplete="off" class="layui-input">
+							<input type="text" id="name" name="courseName" required="" lay-verify="required" autocomplete="off" class="layui-input">
 						</div>
 						<div class="layui-form-mid layui-word-aux">
 							<span class="x-red">*</span>
@@ -45,7 +45,7 @@
 						<label for="L_repass" class="layui-form-label">
 						</label>
 						<button class="layui-btn" lay-filter="add" lay-submit="">
-							添加班级
+							添加课程
 						</button>
 					</div>
 				</form> 
@@ -64,11 +64,9 @@
 					form.on('submit(add)',
 						function(data) {
 
-							console.log(data.field);
-
 							$.ajax({
 								type: "POST",
-								url: "Class/AddClass",
+								url: "Course/addCourse",
 								dataType: 'json',
 								data: data.field,
 								async: false,
