@@ -160,7 +160,7 @@ public class StudentController {
 	        model.addObject("student", user);
 	        model.addObject("contestStatusId", id);
 	        model.addObject("contest", contest);
-	        model.addObject("leftTime", 86400);
+	        model.addObject("leftTime", 10);
 	        
 	        model.setViewName("contestpage.jsp");
         }
@@ -262,7 +262,7 @@ public class StudentController {
   		if(oneSimproblems.size()>0){
    			for(OneSimproblem oneSimproblem : oneSimproblems){
 	   			Simsolution simsolution = oneSimproblem.getSimsolution();
-	   			simsolution.setStatus(new Integer(0)); 
+	   			simsolution.setStatus(new Integer(0));
 	   			studentService.insert(simsolution); 
    			} 
    		}

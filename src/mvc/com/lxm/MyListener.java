@@ -283,16 +283,15 @@ class MyThread extends Thread{
 								String[] s = simsolution.getAnswer().split("§§§");
 								JSONArray arr = JSONArray.fromObject(s);
 								boolean flag = true;
-								for(int i=0;i<answers.size();i++)  //必须选对所有选项
+								int correctCount = 0;
+								for(int i=0;i<answers.size();i++)  //根据对的个数得分，最后四舍五入
 								{
-									if(!arr.contains(answers.get(i).getContent())){
-										flag = false;
-										break;
+									if(arr.contains(answers.get(i).getContent())){
+										correctCount++;
 									}
 								}
-								if(flag){
-									bd = simproblem.getScore();
-								}
+								double correctRate = (double)correctCount / answers.size();
+								bd = new BigDecimal(correctRate * simproblem.getScore().doubleValue()).setScale(1,BigDecimal.ROUND_HALF_UP);
 							}
 							else if(type==4)  //填空题 对应的空必须等于正确答案
 							{
@@ -315,6 +314,8 @@ class MyThread extends Thread{
 							}
 
 							Simsolution newSimsolution = new Simsolution();
+							// 对0.5取整
+							bd = new BigDecimal((int)(bd.doubleValue() / 0.5) * 0.5);
 							newSimsolution.setScore(bd);
 							newSimsolution.setStatus(new Integer(1));
 							newSimsolution.setSimsolutionId(simsolution.getSimsolutionId());
@@ -363,6 +364,7 @@ class MyThread extends Thread{
 				for(ContestStatus contestStatus : contestStatuss)
 				{
 					simsolutionExample = new SimsolutionExample();
+					simsolutionExample.clear();
 					simsolutionCriteria = simsolutionExample.createCriteria();
 					simsolutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
 					simsolutionCriteria.andStatusEqualTo(new Integer(0)); //未批改
@@ -371,6 +373,7 @@ class MyThread extends Thread{
 						continue;
 
 					solutionExample = new SolutionExample();
+					solutionExample.clear();
 					solutionCriteria = solutionExample.createCriteria();
 					solutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
 					solutionCriteria.andStatusEqualTo(new Integer(0));
@@ -402,7 +405,7 @@ class MyThread extends Thread{
 					SimproblemExample simproblemExample = new SimproblemExample();
 					SimproblemExample.Criteria simproblemExampleCriteria = simproblemExample.createCriteria();
 					simproblemExampleCriteria.andPaperIdEqualTo(contest.getPaperId());
-					List<Simproblem> simproblems = simproblemDao.selectByExample(simproblemExample); //该试卷所有填空选择题
+					List<Simproblem> simproblems = simproblemDao.selectByExampleWithBLOBs(simproblemExample); //该试卷所有填空选择题
 
 					if(simproblems.size()>0)
 					{
@@ -413,21 +416,23 @@ class MyThread extends Thread{
 							oneProblem.setSimproblem(simproblem);  //题目
 
 							simsolutionExample = new SimsolutionExample();
+							simsolutionExample.clear();
+							simsolutionCriteria = simsolutionExample.createCriteria();
 							simsolutionCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());
 							simsolutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
-							simsolutions = simsolutionDao.selectByExample(simsolutionExample);
+							simsolutions = simsolutionDao.selectByExampleWithBLOBs(simsolutionExample);
 							if(simsolutions.size()>0)
 								oneProblem.setSimsolution(simsolutions.get(0)); //作答情况
 
 							OptionsExample optionExample = new OptionsExample();
 							OptionsExample.Criteria optionExampleCriteria = optionExample.createCriteria();
 							optionExampleCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());
-							List<Options> options = optionDao.selectByExample(optionExample);
+							List<Options> options = optionDao.selectByExampleWithBLOBs(optionExample);
 							oneProblem.setOption(options);
 							AnswerExample answerExample = new AnswerExample();
 							AnswerExample.Criteria answerExampleCriteria = answerExample.createCriteria();
 							answerExampleCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());
-							List<Answer> answers = answerDao.selectByExample(answerExample);
+							List<Answer> answers = answerDao.selectByExampleWithBLOBs(answerExample);
 							oneProblem.setAnswer(answers);
 
 							oneProblems.add(oneProblem);
@@ -449,6 +454,7 @@ class MyThread extends Thread{
 							oneProblem.setProblem(problem);  //题目内容
 
 							solutionExample = new SolutionExample();
+							solutionExample.clear();
 							solutionCriteria = solutionExample.createCriteria();
 							solutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
 							solutionCriteria.andProblemIdEqualTo(problem.getProblemId());
@@ -464,6 +470,7 @@ class MyThread extends Thread{
 
 
 					oneContest.setPaper(paper);
+					(new PdfHelper()).GeneratePDFForContestStatus(oneContest,contestStatus.getContestId(),contestStatus.getScore().setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue());
 				}
 			}
 			catch (Exception e){
