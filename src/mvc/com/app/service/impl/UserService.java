@@ -142,7 +142,15 @@ public class UserService {
 	    else return 0;  //用户名不存在
 	    
 	}
-	
+
+	/**
+	 * 注册接口
+	 * @param user
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws MessagingException
+	 * @throws GeneralSecurityException
+	 */
 	public String Register(User user) throws UnsupportedEncodingException, MessagingException, GeneralSecurityException
 	{
 		String userNameRegex = "^[0-9]*$";
@@ -165,14 +173,23 @@ public class UserService {
 		user.setValidatecode(validateCode);
 		Calendar ca = Calendar.getInstance();
 		ca.setTime(new Date());
-		ca.add(Calendar.MINUTE, 15);
+		ca.add(Calendar.MINUTE, 15);	//将时间延后15分钟
 		user.setValidatetime(ca.getTime());
 		userDao.insertSelective(user);
 		ApplyActivate(user.getEmail(),user.getValidatecode());
 		
 		return "注册成功";
 	}
-	
+
+	/**
+	 * 登录主接口
+	 * @param userName
+	 * @param passWord
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws MessagingException
+	 * @throws GeneralSecurityException
+	 */
 	public int Login(String userName,String passWord) throws UnsupportedEncodingException, MessagingException, GeneralSecurityException
 	{
 		int state = LoginByEmail(userName,passWord);
@@ -221,7 +238,7 @@ public class UserService {
 		sb.append("您好:\n");
 		sb.append("以下为您的邮箱激活地址：\n");
 		
-		sb.append("<a href=\"http://localhost:8080/rustshop/User/Validate?email=");
+		sb.append("<a href=\"http://localhost:8080/contestsys/User/Validate?email=");
         sb.append(email); 
         sb.append("&validatecode=");  
         sb.append(validateCode);
@@ -338,7 +355,7 @@ public class UserService {
 	    for(Map<String,Object> map : list){
 	    	map.put("registerTime", sdf.format((Date)map.get("registerTime")));
 	    }
-	    System.out.println(JSONArray.fromObject(list).toString());
+
 	    return list;
 	}
 	
@@ -389,9 +406,16 @@ public class UserService {
 	   return count;
 	} 
 	
-	public List<Map<String,Object>> selCourseNameByTeacherId(String teacherId,String keyword) {
-		
-		return courseDao.selCourseNameByTeacherId(teacherId,keyword);
+	public List<Map<String,Object>> selCourseNameByTeacherId(String teacherId,String keyword,String pageSize,String pageNumber) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
+		//分页所需相关参数的计算
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
+		resultList = courseDao.selCourseNameByTeacherId(teacherId,keyword);
+		return resultList;
 	}
 	
 	public List<Map<String,Object>> selCourseObjById(String courseId) {

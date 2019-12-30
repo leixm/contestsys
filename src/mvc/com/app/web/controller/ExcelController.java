@@ -173,21 +173,21 @@ public class ExcelController {
      * @return	导入结果，或者是导入错误信息
      */
     @RequestMapping("/importObject")
-    public String importObject(HttpServletRequest request, @RequestParam(value = "file")MultipartFile file, HttpSession session,int type) {
+    public String importObject(HttpServletRequest request, @RequestParam(value = "file")MultipartFile file, int type) {
 		String fileName = file.getOriginalFilename();	//文件名，用于校验文件格式
 		layResponse.setCode(1); 	//默认设置失败code
 		
 		User user = (User)request.getSession().getAttribute("user");
 		if(user==null) {
 			layResponse.setMsg("请先登录系统！");
-			//return JSONObject.fromObject(layResponse).toString();
+			return JSONObject.fromObject(layResponse).toString();
 		}else {
 			if(user.getLevel()==0) {
 				layResponse.setMsg("该用户没有权限");
-				//return JSONObject.fromObject(layResponse).toString();
+				return JSONObject.fromObject(layResponse).toString();
 			}
 		}
-		
+
 		try {
 			if(type == 0) {					//批量导入学生
 				layResponse = excelService.batchImportStudent(fileName, file);
@@ -201,29 +201,40 @@ public class ExcelController {
 	    	}
 
 			else if(type == 3) {			//批量导入通用题库
-				layResponse = excelService.batchImportSimproblem(fileName, file);
+				String courseIdStr = request.getParameter("courseId");
+				if(courseIdStr.equals("0")) {
+					layResponse.setMsg("请选择所属课程后，再进行导入");
+					return JSONArray.fromObject(layResponse).toString();
+				}
+
+				// 导入题目需要用到两Id
+				int courseId = Integer.parseInt(courseIdStr);
+				String teacherId = user.getUserId();
+
+				String importPaper = request.getParameter("importPaper");		// importPaper = "1"表示进行一张试卷导入
+
+				layResponse = excelService.batchImportSimproblem(fileName, file, courseId, teacherId, importPaper);
+
+
 			}
-			
+
 	    	else {
 	    		layResponse.setCode(1);  //1表示失败
 				layResponse.setMsg("tpye为无效值");
 				return JSONArray.fromObject(layResponse).toString();
 	    	}
-			
+			return JSONArray.fromObject(layResponse).toString();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			layResponse.setCode(1);  //1表示失败
 			layResponse.setMsg(e.getMessage());
 			System.out.println("fail====="+e.getMessage());
-		}finally {
-			System.out.println("success====="+layResponse.getMsg());
 			return JSONArray.fromObject(layResponse).toString();
 		}
     }
-  
-    
-    
-    
+
+
     //根据文件名去根目录的demoFileDownload文件夹下载对应名字的模板文件
     /**
      * 复用方法，用来下载导入模板等文件
@@ -232,7 +243,7 @@ public class ExcelController {
      * @param fileName  需要下载的文件名字
      * @param classPath 类路径
      */
-    private  static void downloadDemoMethod(HttpServletResponse response,HttpServletRequest request,String classPath, String fileName) {
+    private static void downloadDemoMethod(HttpServletResponse response,HttpServletRequest request,String classPath, String fileName) {
     	//String classPath = ExcelController.class.getClass().getResource("/").getPath(); 		//类路径，static方法无法用，会出现空指针
     	String webappRoot = classPath.replaceAll("WEB-INF/classes/", ""); 	//根目录
     	webappRoot  = webappRoot.replace("%20"," ");	//替换空格
@@ -317,9 +328,34 @@ public class ExcelController {
         	}
  		}
     }
-    
-    
-    
+
+
+	/**
+	 * 为新的试题的simproblem配置pos值
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping("/updateSimPos")
+	public String updateSimPos(HttpServletRequest request) {
+		int paperId = Integer.parseInt(request.getParameter("paperId"));
+
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+
+		if (paperId == 0) {
+			response.setCode(0);
+			return JSONObject.fromObject(response).toString();
+		}
+
+		int result = excelService.updateSimPosByPaperId(paperId);
+
+		if(result > 0) {
+			response.setCode(1);
+		}else {
+			response.setCode(0);
+		}
+		return JSONObject.fromObject(response).toString();
+	}
     
     
     

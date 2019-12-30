@@ -69,7 +69,7 @@ public class UserController {
 	public String Login(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Response re = new Response();
 		re.setSuccess(0);
-		String userName = request.getParameter("username");
+		String userName = request.getParameter("username");		//userName相当于userId
 		String passWord = request.getParameter("password");
 		String rancode = request.getParameter("rancode");
 		if (userName == null || passWord == null) {
@@ -113,9 +113,10 @@ public class UserController {
 		user.setUserId(request.getParameter("userId"));
 		user.setEmail(request.getParameter("email"));
 		user.setRealname(request.getParameter("realname"));
-		System.out.println("pass-----"+user.getUserId());
-		System.out.println("pass-----"+user.getUserId());
-		System.out.println("pass-----"+request.getParameter("rancode"));
+		/*System.out.println("passuserid-----"+user.getUserId());
+		System.out.println("password-----"+user.getPassword());
+		System.out.println("passrancode-----"+request.getParameter("rancode"));
+		System.out.println("email-----"+request.getParameter("email"));*/
 		Response re = new Response();
 		re.setSuccess(0);
 		String rancode = request.getParameter("rancode");
@@ -128,10 +129,10 @@ public class UserController {
 			return JSONObject.fromObject(re).toString();
 		}
 		String result = userService.Register(user);
-		if (result.equals("注册成功"))
+		if (result.equals("注册成功")) {
 			re.setSuccess(1);
-		re.setMsg(result); 
-		System.out.println(JSONObject.fromObject(re).toString());
+		}
+		re.setMsg(result);
 		return JSONObject.fromObject(re).toString();
 	}
 	
@@ -661,14 +662,24 @@ public class UserController {
 	    int level = user.getLevel();
 	    String userId = user.getUserId().toString();
 	    String keyword = request.getParameter("keyword");
+
+		//获取分页所需相关数据
+		String pageSize = request.getParameter("limit"); //一页多少个
+		String pageNumber = request.getParameter("page");	//第几页
+
 	    if(level > 0) {		//管理员或教师
 	    	//userId为参，null的时候默认查全部的课程，即管理员角色
-	    	resultList = userService.selCourseNameByTeacherId(userId,keyword);
+	    	resultList = userService.selCourseNameByTeacherId(userId,keyword,pageSize,pageNumber);
 	    }else {
 			layResp.setCode(0);
 			layResp.setMsg("抱歉，权限不足！");
 			return JSONObject.fromObject(layResp).toString();
 	    }
+
+		//获取分页插件的数据只能通过PageInfo来获取
+		PageInfo pInfo = new PageInfo(resultList);
+		Long total = pInfo.getTotal();
+
 	    Map<String,Object> resultMap = new HashMap<String, Object>();
 	    //查看session是否有已选择的课程，有的话传回前端
 	    String courseId = (String)session.getAttribute("course_id");
@@ -679,10 +690,12 @@ public class UserController {
 	    	resultMap.put("select_name", courseName);
 	    }
 	    resultMap.put("dataList", resultList);
-	    
+
+
 		layResp.setCode(0);
 		layResp.setMsg("请求成功！");
 		layResp.setData(resultMap);
+		layResp.setCount(total.intValue());
 		return JSONObject.fromObject(layResp).toString();
 	}
 	
@@ -721,7 +734,7 @@ public class UserController {
 		}else {
 			 mav.addObject("teachers",userService.getTeacherById(userId));
 		}
-		mav.addObject("courses", userService.selCourseNameByTeacherId(userId, null));
+		mav.addObject("courses", userService.selCourseNameByTeacherId(userId, null, null, null));
 		mav.setViewName("course-addTeach.jsp");
 		return mav;
 	}

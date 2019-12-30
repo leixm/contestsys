@@ -9,12 +9,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import com.code.model.*;
 import com.code.model.Class;
-import com.code.model.Contest;
-import com.code.model.OnePaper;
-import com.code.model.OneSimproblem;
-import com.code.model.Response;
-import com.code.model.User;
+import org.springframework.web.servlet.ModelAndView;
 
 public interface TeacherService {
 	/**
@@ -161,6 +158,58 @@ public interface TeacherService {
 	 * @param ids 
 	 * @return
 	 */
-	public int delBatchSimproblemByIds(List<String> ids); 
-	
+	public int delBatchSimproblemByIds(List<String> ids);
+
+	/**
+	 * 根据paperId查询contestPaper对象
+	 * @return
+	 */
+	public Contestpaper selOneContestPaperById(String paperId);
+
+	/**
+	 *根据Id查询simproblem对象
+	 * @return
+	 */
+	public Simproblem selSimproblemById(String simId);
+
+	/**
+	 * 获取单选题返回的页面对象
+	 * @return
+	 */
+	public ModelAndView getOneChoiceMav(String simId);
+
+	/**
+	 * 获取填空判断题返回的页面对象
+	 * @return
+	 */
+	public ModelAndView getFillBlankAndJudgementMav (String simId);
+
+	/**
+	 * 获取简答题返回的页面对象
+	 * @return
+	 */
+	public ModelAndView getShortAnswerMav (String simId);
+
+	/**
+	 * 更新选择题内容和答案等信息
+	 * @param simId
+	 * @param simScore
+	 * @param simContent
+	 * @param optionList
+	 * @param answerList
+	 * @return	返回的是结果信息 ""代表成功， 有内容代表失败
+	 */
+	public String updateChoiceQuestion(int simId,BigDecimal simScore,String simContent,List<String> optionList,List<String> answerList);
+
+	/**
+	 * 更新填空、判断题内容和答案等信息
+	 * @return  ""代表成功， 有内容代表失败
+	 */
+	public String updateFillBlankAndJudgement(int simId,BigDecimal simScore,String simContent,List<String> answerList);
+
+	/**
+	 * 更新简答题内容和答案等信息
+	 * @return  ""代表成功， 有内容代表失败
+	 */
+	public String updateShortAnswer(int simId,BigDecimal simScore,String simContent);
 }

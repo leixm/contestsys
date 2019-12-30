@@ -62,6 +62,7 @@ import com.code.model.SimsolutionExample;
 import com.code.model.User;
 import com.code.model.UserExample;
 import com.github.pagehelper.PageHelper;
+import org.springframework.web.servlet.ModelAndView;
 
 @Service
 @Transactional
@@ -874,13 +875,13 @@ public class TeacherServiceImpl implements TeacherService{
 
 
 	/**
-	 * 查询所有的班级对象
-	 * @return 所有的班级对象
+	 * 查询所有的考试对象
+	 * @return 所有的考试对象
 	 */
 	@Override
 	public List<Map<String, Object>> selAllContestObj() {
 		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-		list = contestDao.listAll();
+		list = contestDao.listAll(0);
 		return list;
 	}
 
@@ -936,8 +937,219 @@ public class TeacherServiceImpl implements TeacherService{
 		 }
 		 return count;
 	}
-	
-	
+
+	@Override
+	public  Contestpaper selOneContestPaperById(String paperId) {
+
+		return paperDao.selectByPrimaryKey(Integer.parseInt(paperId));
+	}
+
+	@Override
+	public  Simproblem selSimproblemById(String simId) {
+
+		return simpDao.selectByPrimaryKey(Integer.parseInt(simId));
+	}
+
+
+	/**
+	 * 获取单选题返回的页面对象
+	 * @return
+	 */
+	public ModelAndView getOneChoiceMav(String simId) {
+		ModelAndView mav = new ModelAndView();
+		int simIdInt = Integer.parseInt(simId);
+		//获取对应题目的： 题目ID、题目分数、题目内容  并传递给jsp页面
+		Simproblem simproblem = simpDao.selectByPrimaryKey(simIdInt);
+		String simTypeStr = "";
+		int simType = simproblem.getType();
+		switch (simType) {
+			case 1:
+				simTypeStr = "单选题";
+				break;
+			case 2:
+				simTypeStr = "多选题";
+				break;
+			case 3:
+				simTypeStr = "判断题";
+				break;
+			case 4:
+				simTypeStr = "填空题";
+				break;
+			default:
+				simTypeStr = "简答题";
+		}
+		//获取选项集合
+		List<Options> opList = selOptions(simIdInt);
+		//获取答案集合
+		List<Answer> anList = selAnswer(simIdInt);
+
+		mav.addObject("simId",simId);
+		mav.addObject("simScore", simproblem.getScore());
+		mav.addObject("simType", simTypeStr);
+		mav.addObject("simContent",simproblem.getContent());
+		mav.addObject("options",opList);
+		mav.addObject("answers",anList);
+		mav.setViewName("simple_problem-editOneChoice.jsp");
+
+		return mav;
+	}
+
+
+	/**
+	 * 获取填空判断题返回的页面对象
+	 * @return
+	 */
+	public ModelAndView getFillBlankAndJudgementMav(String simId) {
+		ModelAndView mav = new ModelAndView();
+		int simIdInt = Integer.parseInt(simId);
+		//获取对应题目的： 题目ID、题目分数、题目内容  并传递给jsp页面
+		Simproblem simproblem = simpDao.selectByPrimaryKey(simIdInt);
+		String simTypeStr = "";
+		int simType = simproblem.getType();
+		switch (simType) {
+			case 1:
+				simTypeStr = "单选题";
+				break;
+			case 2:
+				simTypeStr = "多选题";
+				break;
+			case 3:
+				simTypeStr = "判断题";
+				break;
+			case 4:
+				simTypeStr = "填空题";
+				break;
+			default:
+				simTypeStr = "简答题";
+		}
+		//获取答案集合
+		List<Answer> anList = selAnswer(simIdInt);
+		mav.addObject("simId",simId);
+		mav.addObject("simScore", simproblem.getScore());
+		mav.addObject("simType", simTypeStr);
+		mav.addObject("simContent",simproblem.getContent());
+		mav.addObject("answers",anList);
+		mav.setViewName("simple_problem-editFillBlankAndJudgement.jsp");
+
+		return mav;
+	}
+
+	/**
+	 * 获取简答题返回的页面对象
+	 * @return
+	 */
+	public ModelAndView getShortAnswerMav(String simId) {
+		ModelAndView mav = new ModelAndView();
+		int simIdInt = Integer.parseInt(simId);
+		//获取对应题目的： 题目ID、题目分数、题目内容  并传递给jsp页面
+		Simproblem simproblem = simpDao.selectByPrimaryKey(simIdInt);
+		String simTypeStr = "";
+		int simType = simproblem.getType();
+		switch (simType) {
+			case 1:
+				simTypeStr = "单选题";
+				break;
+			case 2:
+				simTypeStr = "多选题";
+				break;
+			case 3:
+				simTypeStr = "判断题";
+				break;
+			case 4:
+				simTypeStr = "填空题";
+				break;
+			default:
+				simTypeStr = "简答题";
+		}
+		mav.addObject("simId",simId);
+		mav.addObject("simScore", simproblem.getScore());
+		mav.addObject("simType", simTypeStr);
+		mav.addObject("simContent",simproblem.getContent());
+		mav.setViewName("simple_problem-editShortAnswer.jsp");
+
+		return mav;
+	}
+
+
+	/**
+	 * 更新选择题内容和答案等信息
+	 * @param simId
+	 * @param simScore
+	 * @param simContent
+	 * @param optionList
+	 * @param answerList
+	 * @return	返回的是结果信息 ""代表成功， 有内容代表失败
+	 */
+	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
+	public String updateChoiceQuestion(int simId,BigDecimal simScore,String simContent,List<String> optionList,List<String> answerList) {
+		String resultMessage = "";
+		// 校验答案集合是否在选项中存在（控制层已经去了前	后空格）
+		for(int i=0; i<answerList.size(); i++) {
+			int sameNum = 0;	// 相当于开关，当答案与选项相等变为1
+			for(int j=0; j<optionList.size(); j++) {
+				boolean same = answerList.get(i).equals(optionList.get(j));
+				if(same) {		// same等于true进入,如果不进入那么答案与选项不一致,sameNum=0
+					sameNum = 1;
+				}
+			}
+			if(sameNum==0) {
+				return "答案----"+answerList.get(i)+"------与选项不一致";
+			}
+		}
+		// 更新步骤： 更新simproblem、删除旧的option、answer、插入新的option、answer
+		simpDao.updateSimContentAndScore(simContent,simScore,simId);
+		optionDao.deleteOptionBySimId(simId);
+		for(int i=0; i<optionList.size(); i++) {
+			Options op = new Options();
+			op.setSimproblemId(simId);
+			op.setPos(i+1);
+			op.setContent(optionList.get(i));
+			optionDao.insertSelective(op);
+		}
+		answerDao.deleteAnswerBySimId(simId);
+		for (int i=0; i<answerList.size(); i++) {
+			Answer an = new Answer();
+			an.setSimproblemId(simId);
+			an.setPos(i);
+			an.setContent(answerList.get(i));
+			answerDao.insertSelective(an);
+		}
+
+		return resultMessage;
+	}
+
+
+	/**
+	 * 更新填空、判断题内容和答案等信息
+	 * @return  ""代表成功， 有内容代表失败
+	 */
+	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
+	public String updateFillBlankAndJudgement(int simId,BigDecimal simScore,String simContent,List<String> answerList) {
+		String resultMessage = "";
+		// 更新步骤： 更新simproblem、删除旧的option、answer、插入新的option、answer
+		simpDao.updateSimContentAndScore(simContent,simScore,simId);
+		answerDao.deleteAnswerBySimId(simId);
+		for (int i=0; i<answerList.size(); i++) {
+			Answer an = new Answer();
+			an.setSimproblemId(simId);
+			an.setPos(i);
+			an.setContent(answerList.get(i));
+			answerDao.insertSelective(an);
+		}
+
+		return resultMessage;
+	}
+
+
+	/**
+	 * 更新简答题内容和答案等信息
+	 * @return  ""代表成功， 有内容代表失败
+	 */
+	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
+	public String updateShortAnswer(int simId,BigDecimal simScore,String simContent) {
+		simpDao.updateSimContentAndScore(simContent,simScore,simId);
+		return "";
+	}
 }
 
 

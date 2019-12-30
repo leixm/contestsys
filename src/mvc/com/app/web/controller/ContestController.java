@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,7 +52,6 @@ public class ContestController {
 	
 	/**
 	 * @author lxm
-	 * @param keyWord:查询关键字 
 	 * @param startTime: 开始时间
 	 * @param endTime: 结束时间 
 	 * @description 查询考试
@@ -59,24 +59,38 @@ public class ContestController {
 	 */
 	@RequestMapping(value = "Contest/GetAllContest", method = { RequestMethod.POST }, produces = "text/html;charset=UTF-8")
 	@ResponseBody
-	public String GetAllContest(HttpServletRequest request, HttpServletResponse response, String Keyword,String startTime,String endTime)
+	public String GetAllContest(HttpServletRequest request, String Keyword,String startTime,String endTime)
 			throws Exception {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+		// 获取session中的课程id
+		int fkCourseId = 0;
+		if(session.getAttribute("course_id")!=null) {
+			fkCourseId = Integer.parseInt(session.getAttribute("course_id").toString());
+		}
+
 		//获取分页所需相关数据
 		String pageSize = request.getParameter("limit"); //一页多少个
 		String pageNumber = request.getParameter("page");	//第几页
-		List resultList = contestService.GetAllContest(Keyword,startTime,endTime,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
+		List resultList = contestService.GetAllContest(Keyword,fkCourseId,startTime,endTime,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
 		//获取分页插件的数据只能通过PageInfo来获取
 		PageInfo pInfo = new PageInfo(resultList);
 		Long total = pInfo.getTotal();
 		
-		JSONObject obj = new JSONObject();
-		JSONArray arr = JSONArray.fromObject(resultList);
-		System.out.println("count---"+arr.size());
-		obj.put("code", 0);
-		obj.put("msg", "返回成功");
-		obj.put("count",total.intValue());
-		obj.put("data", arr);
-		return obj.toString();
+		response.setCode(0);
+		response.setMsg("请求成功");
+		response.setCount(total.intValue());
+		response.setData(resultList);
+
+		return JSONObject.fromObject(response).toString();
 	}
 	
 	/**
@@ -116,12 +130,21 @@ public class ContestController {
 	@RequestMapping(value = "Contest/AddContest", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public String AddContest(HttpServletRequest request, Contest contest) throws ParseException {
-		System.out.println(JSONObject.fromObject(contest).toString());
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+
+		String fkCourse = request.getParameter("selCourse");		// 获取课程id
+
+		if("0".equals(fkCourse)) {
+			response.setMsg("请选择考试所属课程！");
+			return JSONObject.fromObject(response).toString();
+		}
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		contest.setStarttime(sdf.parse(contest.getStartTimeS())); 
 		contest.setEndtime(sdf.parse(contest.getEndTimeS()));
-		LayResponse response = new LayResponse();
-		response.setCode(1);
+		contest.setFkCourseId(Integer.parseInt(fkCourse));
+
 		if (contestService.AddContest(contest) > 0) {
 			response.setCode(0);
 			return JSONObject.fromObject(response).toString();
@@ -143,11 +166,18 @@ public class ContestController {
 		User user = (User)request.getSession().getAttribute("user");
 		int level = user.getLevel(); //学生： 0  老师：1  管理员：2
 		String userId = user.getUserId();
+
+		HttpSession session = request.getSession();
+		// 获取session中的课程id
+		int fkCourseId = 0;
+		if(session.getAttribute("course_id")!=null) {
+			fkCourseId = Integer.parseInt(session.getAttribute("course_id").toString());
+		}
 		if(level == 2) {	//管理员角色
 			ModelAndView mav = new ModelAndView();
 			mav.addObject("paper",JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,null,null)));
 			mav.addObject("teachers", userService.getAllTeacher());
-			JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,null,null,null,null));
+			JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,fkCourseId,null,null,null,null));
 			for(int i=0;i<arr.size();i++){
 				if(arr.getJSONObject(i).getInt("contest_id") == Integer.parseInt(id)){
 						mav.addObject("contest",arr.getJSONObject(i));
@@ -162,7 +192,7 @@ public class ContestController {
 		
 		mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,null,null)));
 		mav.addObject("teachers",userService.getTeacherById(userId));
-		JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,null,null,null,null));
+		JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,0,null,null,null,null));
 		for(int i=0;i<arr.size();i++)
 		{
 		if(arr.getJSONObject(i).getInt("contest_id") == Integer.parseInt(id))

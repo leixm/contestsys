@@ -1,8 +1,3 @@
-/** 
- * @author lxm
- * @create_date 2019.5.3
- * @description 简单题目类
- * */
 package com.code.model;
 
 import java.math.BigDecimal;
@@ -19,6 +14,8 @@ public class Simproblem {
     private Integer pos;
 
     private Integer blanks;
+
+    private Integer fkCourseId;
 
     private String content;
 
@@ -68,6 +65,14 @@ public class Simproblem {
 
     public void setBlanks(Integer blanks) {
         this.blanks = blanks;
+    }
+
+    public Integer getFkCourseId() {
+        return fkCourseId;
+    }
+
+    public void setFkCourseId(Integer fkCourseId) {
+        this.fkCourseId = fkCourseId;
     }
 
     public String getContent() {

@@ -36,9 +36,7 @@
 	<body>
 		<body>
 			<div class="x-nav">
-				<span class="layui-breadcrumb"> <a href="">首页</a> <a href="">演示</a>
-					<a> <cite>导航元素</cite></a>
-				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
+				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
 				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
 				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
 				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
@@ -80,7 +78,7 @@
 				<button class="layui-btn layui-btn-normal" lay-event="addTeach" id="btn-addteach"><i class="layui-icon"></i>添加任课教师</button>
 			</div>		
 			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px; ">
-				<input name="id" class="layui-input" id="keyword" placeholder="输入 班级/教师姓名"> 
+				<input name="id" class="layui-input" id="keyword" placeholder="输入 班级/教师姓名" autocomplete="off">
 			</div>
 			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
 			<button class="layui-btn" id="import"  style="display:none;float:right"; lay-event="importClass" data-type="importClass" id="importClass"><i class="layui-icon layui-icon-download-circle" ></i>批量导入新班级</button>

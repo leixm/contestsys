@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.ParseException;
@@ -32,6 +33,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.code.model.*;
+import com.lowagie.text.Paragraph;
+import com.sun.jna.IntegerType;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,18 +50,6 @@ import com.app.service.TeacherService;
 import com.app.tools.ExportExcelUtil;
 import com.app.tools.PathHelper;
 import com.app.tools.RandomString;
-import com.code.model.Answer;
-import com.code.model.Contest;
-import com.code.model.LayResponse;
-import com.code.model.OnePaper;
-import com.code.model.OneProblem;
-import com.code.model.OneSimproblem;
-import com.code.model.Options;
-import com.code.model.Response;
-import com.code.model.ScoreExcel;
-import com.code.model.ScoreObject;
-import com.code.model.UrlData;
-import com.code.model.User;
 import com.github.pagehelper.PageInfo;
 
 import net.sf.json.JSONArray;
@@ -94,7 +86,7 @@ public class TeacherController {
 		user.setLevel(1);
 		user.setUserId(userId);
 		
-		System.out.println(JSONObject.fromObject(teacherService.selAllpaper(user)).toString());
+		// System.out.println(JSONObject.fromObject(teacherService.selAllpaper(user)).toString());
 		return JSONObject.fromObject(teacherService.selAllpaper(user)).toString();
 	}
 
@@ -131,7 +123,7 @@ public class TeacherController {
 		classMap.put("answer", Answer.class);
 		classMap.put("urls", UrlData.class);
 		OnePaper newpaper=(OnePaper)JSONObject.toBean(jsonObject,OnePaper.class,classMap);
-		System.out.println(resp);
+		//System.out.println(resp);
 		List<OneSimproblem> oneSimps = newpaper.getSimp();
 		return JSONObject.fromObject(teacherService.addNewpaper(newpaper,user,oneSimps,basePath)).toString();
 	}
@@ -173,8 +165,8 @@ public class TeacherController {
 		contest.setPaperId(paperId);
 		contest.setTeacher(userId);
 		contest.setTitle(title);
-		System.out.println(contest.getEndtime());
-		System.out.println(contest.getTitle());
+		//System.out.println(contest.getEndtime());
+		//System.out.println(contest.getTitle());
 		//String className = request.getParameter("classname");
 		String className = "软件一班";
 		return JSONObject.fromObject(teacherService.addContest(contest, className)).toString();
@@ -245,7 +237,7 @@ public class TeacherController {
 		LayResponse resp = new LayResponse();
 		resp.setCode(1); //默认设置失败code
 		User user = (User)request.getSession().getAttribute("user");
-		System.out.println("level------------"+user.getLevel());
+		//System.out.println("level------------"+user.getLevel());
 		if(user.getLevel()==0) {
 			resp.setMsg("该用户没有导出excel表格权限");
 			return JSONObject.fromObject(resp).toString();
@@ -255,8 +247,8 @@ public class TeacherController {
 		String stuId = request.getParameter("stuid");
 		String stuName = request.getParameter("stuname");
 		String contestName = request.getParameter("contestname");
-		System.out.println(stuId);
-		System.out.println(contestName);
+		//System.out.println(stuId);
+		//System.out.println(contestName);
 		//判断是否非空后再来去掉前后空格，防止空指针
 		if(className!=null||"".equals(className)) {
 			className = className.trim();
@@ -315,7 +307,7 @@ public class TeacherController {
 			new ExportExcelUtil().exportExcel(tableTitle,headers, scoreExcelList, out);
 			out.close(); //关闭输出流
 			//JOptionPane.showMessageDialog(null, "导出成功!");
-			System.out.println("excel导出成功！");
+			//System.out.println("excel导出成功！");
 			//路径要对应上面out
 			String filePath = docsPath + FILE_SEPARATOR + fileName;
 			//从服务器下载表格到本地
@@ -595,12 +587,12 @@ public class TeacherController {
 		
 		if(classList.size() > 0) {
 			for (Map<String, Object> classObj : classList) {
-				System.out.println("classObj---"+classObj);
+				//System.out.println("classObj---"+classObj);
 				classNameList.add(classObj.get("name").toString());
 				classIdList.add(classObj.get("class_id").toString());
 			}
 		}
-		System.out.println(classNameList);
+		//System.out.println(classNameList);
 		resultMap.put("classnames", classNameList);
 		resultMap.put("classidlist", classIdList);
 		resultMap.put("msg", "查询成功");
@@ -623,7 +615,7 @@ public class TeacherController {
 				contestNameList.add(contestObj.get("title").toString());
 			}
 		}
-		System.out.println("contest----"+contestList);
+		//System.out.println("contest----"+contestList);
 		resultMap.put("contestname", contestNameList);
 		resultMap.put("msg", "查询成功");
 		return JSONObject.fromObject(resultMap).toString();
@@ -714,7 +706,7 @@ public class TeacherController {
 			for(int i=0;i<size;i++)  {
 				seriesList.add(series);
 			}
-			System.out.println("seriesList----"+seriesList);
+			//System.out.println("seriesList----"+seriesList);
 			Set set2 = new HashSet(); //利用set特性来去重
 			//添加完班级名称和考试名称集合后，遍历查询数据的键值对集合，组装特定格式数据（格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],）
 			allAvgList.add(titleList);//添加每个bar的名称集合在集合第一位置
@@ -734,10 +726,10 @@ public class TeacherController {
 						}
 					}
 					classAvgList.add(average); //格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],
-					System.out.println("classAvgList-----"+classAvgList);
+					//System.out.println("classAvgList-----"+classAvgList);
 				}
 				allAvgList.add(classAvgList);
-				System.out.println("allAvgList-----"+allAvgList);
+				//System.out.println("allAvgList-----"+allAvgList);
 			}
 		}
 		resultMap.put("series", seriesList);
@@ -840,7 +832,7 @@ public class TeacherController {
 					classMaxList.add(maxscore); //格式为： ['软件一班', '43.3', 85.8, 93.7,77.3],
 				}
 				allMaxScoreList.add(classMaxList);
-				System.out.println("allAvgList-----"+allMaxScoreList);
+				//System.out.println("allAvgList-----"+allMaxScoreList);
 			}
 		}
 		resultMap.put("series", seriesList);
@@ -953,16 +945,149 @@ public class TeacherController {
 	    }
 	  
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+	/**
+	 * @author zzs
+	 * @description 检查用户是否有权限对题目进行修改(教师只能给负责的试卷的题目进行修改)
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Teacher/judgePowerToEditSimproblem", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String judgePowerToEditSimproblem(HttpServletRequest request) throws ParseException {
+		//规定返回对象，默认设置Code为1表示失败
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+
+		//获取登录对象，判断其角色
+		User user = (User)request.getSession().getAttribute("user");
+		int level = user.getLevel(); //学生： 0  老师：1  管理员：2
+		String userId = user.getUserId();
+
+		if(level>0) {
+			String simPaperId = request.getParameter("simPaperId");
+			if(simPaperId == null || "undefined".equals(simPaperId)) {
+				response.setCode(0);
+				response.setMsg("操作权限验证通过");
+				return JSONObject.fromObject(response).toString();
+			}
+			//判断操作用户的id是否和contest表中的teacher一样
+			Contestpaper selPaper = teacherService.selOneContestPaperById(simPaperId);
+			String selUserId = selPaper.getTeacher();	//获取某个simPaperId对应下的userId
+			if(selUserId.equals(userId) || level>1) {	//用户的id是否和contest表中的teacher一样  或者  是管理员
+				response.setCode(0);
+				response.setMsg("操作权限验证通过");
+				return JSONObject.fromObject(response).toString();
+			}else {	//无权限编辑题目内容
+				response.setMsg("无法执行操作，请选择自己负责的试卷中的题目进行编辑");
+				return JSONObject.fromObject(response).toString();
+			}
+
+		}else {
+			response.setMsg("无权限，编辑失败");
+			return JSONObject.fromObject(response).toString();
+		}
+	}
+
+
+	/**
+	 * @author zzs
+	 * @param simId: simproblemId
+	 * @description 跳转更新考试页面
+	 * @return 考试视图、试卷信息、教师信息、考试信息
+	 */
+	@RequestMapping(value = "editsimproblem.do", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public ModelAndView editSimproblem(HttpServletRequest request, String simId) {
+		//获取登录对象，判断其角色
+		User user = (User)request.getSession().getAttribute("user");
+		int level = user.getLevel(); //学生： 0  老师：1  管理员：2
+		String userId = user.getUserId();
+
+		String simType = request.getParameter("simType");
+		ModelAndView mav = new ModelAndView();
+
+		if ("单选题".equals(simType) || "多选题".equals(simType) ) {
+			mav = teacherService.getOneChoiceMav(simId);
+		}else if("判断题".equals(simType) || "填空题".equals(simType)) {
+			mav = teacherService.getFillBlankAndJudgementMav(simId);
+		}else if("简答题".equals(simType)) {
+			mav = teacherService.getShortAnswerMav(simId);
+		}
+
+		return mav;
+	}
+
+
+	/**
+	 * 更新通用题库题目的内容等信息
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "Teacher/updateSimpleProblem", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String updateSimpleProblem(HttpServletRequest request) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		int simId = Integer.parseInt(request.getParameter("simId").trim());
+		BigDecimal simScore = new BigDecimal(request.getParameter("simScore").trim());
+		String simType = request.getParameter("simType").trim();
+		String simContent = request.getParameter("simContent").trim();	// 内容去前后空格
+
+		String result = "抱歉，题目未进行修改";		// 返回结果
+		//根据题目类型进行不同方法调用和参数获取
+		if("单选题".equals(simType) || "多选题".equals(simType)){
+			int optionNum = Integer.parseInt(request.getParameter("optionNum"));
+			int answerNum = Integer.parseInt(request.getParameter("answerNum"));
+
+			// 根据答案和选项个数来进行处理
+			List<String> optionList = new ArrayList<>();
+			List<String> answerList = new ArrayList<>();
+			for (int i=1; i<=optionNum; i++) {
+				String opKey = "option" + i;
+				String opContent = request.getParameter(opKey).trim();
+				optionList.add(opContent);
+			}
+
+			for (int i=1; i<=answerNum; i++) {
+				String anKey = "answer" + i;
+				System.out.println("ankey======"+anKey);
+				String anContent = request.getParameter(anKey).trim();
+				answerList.add(anContent);
+			}
+
+			result = teacherService.updateChoiceQuestion(simId,simScore,simContent,optionList,answerList);
+		} else if("判断题".equals(simType) || "填空题".equals(simType)){
+			int answerNum = Integer.parseInt(request.getParameter("answerNum"));
+
+			// 根据答案个数来进行处理
+			List<String> answerList = new ArrayList<>();
+			for (int i=1; i<=answerNum; i++) {
+				String anKey = "answer" + i;
+				String anContent = request.getParameter(anKey).trim();
+				answerList.add(anContent);
+			}
+			result = teacherService.updateFillBlankAndJudgement(simId,simScore,simContent,answerList);
+		} else {	// 简答题
+			result = teacherService.updateShortAnswer(simId,simScore,simContent);
+		}
+
+		if("".equals(result)) {
+			response.setCode(0);
+			response.setMsg("题目修改成功");
+		} else {
+			response.setMsg(result);
+		}
+		return JSONObject.fromObject(response).toString();
+	}
+
 }

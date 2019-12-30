@@ -3,6 +3,8 @@ package com.app.dao;
 import com.code.model.Options;
 import com.code.model.OptionsExample;
 import java.util.List;
+
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 
 public interface OptionsMapper {
@@ -33,4 +35,7 @@ public interface OptionsMapper {
     int updateByPrimaryKeyWithBLOBs(Options record);
 
     int updateByPrimaryKey(Options record);
+
+    @Delete("delete from options t where t.simproblem_id = #{0}")
+    int deleteOptionBySimId(int SimId);
 }
