@@ -468,13 +468,9 @@ if(leftSeconds>0){
  }
 if(maxSurveyTime)hasSurveyTime=true; */
 
-var leftContestTime = ${leftTime}//${leftContestTime};
-var span = document.getElementById('spanMaxTime')
-console.log("span=" + span)
-var timer = setInterval(function(){
-	span.innerHTML = getMaxTimeStr(leftContestTime--)
-},
-1000); 
+
+
+
 
 //其它交互
 var starttime="2019/5/13 20:10:05";
@@ -833,7 +829,7 @@ catch(ex){}
 	function Create_jqRadio(content,num,count)
 	{
 		var id = 'q' + num + '_' + count;
-		var s = '<li style="width: 99%;"><a href="javascript:" class="jqRadio" rel="' + id + '"></a><input style="display:none;" type="radio" id="'+ id +'" value="' + content +'" /><label onmouseover="selected(this)" onmouseout="unselected(this)" onclick="radioClick(this)" id="' + id + '_text" for="' + id + '">' + content + '</label></li>';
+		var s = '<li style="width: 99%;"><a href="javascript:" class="jqRadio" rel="' + id + '"></a><input style="display:none;" type="radio" id="'+ id +'" value=\'' + content +'\' /><label onmouseover="selected(this)" onmouseout="unselected(this)" onclick="radioClick(this)" id="' + id + '_text" for="' + id + '">' + content + '</label></li>';
 		return s;
 	}
 	function Create_clear_div(){
@@ -842,12 +838,12 @@ catch(ex){}
 	function Create_jqCheckbox(content,num,count)
 	{
 		var id = 'q' + num + '_' + count;
-		var s = '<li style="width:99%;"><a href="javascript:" class="jqCheckbox" rel="' + id +'"></a><input style="display:none;" id="' + id + '" type="checkbox"  value="' + content + '" /><label onmouseover="selected(this)" onmouseout="unselected(this)" onclick="checkboxClick(this)" id="' + id + '_text">' + content + '</label></li>';
+		var s = '<li style="width:99%;"><a href="javascript:" class="jqCheckbox" rel="' + id +'"></a><input style="display:none;" id="' + id + '" type="checkbox"  value=\'' + content + '\' /><label onmouseover="selected(this)" onmouseout="unselected(this)" onclick="checkboxClick(this)" id="' + id + '_text">' + content + '</label></li>';
 	    return s;
 	}
 	function CreateProblemContent(obj) 
 	{
-		var s = '题目标题：' + obj.title +'<br>题目描述：'+ obj.description +'<br>时间限制:' + obj.timeLimit +' sec<br>内存限制:' + obj.memoryLimit + ' MB<br>数据输入:<br>' + obj.sampleInput + '<br>数据输出<br>' + obj.sampleOutput +'<br>提示:<br>' + obj.hint;
+		var s = '题目标题：' + obj.title.replace("\\n","&#10") +'<br>题目描述：'+ obj.description.replace("\\n","&#10") +'<br>时间限制:' + obj.timeLimit +' sec<br>内存限制:' + obj.memoryLimit + ' MB<br>数据输入:<br>' + obj.sampleInput.replace("\\n","&#10") + '<br>数据输出<br>' + obj.sampleOutput.replace("\\n","&#10") +'<br>提示:<br>' + obj.hint.replace("\\n","&#10");
 		return s;
 	}
 	function Create_underline(content,num,count)
@@ -1038,142 +1034,166 @@ function SaveSource(){
 	
 } 
 
+function generate_submit_paper()
+{
+    var solution = [];
+
+    console.log("pro:\n" + JSON.stringify(pro))
+    console.log("len=" + pro.simp.length)
+    for(var i=0;i<pro.simp.length;i++)
+    {
+        console.log("i=" + i)
+        var obj = pro.simp[i].simproblem;
+        var type = obj.type;
+        var index = obj.pos;
+        if(type==1)  //单选
+        {
+            for(var j=1;j<=pro.simp[i].option.length;j++)
+            {
+                var id = 'q' + index + '_' +j;
+                if($('#' + id).prop("checked"))
+                {
+                    solution[index] = $('#' + id + '_text').html()
+                    break;
+                }
+            }
+        }
+        else if(type==2)  //多选
+        {
+            var json = [];
+            var cur = 0;
+            for(var j=1;j<=pro.simp[i].option.length;j++)
+            {
+                var id = 'q' + index + '_' +j;
+                if($('#' + id).prop("checked"))
+                {
+                    json[cur++] = $('#' + id + '_text').html()
+                }
+            }
+            solution[index] = json.join("§§§")
+        }
+        else if(type==3)  //判断
+        {
+            if($('#q' + index + '_1').prop("checked"))
+                solution[index] = "正确";
+            else solution[index] = "错误";
+        }
+        else if(type==4)  //填空
+        {
+            var json = [];
+            for(var j=1;j<=obj.blanks;j++)
+            {
+                var id = 'q' + index + '_' +j;
+                json[j-1] = $('#' + id).val()
+            }
+            solution[index] = json.join("§§§")
+        }
+        else{ //简答
+            solution[index] = $('#q' + index).val()
+        }
+    }
+
+    for(var i=0;i<pro.prob.length;i++)
+    {
+        console.log("!!i=" + i)
+        var index = pro.prob[i].problem.pos;
+        if(problemCache[index] != null)
+            solution[index] = problemCache[index];
+    }
+
+    console.log("solution:\n" + JSON.stringify(solution))
+
+    /*  $.ajax({
+         type: "POST",
+         url: "User/SubmitPaper?conteststatus_id=" + pro.contestStatus.contestStatusId,
+         dataType : 'json',
+         data: solution,
+         success: function(){
+         alert("提交成功")
+         }
+     }) */
+
+    for(var i=0;i<pro.simp.length;i++){
+        var solu = new Object();
+        solu.answer = solution[pro.simp[i].simproblem.pos]
+        solu.contestStatusId = contestStatusId;
+        solu.simproblemId = pro.simp[i].simproblem.simproblemId;
+        pro.simp[i].simsolution = solu;
+    }
+
+    for(var i=0;i<pro.prob.length;i++){
+        var solu = new Object();
+        solu.source = solution[pro.prob[i].problem.pos]
+        solu.contestStatusId = contestStatusId;
+        solu.problemId = pro.prob[i].problem.problemId;
+        solu.language = languageCache[pro.prob[i].problem.pos]
+        pro.prob[i].solution = solu;
+    }
+    console.log(pro)
+}
+
+        function submit_post(){
+            var layerIndex = layer.load(1, { shade: [0.5, '#393D49'] });	//加载动画
+            $.ajax({
+                type: "POST",
+                url: "submit.do?contestStatusId=" + contestStatusId,
+                dataType : 'text',
+                contentType:"application/json;charset=UTF-8",
+                data: JSON.stringify(pro),
+                success: function(data){
+                    layer.close(layerIndex);	//关闭加载动画
+                    //配置一个透明的询问框
+                    layer.msg('提交成功', {
+                        time: 4000, //4s后自动关闭
+                    });
+                    setTimeout(
+                        function(){
+                            javascript:top.location.reload();  //回退主页
+                        },
+                        3000)
+                },
+                error: function(data){
+                    layer.close(layerIndex);	//关闭加载动画
+                    layer.close(layerIndex);
+                    layui.use(['layer', 'form'], function(){
+                        //配置一个透明的询问框
+                        layer.msg('提交失败', {
+                            time: 3000, //4s后自动关闭
+                        });
+                    });
+                }
+            })
+        }
+
 function submitpaper()
 {
-	 var solution = [];
-	 
-	 console.log("pro:\n" + JSON.stringify(pro)) 
-	 console.log("len=" + pro.simp.length) 
-	 for(var i=0;i<pro.simp.length;i++)
-	 {
-	 console.log("i=" + i) 
-		 var obj = pro.simp[i].simproblem; 
-		 var type = obj.type;
-		 var index = obj.pos;  
-		 if(type==1)  //单选
-		 {
-			 for(var j=1;j<=pro.simp[i].option.length;j++)
-			 {
-				 var id = 'q' + index + '_' +j;
-				 if($('#' + id).prop("checked"))
-				 {
-					 solution[index] = $('#' + id + '_text').html()
-					 break;
-				 }
-			 } 
-		 } 
-		 else if(type==2)  //多选
-		  {
-			 var json = [];
-			 var cur = 0;
-			 for(var j=1;j<=pro.simp[i].option.length;j++)
-			 {
-			 	var id = 'q' + index + '_' +j;
-			    if($('#' + id).prop("checked"))
-			 	{
-			 		 json[cur++] = $('#' + id + '_text').html()
-			 	} 
-			 }
-			 solution[index] = json.join("§§§")
-		 }
-		 else if(type==3)  //判断
-		 {
-			 if($('#q' + index + '_1').prop("checked")) 
-			 solution[index] = "正确";
-			 else solution[index] = "错误";
-		 }
-		 else if(type==4)  //填空
-		 {
-			 var json = [];
-			 for(var j=1;j<=obj.blanks;j++) 
-			 {
-				 var id = 'q' + index + '_' +j;
-				 json[j-1] = $('#' + id).val()
-			 } 
-			 solution[index] = json.join("§§§")  
-		 }
-		 else{ //简答 
-			 solution[index] = $('#q' + index).val()
-		 }
-	 }
-	 
-	 for(var i=0;i<pro.prob.length;i++) 
-	 {    
-	     console.log("!!i=" + i)  
-		 var index = pro.prob[i].problem.pos;
-		 if(problemCache[index] != null)
-		 solution[index] = problemCache[index];
-	 }
-	  
-	 console.log("solution:\n" + JSON.stringify(solution))
-	  
-	/*  $.ajax({
-		 type: "POST",
-		 url: "User/SubmitPaper?conteststatus_id=" + pro.contestStatus.contestStatusId,
-		 dataType : 'json',
-		 data: solution,
-		 success: function(){
-		 alert("提交成功")
-		 }
-	 }) */ 
-	 
-	 for(var i=0;i<pro.simp.length;i++){
-		 var solu = new Object();
-		 solu.answer = solution[pro.simp[i].simproblem.pos]
-		 solu.contestStatusId = contestStatusId;
-		 solu.simproblemId = pro.simp[i].simproblem.simproblemId;
-		 pro.simp[i].simsolution = solu;
-	 } 
-	 
-	 for(var i=0;i<pro.prob.length;i++){
-		 var solu = new Object();
-		 solu.source = solution[pro.prob[i].problem.pos]
-		 solu.contestStatusId = contestStatusId; 
-		 solu.problemId = pro.prob[i].problem.problemId;
-		 solu.language = languageCache[pro.prob[i].problem.pos]   
-		 pro.prob[i].solution = solu;
-	 }
-	 console.log(pro) 
-		
-	
-	
-  	layui.use(['layer', 'form'], function(){
-  		var layerIndex = layer.load(1, { shade: [0.5, '#393D49'] });	//加载动画 
+    generate_submit_paper()
+
+    layui.use(['layer', 'form'], function(){
+
       	layer.confirm('确定提交答卷？', function(index) {
-	      		$.ajax({ 
-					 type: "POST", 
-					 url: "submit.do?contestStatusId=" + contestStatusId,
-					 dataType : 'text',
-					 contentType:"application/json;charset=UTF-8", 
-					 data: JSON.stringify(pro), 
-					 success: function(data){  
-					 	layer.close(layerIndex);	//关闭加载动画
-						//配置一个透明的询问框
-					      layer.msg('提交成功', {
-					        time: 3000, //4s后自动关闭
-					      });
-					      setTimeout(
-							function(){
-                                javascript:top.location.reload();  //回退主页
-							},
-							3000)
-					 }, 
-					 error: function(data){
-					     layer.close(layerIndex);	//关闭加载动画
-					 	 layer.close(layerIndex);
-						 layui.use(['layer', 'form'], function(){
-							 //配置一个透明的询问框
-							layer.msg('提交失败, 请将试题填写完整', {
-					        	time: 3000, //4s后自动关闭
-					      	});
-						 });
-					 }
-				 })
+            submit_post()
 				layer.close(index);
 		})
 	      
  	});
 }
+
+        var leftContestTime = ${leftTime}//${leftContestTime};
+        var span = document.getElementById('spanMaxTime')
+        var timer = setInterval(function(){
+                span.innerHTML = getMaxTimeStr(leftContestTime--)
+                console.log(span.innerHTML)
+                if(span.innerHTML<="00:00:00"){
+                    generate_submit_paper()
+                    layui.use(['layer', 'form'], function(){
+                            submit_post()
+                            layer.close(index);
+                    });
+                    clearInterval(timer);
+                }
+            },
+            1000);
 
 /* 
 	
