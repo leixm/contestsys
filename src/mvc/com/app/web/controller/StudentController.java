@@ -160,7 +160,7 @@ public class StudentController {
 	        model.addObject("student", user);
 	        model.addObject("contestStatusId", id);
 	        model.addObject("contest", contest);
-	        model.addObject("leftTime", 86400);
+	        model.addObject("leftTime", 10);
 	        
 	        model.setViewName("contestpage.jsp");
         }
@@ -262,7 +262,7 @@ public class StudentController {
   		if(oneSimproblems.size()>0){
    			for(OneSimproblem oneSimproblem : oneSimproblems){
 	   			Simsolution simsolution = oneSimproblem.getSimsolution();
-	   			simsolution.setStatus(new Integer(0)); 
+	   			simsolution.setStatus(new Integer(0));
 	   			studentService.insert(simsolution); 
    			} 
    		}
@@ -388,8 +388,7 @@ public class StudentController {
 			HttpSession session = request.getSession(); 
 			User user = (User)session.getAttribute("user");		
 			String stuId = user.getUserId();
-			System.out.println("userId:----"+user.getUserId());
-			
+
 			LayResponse layResp = new LayResponse();//layui参数返回格式
 			layResp.setCode(1); //默认设置为1
 			

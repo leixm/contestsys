@@ -661,8 +661,12 @@ public class UserController {
 	    User user = (User)session.getAttribute("user");
 	    int level = user.getLevel();
 	    String userId = user.getUserId().toString();
-	    String keyword = request.getParameter("keyword");
+	    String type = request.getParameter("type"); // 当type为list时，为查询列表，需要所有的包括老师的课程信息
+		if("list".equals(type)&&"root".equals(userId)) {
+			userId = "";
+		}
 
+	    String keyword = request.getParameter("keyword");
 		//获取分页所需相关数据
 		String pageSize = request.getParameter("limit"); //一页多少个
 		String pageNumber = request.getParameter("page");	//第几页
@@ -734,7 +738,7 @@ public class UserController {
 		}else {
 			 mav.addObject("teachers",userService.getTeacherById(userId));
 		}
-		mav.addObject("courses", userService.selCourseNameByTeacherId(userId, null, null, null));
+		mav.addObject("courses", userService.selCourseNameByTeacherId("root", null, null, null));
 		mav.setViewName("course-addTeach.jsp");
 		return mav;
 	}

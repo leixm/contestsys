@@ -102,20 +102,26 @@ public class ContestController {
 			RequestMethod.GET }, produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public ModelAndView PrepareAddContest(HttpServletRequest request) {
+		// 获取所属课程id
+		int simCourseId = 0;
+		if(request.getSession().getAttribute("course_id")!=null) {
+			simCourseId = Integer.parseInt(request.getSession().getAttribute("course_id").toString());
+		}
+
 		//获取登录对象，判断其角色
 		User user = (User)request.getSession().getAttribute("user");
 		int level = user.getLevel(); //学生： 0  老师：1  管理员：2
 		String userId = user.getUserId();
 		if(level == 2) {	//管理员角色
 			ModelAndView mav = new ModelAndView();
-	        mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,null,null)));
+	        mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,simCourseId,null,null)));
 	        mav.addObject("teachers",userService.getAllTeacher());
 			mav.setViewName("contest-add.jsp");
 			return mav;
 		}
 		//	教师角色
 		ModelAndView mav = new ModelAndView();
-        mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,null,null)));
+        mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,simCourseId,null,null)));
         mav.addObject("teachers",userService.getTeacherById(userId));
 		mav.setViewName("contest-add.jsp");
 		return mav;
@@ -175,7 +181,7 @@ public class ContestController {
 		}
 		if(level == 2) {	//管理员角色
 			ModelAndView mav = new ModelAndView();
-			mav.addObject("paper",JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,null,null)));
+			mav.addObject("paper",JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,fkCourseId,null,null)));
 			mav.addObject("teachers", userService.getAllTeacher());
 			JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,fkCourseId,null,null,null,null));
 			for(int i=0;i<arr.size();i++){
@@ -190,7 +196,7 @@ public class ContestController {
 		}
 		ModelAndView mav = new ModelAndView();			//教师角色
 		
-		mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,null,null)));
+		mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,fkCourseId,null,null)));
 		mav.addObject("teachers",userService.getTeacherById(userId));
 		JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,0,null,null,null,null));
 		for(int i=0;i<arr.size();i++)

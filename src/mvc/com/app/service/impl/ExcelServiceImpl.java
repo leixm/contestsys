@@ -64,10 +64,11 @@ public class ExcelServiceImpl implements ExcelService{
 	 * @param 4、考试名称
 	 * @return 成绩实体Map对象集合
 	 */
-	public List<Map<String,Object>> selStuScoreByKeyword(String className,String stuId,String stuName,String contestName) {
+	public List<Map<String,Object>> selStuScoreByKeyword(String className,String stuId,String stuName,String contestName,int simCourseId) {
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
-		
-		resultList = contestStatusMapper.selStuScoreBykeyword(className, stuId, stuName, contestName); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		List statusList = new ArrayList();
+		statusList.add(2);
+		resultList = contestStatusMapper.selStuScoreBykeyword(className, stuId, stuName, contestName, simCourseId,statusList); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
 		return resultList;
 	}
 	
@@ -1097,6 +1098,7 @@ public class ExcelServiceImpl implements ExcelService{
 	 * @param paperId
 	 * @return
 	 */
+	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
 	public int updateSimPosByPaperId(int paperId) {
 		// 根据paperId查所有的simId，simId按照Type来排列
 		List<Map<String,Object>> simIdList = simproblemMapper.selSimIdByPaperId(paperId);

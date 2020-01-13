@@ -267,4 +267,32 @@
       status = #{status,jdbcType=INTEGER}
     where simsolution_id = #{simsolutionId,jdbcType=INTEGER}
   </update>
+
+  <select id="selSolutionSimproblemByTypeAndcStatusId" resultType="map" >
+    select  t.simsolution_id solutionId,
+    t.simproblem_id simId,
+    t.contest_status_id cStatusId,
+    t.answer stuAnswer,
+    t.score realScore,
+    t.`status` ,
+    s.type,
+    s.content simContent,
+    s.score fullScore,
+    s.fk_course_id fkCourseId,
+    v.course_name courseName
+    from simsolution t
+    left join simproblem s on t.simproblem_id = s.simproblem_id
+    left join course v on s.fk_course_id = v.course_id
+
+    <where>
+      <if test="type!=null and type!=0">
+        and s.type = #{type}
+      </if>
+
+      <if test="cStatusId!=null and cStatusId!=0 ">
+        and t.contest_status_id = #{cStatusId}
+      </if>
+    </where>
+  </select>
+
 </mapper>

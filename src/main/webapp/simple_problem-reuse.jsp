@@ -5,7 +5,7 @@
 		<%@ page contentType="text/html;charset=UTF-8" language="java"%>
 		<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 		<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-		<title>添加考试班级</title>
+		<title>题目复用</title>
 		<link rel="stylesheet" href="css/font.css">
 		<link rel="stylesheet" href="css/xadmin.css">
 		<link rel="stylesheet" href="lib/layui/css/layui.css">
@@ -43,11 +43,9 @@
 	               	<div style="height: 30px">
 	               	</div>
 					<div>
-			            <select id="classId" name="classId" class="valid" lay-filter="classId" xm-select="select1" xm-select-search="" xm-select-search-type="dl">
-							<c:forEach var="obj" items="${classes}" varStatus="s">
-			
-								<option value="${obj.classId}">${obj.className}</option>
-			
+			            <select id="paperId" name="paperId"  class="valid" lay-filter="classId" xm-select="select1" xm-select-search="" xm-select-search-type="dl" xm-select-max="1">
+							<c:forEach var="obj" items="${paper}" varStatus="s">
+								<option value="${obj.paper_id}">${obj.title}</option>
 							</c:forEach>
 			            </select>
 			        </div>	
@@ -60,7 +58,7 @@
 						<label  class="layui-form-label">
 						</label>
 						<button class="layui-btn" lay-filter="add" lay-submit="">
-							增加
+							添加
 						</button>
 					</div>
 					
@@ -85,35 +83,39 @@
 					//监听提交
 					form.on('submit(add)',
 						function(data) { 
-							console.log(data)
-							$.ajax({  
+							$.ajax({
 								type: "POST",
-								url: "Contest/AddContestClass?contestId=" + '${contest_id}' + "&classId=" + data.field.classId,
+								url: "Teacher/reuseSimproblem?simId=" + '${simId}' + "&paperId=" + data.field.paperId,
 								dataType: 'json',
 								async: false,
-								success: function(da) {
-									if (da.code == 0) {
-										layer.alert('添加成功', {
-												icon: 6 
-											},
-											function() {
-												//关闭当前frame
-												xadmin.close();
+								success: function(data) {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "Excel/updateSimPos",
+                                        dataType: 'json',
+                                        data: data.data,
+                                        async: false,
+                                        success: function(da) {
+                                            if (da.code == 0) {
+													layer.alert(data.msg, {
+                                                        icon: 6
+                                                    },
+                                                    function() {
+                                                        //关闭当前frame
+                                                        xadmin.close();
 
-												// 可以对父窗口进行刷新 
-												xadmin.father_reload();
-											});
-
-
-									} else {
-										layer.alert(da.msg, {
-											icon: 5
-										});
-
-									}
+                                                        // 可以对父窗口进行刷新
+                                                        xadmin.father_reload();
+                                                    });
+                                            } else {
+                                                layer.alert(data.msg, {
+                                                    icon: 5
+                                                });
+                                            }
+                                        }
+                                    })
 								}
 							})
-
 							return false;
 						});
 				});

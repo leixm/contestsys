@@ -75,7 +75,7 @@
 	               	</div>
 			        
 			        <div class="layui-form-item" style="margin-left: 400px;">
-						<label for="L_repass" class="layui-form-label">
+						<label  class="layui-form-label">
 						</label>
 						<button class="layui-btn" lay-filter="add" lay-submit="">
 							增加

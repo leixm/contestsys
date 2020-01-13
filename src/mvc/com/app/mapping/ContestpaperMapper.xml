@@ -245,8 +245,22 @@
   </select>
 
   <select id="listAllByKeywordAndDate" resultType="map" parameterType="java.lang.String">
-   select paper_id,realName,title,date from contestpaper,user where contestpaper.teacher = user.user_id and
-   (paper_id=#{0} or realName=#{0} or title=#{0}) and (date between #{1} and #{2})
+   select paper_id,realName,title,date from contestpaper,user
+   <where>
+     and contestpaper.teacher = user.user_id
+     <if test="simCourseId!=null and simCourseId!=0">
+       and contestpaper.fk_course_id = #{simCourseId}
+     </if>
+
+     <if test="keyword!=null and keyword!=''">
+       and paper_id=#{keyword} or realName=#{keyword} or title=#{keyword}
+     </if>
+
+     <if test="startTime!=null and startTime!='' and endTime!=null and endTime!='' ">
+       and date between #{startTime} and #{endTime}
+     </if>
+
+   </where>
    order by date desc
   </select>
 </mapper>

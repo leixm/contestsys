@@ -33,9 +33,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.app.service.impl.ContestPaperService;
 import com.code.model.*;
 import com.lowagie.text.Paragraph;
 import com.sun.jna.IntegerType;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,6 +62,9 @@ import net.sf.json.JSONObject;
 public class TeacherController {
 	@Resource
 	private TeacherService teacherService;
+
+	@Resource
+	private ContestPaperService contestpaperService;
 	//导出excel用  文件分隔符
 	public static final String FILE_SEPARATOR = System.getProperties()
 			.getProperty("file.separator");
@@ -242,6 +247,12 @@ public class TeacherController {
 			resp.setMsg("该用户没有导出excel表格权限");
 			return JSONObject.fromObject(resp).toString();
 		}
+
+		int simCourseId = 0;
+		if(request.getSession().getAttribute("course_id")!=null) {
+			simCourseId = Integer.parseInt(request.getSession().getAttribute("course_id").toString());
+		}
+
 		/*----获取导出的数据集开始----*/
 		String className = request.getParameter("classname"); 
 		String stuId = request.getParameter("stuid");
@@ -265,8 +276,11 @@ public class TeacherController {
 		//设置空字段，防止进行分页查询，方便重用查询成绩方法
 		String pageSize = null;
 		String pageNumber = null;
+
+		List statusList = new ArrayList();
+		statusList.add(2);
 		//数据库查询返回的学生成绩结果集
-		List<Map<String,Object>> resultList = teacherService.selStuScore(className, stuId, stuName, contestName,pageSize,pageNumber); 
+		List<Map<String,Object>> resultList = teacherService.selStuScore(className, stuId, stuName, contestName,simCourseId,statusList,pageSize,pageNumber);
 		/*----获取导出的数据集结束----*/
 		
 		//自动创建文件夹docs
@@ -415,59 +429,7 @@ public class TeacherController {
 		}
 	}
 	
-	/* 测试代码
-	@RequestMapping(value="Teacher/selAllContest",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
-	@ResponseBody
-	public String selAllContest(HttpServletRequest request,HttpServletResponse response) {
-		//User user = (User)request.getSession().getAttribute("user");
-				User user = new User();
-				user.setUserId("123");
-		
-		return JSONObject.fromObject(teacherService.selAllContest(user)).toString();
-	}
-	
-	@RequestMapping(value="Teacher/ajax",produces="text/html;charset=UTF-8")
-	@ResponseBody
-	public String ajax(HttpServletRequest request,HttpServletResponse response) {
-			
-		//设置字符编码格式
-		//req.setCharacterEncoding("utf-8");
-		response.setCharacterEncoding("utf-8");
-		//首先获得客户端发送来的数据(keyword)
-		String keyword = request.getParameter("keyword");
-		//获得关键字之后进行处理，得到关联数据
-		List<String> listData = getData(keyword);
-		
-		//System.out.println(JSONArray.fromObject(listData));
-		//JSONArray.fromObject(listData);
-		//返回json格式
-		//resp.getWriter().write(JSONArray.fromObject(listData).toString());	
-		
-		JSONObject a = new JSONObject();
-		a.put("name", "你好");
-		JSONObject b = new JSONObject();
-		b.put("data", a);
-		
-		return JSONArray.fromObject(listData).toString();
-	}
-	
-	public List<String> getData(String keyword){
-		//定义一个容器,存放模拟数据
-		List<String> datas = new ArrayList<String>();
-			datas.add("ajax");
-			datas.add("ajax提交form表单");
-			datas.add("ajax教程");
-			datas.add("baidu");
-			datas.add("bt");
-			datas.add("byte");
-		List<String> list = new ArrayList<String>();
-		for (String data : datas) {
-			if(data.contains(keyword)){
-				list.add(data);
-			}
-		}
-		return list;
-	}*/
+
 	
 	/**
 	 * 根据搜索条件模糊查询出学生成绩表
@@ -478,14 +440,22 @@ public class TeacherController {
 	@RequestMapping(value="Teacher/selStuScore",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
 	@ResponseBody
 	public String selStuScore(HttpServletRequest request,HttpServletResponse response) {
-		//获取user对象
-	/*	HttpSession session = request.getSession(); 
-		User user = (User)session.getAttribute("user");		
-		System.out.println("userName:----"+user.getUserId());*/
-		
 		LayResponse layResp = new LayResponse();//layui参数返回格式
 		layResp.setCode(1); //默认设置为1
-		
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			layResp.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		int simCourseId = 0;
+		if(session.getAttribute("course_id")!=null) {
+			simCourseId = Integer.parseInt(session.getAttribute("course_id").toString());
+		}
+
 		String className = request.getParameter("classname"); 
 		String stuId = request.getParameter("stuid");
 		String stuName = request.getParameter("stuname");
@@ -506,7 +476,14 @@ public class TeacherController {
 		//获取分页所需相关数据
 		String pageSize = request.getParameter("limit"); //一页多少个
 		String pageNumber = request.getParameter("page");	//第几页
-		List<Map<String,Object>> resultList = teacherService.selStuScore(className, stuId, stuName, contestName,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
+
+		List statusList = new ArrayList();
+		statusList.add(2); // 2表示只查询判题好了的cstatus
+		if(request.getParameter("shortAnswer")!=null) {	// 表示当主观题批改页面调用此接口，查询正在批改的题
+			statusList.add(1);
+		}
+
+		List<Map<String,Object>> resultList = teacherService.selStuScore(className, stuId, stuName, contestName,simCourseId,statusList,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
 		//获取分页插件的数据只能通过PageInfo来获取
 		PageInfo pInfo = new PageInfo(resultList);
 		Long total = pInfo.getTotal();
@@ -554,7 +531,16 @@ public class TeacherController {
 	@ResponseBody
 	public String updateScore(HttpServletRequest request,String score,String cstatusid) {
 		LayResponse response = new LayResponse();
-		response.setCode(1);  
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+
 		if(!score.trim().isEmpty()&&!cstatusid.trim().isEmpty()){
 			//将新修改的成绩根据cstatusid存进对应的表
 			int result = teacherService.updateScore(cstatusid, score);
@@ -581,7 +567,13 @@ public class TeacherController {
 	@ResponseBody
 	public String selAllClassObj(HttpServletRequest request) {
 		Map<String,Object> resultMap = new HashMap<String, Object>();
-		List<Map<String,Object>> classList = teacherService.selAllClassObj();
+
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		String userId = user.getUserId();
+
+		List<Map<String,Object>> classList = teacherService.selAllClassObj(userId);
 		List<String> classNameList = new ArrayList<String>();
 		List<String> classIdList = new ArrayList<String>();
 		
@@ -615,23 +607,12 @@ public class TeacherController {
 				contestNameList.add(contestObj.get("title").toString());
 			}
 		}
-		//System.out.println("contest----"+contestList);
 		resultMap.put("contestname", contestNameList);
 		resultMap.put("msg", "查询成功");
 		return JSONObject.fromObject(resultMap).toString();
 	}
 	
-	/**
-	 * 测试
-	 */
-	@RequestMapping(value = "Teacher/selAjaxData", produces = "text/html;charset=UTF-8")
-	@ResponseBody
-	public String selAjaxData(HttpServletRequest request) {
-		String keyword = request.getParameter("name");
-		String result = keyword + ",你好ajax,前端后端,大数据,数据分析";
-		return result;  
-	}
-	
+
 	/**
 	 * 查询所有的班级的所有考试的平均分
 	 * @return 按照Echars所需要的格式返回JSON格式的参数 
@@ -639,6 +620,11 @@ public class TeacherController {
 	@RequestMapping(value = "Teacher/selClassContestAVG", produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public String selClassContestAVG(HttpServletRequest request) {
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		String userId = user.getUserId();
+
 		Map<String,Object> resultMap = new HashMap<String, Object>();
 		List<String> seriesList = new ArrayList<String>(); //存series供图表用
 		Set set = new HashSet(); //利用set特性来去重
@@ -652,7 +638,7 @@ public class TeacherController {
 		List claList = new ArrayList();
 		List conList = new ArrayList();
 		//默认定义班级名称为查询到的前四个班级
-		List<Map<String,Object>> tempList = teacherService.selAllClassObj();
+		List<Map<String,Object>> tempList = teacherService.selAllClassObj(userId);
 		if(tempList.size()>4) {	//只有大于4个班级才需要进行循环赋值，否则只需要显示全部即可
 			for (int i=0; i<4; i++) {
 				claList.add(tempList.get(i).get("name").toString());
@@ -746,6 +732,11 @@ public class TeacherController {
 	@RequestMapping(value = "Teacher/selClassContestMAX", produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public String selClassContestMAX(HttpServletRequest request) {
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		String userId = user.getUserId();
+
 		Map<String,Object> resultMap = new HashMap<String, Object>();
 		List<String> seriesList = new ArrayList<String>(); //存series供图表用
 		Set set = new HashSet(); //利用set特性来去重
@@ -760,7 +751,7 @@ public class TeacherController {
 		List conList = new ArrayList();
 		
 		//默认定义班级名称为查询到的前四个班级
-		List<Map<String,Object>> tempList = teacherService.selAllClassObj();
+		List<Map<String,Object>> tempList = teacherService.selAllClassObj(userId);
 		if(tempList.size()>4) {	//只有大于4个班级才需要进行循环赋值，否则只需要显示全部即可
 			for (int i=0; i<4; i++) {
 				claList.add(tempList.get(i).get("name").toString());
@@ -1060,7 +1051,6 @@ public class TeacherController {
 
 			for (int i=1; i<=answerNum; i++) {
 				String anKey = "answer" + i;
-				System.out.println("ankey======"+anKey);
 				String anContent = request.getParameter(anKey).trim();
 				answerList.add(anContent);
 			}
@@ -1090,4 +1080,163 @@ public class TeacherController {
 		return JSONObject.fromObject(response).toString();
 	}
 
+
+	/**
+	 * @author zzs
+	 * @description 跳转题目复用页面
+	 * @return 视图、考试信息、教师信息
+	 */
+	@RequestMapping(value = "reuseSimproblem.do", method = { RequestMethod.POST,
+			RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public ModelAndView prepareReuseSimproblem(HttpServletRequest request) {
+		// 获取所属课程id
+		int simCourseId = 0;
+		if(request.getSession().getAttribute("course_id")!=null) {
+			simCourseId = Integer.parseInt(request.getSession().getAttribute("course_id").toString());
+		}
+
+		//获取登录对象，判断其角色
+		User user = (User)request.getSession().getAttribute("user");
+		int level = user.getLevel(); //学生： 0  老师：1  管理员：2
+		String userId = user.getUserId();
+		String simId = request.getParameter("simId");
+		if(level == 2) {	//管理员角色
+			ModelAndView mav = new ModelAndView();
+			mav.addObject("simId", simId);
+			mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null, simCourseId,null,null)));
+			mav.setViewName("simple_problem-reuse.jsp");
+			return mav;
+		}
+		//	教师角色
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("simId", simId);
+		mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null, simCourseId, null,null)));
+		mav.setViewName("simple_problem-reuse.jsp");
+		return mav;
+	}
+
+
+	/**
+	 * 复用通用题库题目等信息
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "Teacher/reuseSimproblem", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String reuseSimproblem(HttpServletRequest request) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		String simIdStr = request.getParameter("simId");		// 逗号分隔的字符串
+		String paperIdStr = request.getParameter("paperId");
+
+		int result = teacherService.reuseSimproblem(simIdStr,paperIdStr);
+
+		if(result > 0) {
+			response.setCode(0);
+			response.setMsg("请求成功");
+			HashMap paperMap = new HashMap();
+			paperMap.put("paperId",paperIdStr);
+			response.setData(paperMap);	// 	paperIdStr 用来重新搞试卷里的题目pos
+			return JSONObject.fromObject(response).toString();
+		}
+
+		response.setMsg("复用题目失败");
+		return JSONObject.fromObject(response).toString();
+	}
+
+
+	/**
+	 * @author zzs
+	 * @description 跳转批改题目页面
+	 * @return 批改题目视图
+	 */
+	@RequestMapping(value = "correct.do", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public ModelAndView prePareCorrect(HttpServletRequest request) {
+		int cStatusId = Integer.parseInt(request.getParameter("cStatusId"));
+		int cStatus = Integer.parseInt(request.getParameter("cStatus"));		// 考试状态是否已经批改
+
+		int type = 4; //简答题
+		List<Map<String,Object>> correctList = teacherService.selSolutionSimproblemByTypeAndcStatusId(type,cStatusId);
+
+		ModelAndView mav = new ModelAndView();
+
+		mav.addObject("correctObjects", correctList);
+		mav.addObject("cStatusId",cStatusId);
+		mav.addObject("cStatus",cStatus);
+		if(correctList.isEmpty()) {
+			mav.setViewName("error.html");		// 表示没有需要手动批改的题目
+			return mav;
+		}
+		mav.setViewName("simple_problem-correct.jsp");
+		return mav;
+
+	}
+
+
+	/**
+	 * 复用通用题库题目等信息
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "Teacher/correctSimpleProblem", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String correctSimpleProblem(HttpServletRequest request) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		String simCountStr = request.getParameter("simCount");		// 题目数量
+		int cStatusId = Integer.parseInt(request.getParameter("cStatusId"));
+		int cStatus= Integer.parseInt(request.getParameter("cStatus"));
+		System.out.println("cStatus---------"+cStatus);
+
+		if(simCountStr == null || "".equals(simCountStr)) {
+			response.setMsg("此试卷无需手动批改");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		int simCount = Integer.parseInt(simCountStr);
+
+		Map<String,Object> realScoreMap = new HashedMap();
+		double oldScoreSum = 0.0;
+		double realScoreSum = 0.0;
+
+		// 获取教师评分分数 和 作答Id
+		for(int i=1; i<=simCount; i++) {
+			String soluId = request.getParameter("solutionId"+i);
+			String oldSocre = request.getParameter("oldScore"+i);
+			String realScore = request.getParameter("realScore"+i);
+			realScoreMap.put(soluId,realScore);
+			oldScoreSum += Double.parseDouble(oldSocre);
+			realScoreSum += Double.parseDouble(realScore);
+		}
+
+		int result = teacherService.correctSimpleProblem(cStatusId,cStatus,realScoreMap,oldScoreSum,realScoreSum);
+		if(result > 0) {
+			response.setCode(0);
+			response.setMsg("请求成功");
+		}else {
+			response.setMsg("分数更新失败，请重新操作");
+		}
+
+		return JSONObject.fromObject(response).toString();
+	}
 }

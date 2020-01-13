@@ -98,8 +98,7 @@
 	<script type="text/html" id="demotool">
 		<div class="caozuo" style="display:none;">
 			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-			<a class="layui-btn layui-btn-xs " lay-event="delTeach">复用题目</a>
-			<a class="layui-btn layui-btn-normal " lay-event="delTeach">预览题目</a>
+			<a class="layui-btn layui-btn-normal " lay-event="reuse">复用题目</a>
             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 		</div>	
     </script>
@@ -124,7 +123,7 @@
 									window.location.href = "./login.html";
 								}else {
 									if(data.realname!=null&&data.realname!="") {
-										if(data.level==2) { //管理员角色可编辑学生信息
+										if(data.level>0) { //管理员角色可编辑学生信息
 											$(".caozuo").show();
 											$("#import").show();
 										}else{
@@ -206,7 +205,7 @@
 								title: '操作',
 								toolbar: '#demotool',
 								'fixed': 'right',
-								 width: 305
+								 width: 260
 							}]
 						],
 						url: 'Teacher/selSimproblemList',
@@ -271,12 +270,17 @@
                                 }
                             });
 
+                        } else if (obj.event == "reuse") {
+                            layer.open({
+                                type: 2,
+                                title: "请将题目添加到任意试卷",
+                                shadeClose: false, //点击遮罩关闭层
+                                area: ['680px','400px'],
+                                content: "reuseSimproblem.do?simId=" + obj.data.simId
+                            });
                         } else if (obj.event === 'del') {
 							//删除
 							delinventory(obj.data.simId);
-						}else if (obj.event === 'delTeach') {
-							//删除任课关系
-							delTeach(obj.data.classId,obj.data.teacherId);
 						}
 						
 					});
@@ -301,30 +305,6 @@
 										return false;
 									}
 
-								}
-							});
-							layer.close(index);
-						})
-					}
-					
-					//删除任课关系 函数
-					function delTeach(classId,teacherId) {
-						layer.confirm('是否移除该班级任课老师?', function(index) {
-							$.ajax({
-								url: "Class/deleteTeach?classId=" + classId + "&teacherId=" + teacherId,
-								type: "post",
-								success: function(result) {
-									if (!result.code) {		//code=0成功
-										layer.msg("移除成功!", {
-											time: 1000
-										});
-										active.reload();
-									} else {
-										layer.msg(result.msg, {
-											time: 2000
-										});
-										return false;
-									}
 								}
 							});
 							layer.close(index);

@@ -43,5 +43,9 @@ public interface ClassMapper {
     
     @Select("select class_id from class where name = #{classname}")
     List<Map<String,Object>> selByClassname(String classname);
+
+    @Select("select t.class_id,t.name,v.fk_teacher_id from class t " +
+            "left join configuration_teacher_class v on t.class_id = v.fk_class_id where fk_teacher_id = #{0}")
+    List<Map<String,Object>> selClassObjByUserId(String userId);
     
 }

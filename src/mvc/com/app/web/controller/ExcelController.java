@@ -108,7 +108,7 @@ public class ExcelController {
 		//利用key获取缓存参数
     	String key = request.getParameter("key");
     	Map<String,String> paramMap = excelParamCache.get(key);
-    	System.out.println("key2======="+key);
+    	//System.out.println("key2======="+key);
     	excelParamCache.remove(key);	//用完key之后记得去掉，防止占用容器位置
     	
 		/*----获取导出的数据集开始----*/
@@ -130,7 +130,11 @@ public class ExcelController {
 		if(contestName!=null||"".equals(contestName)) {
 			contestName = contestName.replaceAll(" ","");
 		}
-    	scoreExcelList = excelService.selStuScoreByKeyword(className, stuId, stuName, contestName);
+		int simCourseId = 0;
+		if(request.getSession().getAttribute("course_id")!=null) {
+			simCourseId = Integer.parseInt(request.getSession().getAttribute("course_id").toString());
+		}
+    	scoreExcelList = excelService.selStuScoreByKeyword(className, stuId, stuName, contestName,simCourseId);
 		// "xxx.xls"名字必须和Util的一致
 		String fileName ="学生成绩表.xls";
 		String tableTitle = "学生成绩表";
@@ -337,29 +341,44 @@ public class ExcelController {
 	 */
 	@RequestMapping("/updateSimPos")
 	public String updateSimPos(HttpServletRequest request) {
-		int paperId = Integer.parseInt(request.getParameter("paperId"));
+		String paperIdStr = request.getParameter("paperId");
+		String[] paperIdArray = paperIdStr.split(",");
 
 		LayResponse response = new LayResponse();
 		response.setCode(1);
+		int paperId = 0;
+		int result = 1;
 
-		if (paperId == 0) {
-			response.setCode(0);
-			return JSONObject.fromObject(response).toString();
+		// 导入通用题库时候会走这里
+		if (paperIdArray.length == 1) {
+			paperId = Integer.parseInt(paperIdArray[0]);
+			if (paperId == 0) {
+				response.setCode(0);
+				return JSONObject.fromObject(response).toString();
+			} else {
+				int tempResullt = excelService.updateSimPosByPaperId(paperId);
+				if(tempResullt < 0) {	// 如果有失败的  执行
+					result = 0;
+				}
+			}
 		}
 
-		int result = excelService.updateSimPosByPaperId(paperId);
+		// 复用题目和导入试卷 可能会走下面
+		for (String str: paperIdArray) {
+			paperId = Integer.parseInt(str);
+			int tempResullt = excelService.updateSimPosByPaperId(paperId);
+			if(tempResullt < 0) {	// 如果有失败的  执行
+				result = 0;
+			}
+		}
 
 		if(result > 0) {
-			response.setCode(1);
-		}else {
 			response.setCode(0);
+		}else {
+			response.setCode(1);
 		}
 		return JSONObject.fromObject(response).toString();
 	}
-    
-    
-    
-    
-    
+
     
 }

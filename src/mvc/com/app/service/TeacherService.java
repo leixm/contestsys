@@ -21,7 +21,7 @@ public interface TeacherService {
 	 * @description 添加一场考试
 	 * @return 状态响应
 	 */
-	public Response addContest(Contest contest,String className);
+	Response addContest(Contest contest,String className);
 	
 	/**
 	 * @author zzs
@@ -29,7 +29,7 @@ public interface TeacherService {
 	 * @description 查询老师出的所有卷子 
 	 * @return 状态响应
 	 */
-	public Response selAllpaper(User user);
+	Response selAllpaper(User user);
 	
 	/**
 	 * @author zzs
@@ -39,7 +39,7 @@ public interface TeacherService {
 	 * @description 添加新的试卷
 	 * @return 状态响应
 	 */
-	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps,String basePath);
+	Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps,String basePath);
 	
 	/**
 	 * @author zzs
@@ -47,14 +47,14 @@ public interface TeacherService {
 	 * @description 教师查询所有考试Status
 	 * @return 状态响应
 	 */
-	public Response selContestStatus(User user);
+	Response selContestStatus(User user);
 	
 	/**
 	 * 查询属于某个教师的所有contest对象
 	 * @param 教师
 	 * @return	属于同个教师的所有contest
 	 */
-	public Response selAllContest(User user);
+	Response selAllContest(User user);
 	
 	/**
 	 * 查询计算所有班级某场考试的平均分
@@ -70,7 +70,7 @@ public interface TeacherService {
 	 * @param contest 具体考试
 	 * @return
 	 */
-	public Response selClassHighestScore(User user,Class cla,Contest contest);
+	Response selClassHighestScore(User user,Class cla,Contest contest);
 	
 	/**
 	 * 查询计算所有班级某场考试的最低分
@@ -78,7 +78,7 @@ public interface TeacherService {
 	 * @param contest 具体考试
 	 * @return
 	 */
-	public Response selClasslowestScore(User user,Class cla,Contest contest);
+	Response selClasslowestScore(User user,Class cla,Contest contest);
 	
 	
 	/**
@@ -95,7 +95,7 @@ public interface TeacherService {
 	 * @param contest
 	 * @return 成绩实体Map对象集合
 	 */
-	public List<Map<String,Object>>  selGradeScore(User user,Contest contest);
+	List<Map<String,Object>>  selGradeScore(User user,Contest contest);
 	
 	/**
 	 * 根据搜索条件模糊查询出学生成绩表
@@ -105,14 +105,14 @@ public interface TeacherService {
 	 * @param 4、考试名称
 	 * @return 成绩实体Map对象集合
 	 */
-	public List<Map<String,Object>> selStuScore(String className,String stuId,String stuName,String contestName,String pageSize,String pageNumber); 
+	public List<Map<String,Object>> selStuScore(String className,String stuId,String stuName,String contestName,int simCourseId,List statusList,String pageSize,String pageNumber);
 	
 
 	/**
 	 * 查询出所有学生成绩表
 	 * @return 成绩实体Map对象集合
 	 */
-	public List<Map<String,Object>> selAllStuScore(); 
+	List<Map<String,Object>> selAllStuScore();
 	
 	/**
 	 * 根据搜索条件模糊查询出学生成绩表
@@ -120,75 +120,75 @@ public interface TeacherService {
 	 * @param score: 用户重新更新的成绩
 	 * @return 更新操作返回的状态
 	 */
-	public int updateScore(String cStatusId,String score); 
+	int updateScore(String cStatusId,String score);
 	
 	/**
 	 * 查询所有的班级对象
 	 * @return 所有的班级对象
 	 */
-	public List<Map<String,Object>> selAllClassObj(); 
+	List<Map<String,Object>> selAllClassObj(String userId);
 	
 	/**
 	 * 查询所有的考试对象
 	 * @return 所有的考试对象
 	 */
-	public List<Map<String,Object>> selAllContestObj(); 
+	List<Map<String,Object>> selAllContestObj();
 	
 	/**
 	 * 查询所有的班级的所有考试的平均分
 	 * @return 所有对象
 	 */
-	public List<Map<String,Object>> selClassContestAVG(List className,List contestName); 
+	List<Map<String,Object>> selClassContestAVG(List className,List contestName);
 	
 	/**
 	 * 查询通用题库列表
 	 * @return 所有对象
 	 */
-	public List<Map<String,Object>> selSimproblemList(int simCourseId,String simPaperTitle,int simType,String pageSize,String pageNumberr); 
+	List<Map<String,Object>> selSimproblemList(int simCourseId,String simPaperTitle,int simType,String pageSize,String pageNumberr);
 	
 	/**
 	 * 删除单条simproblem
 	 * @param simId 
 	 * @return
 	 */
-	public int delSimproblemById(int simId); 
+	int delSimproblemById(int simId);
 	
 	/**
 	 * 删除多条simproblem
 	 * @param ids 
 	 * @return
 	 */
-	public int delBatchSimproblemByIds(List<String> ids);
+	int delBatchSimproblemByIds(List<String> ids);
 
 	/**
 	 * 根据paperId查询contestPaper对象
 	 * @return
 	 */
-	public Contestpaper selOneContestPaperById(String paperId);
+	Contestpaper selOneContestPaperById(String paperId);
 
 	/**
 	 *根据Id查询simproblem对象
 	 * @return
 	 */
-	public Simproblem selSimproblemById(String simId);
+	Simproblem selSimproblemById(String simId);
 
 	/**
 	 * 获取单选题返回的页面对象
 	 * @return
 	 */
-	public ModelAndView getOneChoiceMav(String simId);
+	ModelAndView getOneChoiceMav(String simId);
 
 	/**
 	 * 获取填空判断题返回的页面对象
 	 * @return
 	 */
-	public ModelAndView getFillBlankAndJudgementMav (String simId);
+	ModelAndView getFillBlankAndJudgementMav (String simId);
 
 	/**
 	 * 获取简答题返回的页面对象
 	 * @return
 	 */
-	public ModelAndView getShortAnswerMav (String simId);
+	ModelAndView getShortAnswerMav (String simId);
 
 	/**
 	 * 更新选择题内容和答案等信息
@@ -199,17 +199,40 @@ public interface TeacherService {
 	 * @param answerList
 	 * @return	返回的是结果信息 ""代表成功， 有内容代表失败
 	 */
-	public String updateChoiceQuestion(int simId,BigDecimal simScore,String simContent,List<String> optionList,List<String> answerList);
+	String updateChoiceQuestion(int simId,BigDecimal simScore,String simContent,List<String> optionList,List<String> answerList);
 
 	/**
 	 * 更新填空、判断题内容和答案等信息
 	 * @return  ""代表成功， 有内容代表失败
 	 */
-	public String updateFillBlankAndJudgement(int simId,BigDecimal simScore,String simContent,List<String> answerList);
+	String updateFillBlankAndJudgement(int simId,BigDecimal simScore,String simContent,List<String> answerList);
 
 	/**
 	 * 更新简答题内容和答案等信息
 	 * @return  ""代表成功， 有内容代表失败
 	 */
-	public String updateShortAnswer(int simId,BigDecimal simScore,String simContent);
+	String updateShortAnswer(int simId,BigDecimal simScore,String simContent);
+
+
+	/**
+	 * 复用通用题库题目等信息
+	 * @param request
+	 * @return		1-成功  -1 失败
+	 */
+	int reuseSimproblem(String simId, String paperId);
+
+
+	/**
+	 * 查询批改主观题页面显示的相关信息
+	 * @param type
+	 * @param cStatusId
+	 * @return
+	 */
+	List<Map<String,Object>> selSolutionSimproblemByTypeAndcStatusId(int type,int cStatusId);
+
+	/**
+	 * 批改题目  分数追加
+	 * @return 1 成功
+	 */
+	int correctSimpleProblem(int cStatusId,int cStatus,Map<String,Object> realScoreMap,double oldScoreSum,double realScoreSum);
 }

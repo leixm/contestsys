@@ -8,21 +8,14 @@ package com.app.tools;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.mail.MessagingException;
 
-import com.code.model.OneContest;
-import com.code.model.OnePaper;
-import com.code.model.OneProblem;
-import com.code.model.OneSimproblem;
-import com.code.model.Options;
-import com.code.model.Simproblem;
+import com.code.model.*;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
@@ -38,7 +31,7 @@ import net.sf.json.JSONObject;
 
 public class PdfHelper {
 
-
+	public static String pdf_dir  = "F:/pdf/";
 	private  Font headfont ;// ���������С 
     private  Font keyfont;// ���������С 
     private  Font textfont;// ���������С 
@@ -143,22 +136,39 @@ public class PdfHelper {
 	    cell.setColspan(colspan); 
 	    cell.setPhrase(new Phrase(value,font)); 
 	   return cell; 
-	} 
-	public PdfPCell createCell(String value,com.itextpdf.text.Font font,int align,int colspan,boolean boderFlag){ 
-	    PdfPCell cell = new PdfPCell(); 
-	    cell.setVerticalAlignment(Element.ALIGN_MIDDLE); 
-	    cell.setHorizontalAlignment(align);     
-	    cell.setColspan(colspan); 
-	    cell.setPhrase(new Phrase(value,font)); 
-	    cell.setPadding(3.0f); 
-	    if(!boderFlag){ 
-	        cell.setBorder(0); 
-	        cell.setPaddingTop(15.0f); 
-	        cell.setPaddingBottom(8.0f); 
-	    } 
-	   return cell; 
-	} 
-	public PdfPTable createTable(int colNumber){ 
+	}
+
+	public PdfPCell createCell(String value,com.itextpdf.text.Font font,int align,int colspan,boolean boderFlag){
+		PdfPCell cell = new PdfPCell();
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cell.setHorizontalAlignment(align);
+		cell.setColspan(colspan);
+		cell.setPhrase(new Phrase(value,font));
+		cell.setPadding(3.0f);
+		if(!boderFlag){
+			cell.setBorder(0);
+			cell.setPaddingTop(15.0f);
+			cell.setPaddingBottom(8.0f);
+		}
+		return cell;
+	}
+
+	public PdfPCell createCell(String value,com.itextpdf.text.Font font,int align,int colspan,boolean boderFlag,float paddingTop, float paddingBottom){
+		PdfPCell cell = new PdfPCell();
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cell.setHorizontalAlignment(align);
+		cell.setColspan(colspan);
+		cell.setPhrase(new Phrase(value,font));
+		cell.setPadding(3.0f);
+		if(!boderFlag){
+			cell.setBorder(0);
+			cell.setPaddingTop(paddingTop);
+			cell.setPaddingBottom(paddingBottom);
+		}
+		return cell;
+	}
+
+	public PdfPTable createTable(int colNumber){
 	   PdfPTable table = new PdfPTable(colNumber); 
 	   try{ 
 	       table.setTotalWidth(maxWidth); 
@@ -192,7 +202,7 @@ public class PdfHelper {
 	    return table; 
 	} 
 	 
-	public String GeneratePDFForContestStatus(OneContest contest,String path,int score) throws Exception{ 
+	public String GeneratePDFForContestStatus(OneContest contest, int contestStatusId, double score) throws Exception{
 
 		PdfPTable table = createTable(3);
 		OnePaper paper = contest.getPaper();
@@ -204,103 +214,106 @@ public class PdfHelper {
         
 		table.addCell(createCell(paper.getContestpaper().getTitle(),headfont,Element.ALIGN_CENTER,3,false));
 		table.addCell(createCell(String.format("姓名: %s", contest.getStudent().getRealname()),headfont,Element.ALIGN_CENTER,3,false));
-		table.addCell(createCell(String.format("成绩: %d", score),headfont,Element.ALIGN_CENTER,3,false));
+		table.addCell(createCell(String.format("成绩: %.1f", score),headfont,Element.ALIGN_CENTER,3,false));
 		table.addCell(createCell("批改日期：" + sdf.format(new Date()),headfont,Element.ALIGN_CENTER,3,false));
 		
-		
-		for(int k=1;k<=paper.getProb().size() + paper.getSimp().size();k++)
+		int problemSize = paper.getProb() == null ? 0 : paper.getProb().size();
+		int simproblemSize = paper.getSimp() == null ?0 : paper.getSimp().size();
+		for(int k=1;k<=problemSize + simproblemSize;k++)
 		{
-			
+
+			String simsolutionContent = "未作答";
+			String answerContent = "未找到答案";
+
+			if(paper.getSimp()!=null)
 			for(OneSimproblem oneSimproblem : paper.getSimp())  //选择题{
 			{
 				if(oneSimproblem.getSimproblem().getPos().intValue() != k) continue;
-				
-					String content = k + "." + oneSimproblem.getSimproblem().getContent();
-					table.addCell(createCell(content,keyfont,Element.ALIGN_CENTER,3,false));
-				    
-				    if(oneSimproblem.getSimproblem().getType().intValue()<4)  //选择题
-					for(int j=1;j<=oneSimproblem.getOption().size();j++)
-					for(int i=0;i<=oneSimproblem.getOption().size();i++)
-					{
-						if(oneSimproblem.getOption().get(i).getPos().intValue() == j)
-						table.addCell(createCell(j + "." + oneSimproblem.getOption().get(i).getContent(),keyfont,Element.ALIGN_CENTER,3,false));
-						
-					}
-					
-				    table.addCell(createCell("题目分值：" + oneSimproblem.getSimproblem().getScore().doubleValue(),keyfont,Element.ALIGN_CENTER,3,false));
-				    table.addCell(createCell("得分：" + oneSimproblem.getSimsolution().getScore().doubleValue() ,keyfont,Element.ALIGN_CENTER,3,false));
 
-				
+					String content = String.valueOf(k) + "、 " + oneSimproblem.getSimproblem().getContent().replaceAll("<.*?>", "");
+					table.addCell(createCell(content,keyfont,Element.ALIGN_LEFT,3,false,30,6));
+
+					Map<Integer,String> optionsMap = new TreeMap<Integer, String>();
+
+				    if(oneSimproblem.getSimproblem().getType().intValue()<=2)  //单选 多选题
+					{
+						for(Options options : oneSimproblem.getOption())
+							optionsMap.put(options.getPos(), options.getContent());
+
+						for(Map.Entry<Integer,String> entry : optionsMap.entrySet()){
+							table.addCell(createCell( ContestHelper.indexToCharIndex(entry.getKey()) + "." + entry.getValue(),keyfont,Element.ALIGN_LEFT,3,false,8,8));
+						}
+
+						Map<String,Integer> optionsMapReserved = new HashMap<String,Integer>();
+						for(Map.Entry<Integer,String> entry : optionsMap.entrySet()){
+							optionsMapReserved.put(entry.getValue(),entry.getKey());
+						}
+
+						StringBuilder answerSB = new StringBuilder();
+						for(Answer answer : oneSimproblem.getAnswer()){
+							try {
+								answerSB.append(ContestHelper.indexToCharIndex((int)optionsMapReserved.get(answer.getContent())));
+								answerSB.append("、");
+							}
+							catch (NullPointerException e){
+								e.printStackTrace();
+							}
+						}
+						answerContent = answerSB.substring(0,answerSB.length()-1);
+						String answer = oneSimproblem.getSimsolution().getAnswer();
+
+						if(answer!=null) {
+							StringBuilder simsolutionSB = new StringBuilder();
+							String[] simsolutionArr = answer.split("§§§");
+							for(String arr : simsolutionArr){
+								try{
+									simsolutionSB.append(ContestHelper.indexToCharIndex((int)optionsMapReserved.get(arr)));
+									simsolutionSB.append("、");
+								}
+								catch (NullPointerException e){
+									e.printStackTrace();
+								}
+							}
+							simsolutionContent = simsolutionSB.substring(0,simsolutionSB.length()-1);
+						}
+					}else{ //其他题目的正确答案和作答内容生成
+				    	StringBuilder answerContentSB = new StringBuilder();
+				    	Map<Integer,String> answerMap = new TreeMap<>();
+				    	for(Answer answer : oneSimproblem.getAnswer()){
+				    		answerMap.put(answer.getPos(),answer.getContent());
+						}
+
+				    	for(Map.Entry<Integer,String> entry: answerMap.entrySet()){
+							answerContentSB.append(entry.getValue());
+							answerContentSB.append("、");
+						}
+				    	answerContent = answerContentSB.substring(0,answerContentSB.length()-1);
+
+						simsolutionContent = oneSimproblem.getSimsolution().getAnswer();
+					}
+
+					table.addCell(createCell("正确答案: " + answerContent,keyfont,Element.ALIGN_LEFT,3,false,15,6));
+					table.addCell(createCell("作答: " + simsolutionContent,keyfont,Element.ALIGN_LEFT,3,false,6,6));
+				    table.addCell(createCell(String.format("题目分值：%.1f" , oneSimproblem.getSimproblem().getScore().setScale(1,BigDecimal.ROUND_HALF_UP).doubleValue()),keyfont,Element.ALIGN_LEFT,3,false,6,6));
+				    table.addCell(createCell(String.format("得分：%.1f" , oneSimproblem.getSimsolution().getScore().setScale(1,BigDecimal.ROUND_HALF_UP).doubleValue()) ,keyfont,Element.ALIGN_LEFT,3,false,6,6));
 			}
-			
+
+			if (paper.getProb()!=null)
 			for(OneProblem oneProblem : paper.getProb()){
 				if(oneProblem.getProblem().getPos().intValue() != k) continue;
-				
-				table.addCell(createCell(k + "." + oneProblem.getProblem().getTitle(),keyfont,Element.ALIGN_CENTER,3,false));
-				table.addCell(createCell(oneProblem.getProblem().getDescription(),keyfont,Element.ALIGN_CENTER,3,false));
-				table.addCell(createCell("题目分值：" + oneProblem.getProblem().getScore().doubleValue(),keyfont,Element.ALIGN_CENTER,3,false));
-				table.addCell(createCell("得分：" + String.format("%.1f", oneProblem.getProblem().getScore().doubleValue() * oneProblem.getSolution().getPassRate().doubleValue()),keyfont,Element.ALIGN_CENTER,3,false));
+
+				table.addCell(createCell(String.valueOf(k) + "、 " + oneProblem.getProblem().getTitle().replaceAll("<.*?>", ""),keyfont,Element.ALIGN_CENTER,3,false,30,6));
+				table.addCell(createCell(oneProblem.getProblem().getDescription().replaceAll("<.*?>", ""),keyfont,Element.ALIGN_CENTER,3,false,6,6));
+				table.addCell(createCell(String.format("题目分值：%.1f" ,oneProblem.getProblem().getScore().doubleValue()),keyfont,Element.ALIGN_CENTER,3,false,6,6));
+
+				double solutionScore = oneProblem.getProblem().getScore().doubleValue() * oneProblem.getSolution().getPassRate().doubleValue();
+				table.addCell(createCell("得分：" + String.format("%.1f",(new BigDecimal(solutionScore).setScale(1,BigDecimal.ROUND_HALF_UP).doubleValue()) ),keyfont,Element.ALIGN_CENTER,3,false,6,6));
 			}
 			
 			
 		}
-		
-			
-/*		for(OneSimproblem oneSimproblem : paper.getSimp())  //选择题
-		{
-			if(oneSimproblem.getSimproblem().getType().intValue() != 1)
-				continue;
-			String problemContent = String.valueOf(num++) + "." + oneSimproblem.getSimproblem().getContent();
-			table.addCell(createCell(problemContent,headfont,Element.ALIGN_CENTER,3,false));
-			List<Options> options = oneSimproblem.getOption();
-			Map<Integer,Options> map = new HashMap<Integer,Options>();
-			String answer = oneSimproblem.getSimsolution().getAnswer();
-			char c = 'A';
-			for(Options option : options)
-			{ 
-				map.put(new Integer(c++), option);
-			}
-			c = 'A';
-			for(int i=0;i<4;i++)
-			{
-				Options option = map.get(new Integer(c+i));
-				table.addCell(createCell(c + "." + option.getContent(),headfont,Element.ALIGN_CENTER,3,false));
-			}
-			char ansC = ' ';
-			for(Integer key : map.keySet())
-			{ 
-				if(map.get(key).equals(answer))
-				{
-					ansC = (char)key.intValue();
-					break;
-				}
-			}
-			table.addCell(createCell("作答：" + ansC,headfont,Element.ALIGN_CENTER,3,false));
-			table.addCell(createCell("得分：" + String.format("%.1f", oneSimproblem.getSimsolution().getScore().doubleValue()),headfont,Element.ALIGN_CENTER,3,false));
-		}
-		
-		for(OneSimproblem oneSimproblem : paper.getSimp()) //填空题
-		{
-			if(oneSimproblem.getSimproblem().getType().intValue() != 2)
-				continue;
-			String problemContent = String.valueOf(num++) + "." + oneSimproblem.getSimproblem().getContent();
-			table.addCell(createCell(problemContent,headfont,Element.ALIGN_CENTER,3,false));
-			String answer = oneSimproblem.getSimsolution().getAnswer();
-			table.addCell(createCell("作答：" + answer,headfont,Element.ALIGN_CENTER,3,false));
-			table.addCell(createCell("得分：" + String.format("%.1f", oneSimproblem.getSimsolution().getScore().doubleValue()),headfont,Element.ALIGN_CENTER,3,false));
-		}
-		
-		
-		
-		
-		for(OneProblem oneProblem : paper.getProb()) //编程题
-		{
-			String problemContent = String.valueOf(num++) + "." + oneProblem.getProblem().getTitle();
-			table.addCell(createCell(problemContent,headfont,Element.ALIGN_CENTER,3,false));
-			String answer = String.format("得分: %。1f", oneProblem.getSolution().getPassRate().doubleValue() * oneProblem.getProblem().getScore().doubleValue());
-			table.addCell(createCell(answer,headfont,Element.ALIGN_CENTER,3,false));
-		}*/
-	
+
+		String path = pdf_dir + String.valueOf(contestStatusId) + ".pdf";
 		 File file = new File(path);
          if(!file.getParentFile().exists()) file.getParentFile().mkdirs();
          file.createNewFile(); 
@@ -313,38 +326,5 @@ public class PdfHelper {
 		
 	}
 
-	    
-	/*public void generatePDF(userStatisticsModel model) throws Exception{ 
-		System.out.println("generate: " + JSONObject.fromObject(model).toString());
-		
-	   PdfPTable table = createTable(7); 
-	   table.addCell(createCell("���ν������룺" + model.getIncomeNow() + " Ԫ", headfont,Element.ALIGN_LEFT,3,false)); 
-	   table.addCell(createCell("���ν�����" + model.getNotCleanMoney()+ " Ԫ", headfont,Element.ALIGN_LEFT,4,false)); 
-	   table.addCell(createCell("���ν��������ѣ�  "+ String.valueOf(model.getIncomeNow() - model.getNotCleanMoney())+ " Ԫ", headfont,Element.ALIGN_LEFT,3,false)); 
-	   table.addCell(createCell("�����룺  "+ model.getIncome()+ " Ԫ", headfont,Element.ALIGN_LEFT,4,false)); 
-	   table.addCell(createCell("��ˮ�˵���ϸ�� ", headfont,Element.ALIGN_LEFT,7,false)); 
-	   
-	   table.addCell(createCell("��ˮ��", keyfont, Element.ALIGN_CENTER)); 
-	   table.addCell(createCell("�����û�", keyfont, Element.ALIGN_CENTER)); 
-	   table.addCell(createCell("��Ʒ����", keyfont, Element.ALIGN_CENTER)); 
-	   table.addCell(createCell("֧�����", keyfont, Element.ALIGN_CENTER)); 
-	   table.addCell(createCell("����֧��ʱ��", keyfont, Element.ALIGN_CENTER));
-	   table.addCell(createCell("����������", keyfont, Element.ALIGN_CENTER));
-	   table.addCell(createCell("������", keyfont, Element.ALIGN_CENTER));
-	   
-	   List<orderInfoModel> list = model.getDetail(); 
-	   for(int i=0;i<list.size();i++){ 
-		   orderInfoModel order = list.get(i);
-	       table.addCell(createCell(order.getId(), textfont)); 
-	       table.addCell(createCell(order.getUserID(), textfont)); 
-	       table.addCell(createCell(order.getGoodName(), textfont)); 
-	       table.addCell(createCell(String.valueOf(order.getPrice()), textfont)); 
-	       table.addCell(createCell(order.getApplyTime(), textfont)); 
-	       table.addCell(createCell(order.getServerName(), textfont)); 
-	       table.addCell(createCell(String.valueOf(order.getCleanPrice()), textfont)); 
-	   } 
-	   document.add(table); 
-	      
-	   document.close(); 
-	}*/
+
 }

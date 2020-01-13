@@ -8,7 +8,7 @@
 		<link rel="stylesheet" href="lib/layui/css/layui.css">
 		<link rel="stylesheet" href="css/font.css">
 		<link rel="stylesheet" href="css/xadmin.css">
-		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+		<script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
 		<script src="./lib/layui/layui.js" charset="utf-8"></script>
 		<script type="text/javascript" src="./js/xadmin.js"></script>
 		<!--[if lt IE 9]>
@@ -167,7 +167,7 @@
 								minWidth: 200
 							}]
 						],
-						url: 'User/getSelectCourse',
+						url: 'User/getSelectCourse?type=list',
 						method: 'post',
 						parseData: function(res){ //res 即为原始返回的数据
 						    return {

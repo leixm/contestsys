@@ -47,7 +47,7 @@ public interface StudentService {
 	 * @param 4、考试名称
 	 * @return 成绩实体Map对象集合
 	 */
-	public List<Map<String,Object>> selOneStuScore(String stuId,String pageSize,String pageNumber); 
+	 List<Map<String,Object>> selOneStuScore(String stuId,String pageSize,String pageNumber);
 	
 	 /**
 	  * 根据条件更新学生用户的个人信息
@@ -57,7 +57,7 @@ public interface StudentService {
 	  * @param newPwd 新密码
 	  * @return 更新是否成功
 	  */
-	public int updateStuInfo(String stuId,String stuName,String stuEmail,String newPwd);
+	 int updateStuInfo(String stuId,String stuName,String stuEmail,String newPwd);
 	
 	/**
 	 * 根据条件查询学生个人的考试列表
@@ -65,7 +65,7 @@ public interface StudentService {
 	 * @param keyword	搜索条件
 	 * @return
 	 */
-	public List<Map<String,Object>> selOwnContest(String stuId, String keyword, String pageSize, String pageNumber);
+	 List<Map<String,Object>> selOwnContest(String stuId, String keyword, String pageSize, String pageNumber);
 	
 	/**
 	 * 查询某个学生的个人成绩和班级考试的平均分
@@ -73,13 +73,13 @@ public interface StudentService {
 	 * @param contestName 考试名字
 	 * @return 所有对象
 	 */
-	public List<Map<String,Object>> selOneStuScoreAVG(String stuId,List contestName); 
+	 List<Map<String,Object>> selOneStuScoreAVG(String stuId,List contestName);
 	
 	/**
 	 * 查询某个学生的所有考试名称
 	 * @param stuId	用户Id	
 	 * @return 所有对象
 	 */
-	public List<Map<String,Object>> selStuContestTitle(String stuId); 
+	 List<Map<String,Object>> selStuContestTitle(String stuId);
 	
 }

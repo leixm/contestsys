@@ -3,9 +3,11 @@ package com.app.dao;
 import com.code.model.Options;
 import com.code.model.OptionsExample;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 public interface OptionsMapper {
     int countByExample(OptionsExample example);
@@ -38,4 +40,7 @@ public interface OptionsMapper {
 
     @Delete("delete from options t where t.simproblem_id = #{0}")
     int deleteOptionBySimId(int SimId);
+
+    @Select("select t.content, t.pos from options t where t.simproblem_id = #{0}")
+    List<Map<String,Object>> selOpBySimId(int simId);
 }

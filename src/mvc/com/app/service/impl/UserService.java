@@ -238,7 +238,9 @@ public class UserService {
 		sb.append("您好:\n");
 		sb.append("以下为您的邮箱激活地址：\n");
 		
-		sb.append("<a href=\"http://localhost:8080/contestsys/User/Validate?email=");
+
+		sb.append("<a href=\"http://119.23.10.89:8080/contestsys/User/Validate?email=");
+
         sb.append(email); 
         sb.append("&validatecode=");  
         sb.append(validateCode);
