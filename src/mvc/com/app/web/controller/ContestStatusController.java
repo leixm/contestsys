@@ -29,9 +29,8 @@ import java.util.List;
 /**
  * @author lxm
  * @create_date 2019.5.3
- * @description 班级管理
+ * @description 学生考试作答情况pdf导出
  * */
-
 
 @Controller
 public class ContestStatusController {
@@ -42,10 +41,14 @@ public class ContestStatusController {
     @ResponseBody
     private void getContestStatusPdf(HttpServletRequest request,HttpServletResponse response) throws IOException
     {
-        String contestStatusId = request.getParameter("ContestStatusId");
+        String contestStatusId = request.getParameter("contestStatusId");
+        String stuId = request.getParameter("stuid");
+        String filename = stuId + "-contestSituation.pdf";
+
         String path = contestStatusService.GetContestStatusPdf(Integer.parseInt(contestStatusId));
+
         File file = new File(path);
-        response.addHeader("content-disposition", "attachment;filename="+"ContestStatus.pdf");
+        response.addHeader("content-disposition", "attachment;filename="+filename);
         FileUtils.copyFile(file, response.getOutputStream());
     }
 }

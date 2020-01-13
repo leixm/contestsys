@@ -75,7 +75,7 @@
 										</div><!--/.form-group -->
 										<div class="layui-form-item">
 											<label for="signin_form">姓名</label>
-											<input type="text" class="form-control" name="realname" id="signin_form" placeholder="First name" lay-verify="required|checkname|checkChina" autocomplete="off">
+											<input type="text" class="form-control" name="realname" id="realname" placeholder="First name" lay-verify="required|checkname|checkChina" autocomplete="off">
 										</div><!--/.form-group -->
 										
 										<div class="layui-form-item">
@@ -90,7 +90,7 @@
 										
 										<div class="layui-form-item">
 											<label for="signin_form">绑定邮箱</label>
-											<input type="email" class="form-control" name="email" id="signin_form" placeholder="Enter your email adress " lay-verify="email|required" autocomplete="off">
+											<input type="email" class="form-control" name="email" id="email" placeholder="Enter your email adress " lay-verify="email|required" autocomplete="off">
 										</div><!--/.form-group -->										
 									</div><!--/.col -->
 								</div><!--/.row -->
@@ -160,7 +160,7 @@
 							}
 						}, 
 						pwdlength: function(value) {
-							if (value.length != 6 && value!="") {
+							if (value.length < 6 && value!="") {
 								return '用户密码至少要6个字符';
 							}
 						}, 
@@ -189,17 +189,16 @@
 	                //监听提交
 	                form.on('submit(signup)',
 	                function(data) {
-	                alert(JSON.stringify(data.field));
 	                    $.ajax({
 									type: "POST",
-									url: "User/Register?userId=" + $("#stuid1").val() + "&password=" + $("#newpwd1").val() + "&realname=" + $("#signin_form").val() + "&rancode=" + $("#inputNum").val(),
+									url: "User/Register?userId=" + $("#stuid1").val() + "&password=" + $("#newpwd1").val()
+										+ "&realname=" + $("#realname").val() + "&rancode=" + $("#inputNum").val() + "&email=" + $("#email").val(),
 									dataType: 'json',
 									contentType:'application/json',
 									async: false,
 									success: function(da) {
-										console.log(JSON.stringify(da))
 										if (da.success == 1) {
-											layer.alert(data.msg, {
+											layer.alert(da.msg, {
 													icon: 6
 												},
 												function() {
@@ -212,7 +211,7 @@
 	
 	
 										} else {
-											layer.alert(data.msg, {
+											layer.alert(da.msg, {
 												icon: 5
 											});
 	

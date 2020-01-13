@@ -3,12 +3,15 @@ package com.app.dao;
 import com.code.model.OneSimproblem;
 import com.code.model.Simproblem;
 import com.code.model.SimproblemExample;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 public interface SimproblemMapper {
     int countByExample(SimproblemExample example);
@@ -16,10 +19,6 @@ public interface SimproblemMapper {
     int deleteByExample(SimproblemExample example);
 
     int deleteByPrimaryKey(Integer simproblemId);
-    
-    @Delete("DELETE a.*,b.*,c.* FROM simproblem a LEFT JOIN `options` b on a.simproblem_id = b.simproblem_id LEFT JOIN answer c on a.simproblem_id = c.simproblem_id "
-    		+"WHERE a.simproblem_id = #{0}")
-    int delSimproblemById(int simId);
 
     int insert(Simproblem record);
 
@@ -42,7 +41,12 @@ public interface SimproblemMapper {
     int updateByPrimaryKeyWithBLOBs(Simproblem record);
 
     int updateByPrimaryKey(Simproblem record);
-    
+
+    @Delete("DELETE a.*,b.*,c.* FROM simproblem a LEFT JOIN `options` b on a.simproblem_id = b.simproblem_id LEFT JOIN answer c on a.simproblem_id = c.simproblem_id "
+    		+"WHERE a.simproblem_id = #{0}")
+    int delSimproblemById(int simId);
+
+
     List<OneSimproblem> getSimproblemAndOptionByPaperId(Integer paperId);
     
     @Select("select count(*) from contestpaper")
@@ -53,6 +57,15 @@ public interface SimproblemMapper {
 
     List<Map<String,Object>> selSimproblemList(@Param("simCourseId")int simCourseId,@Param("simPaperTitle")String simPaperTitle,@Param("simType")int simType);
 
-    @Select("select * from simproblem s where s.content = #{0}")
-    List<Map<String,Object>> selSimByContent(String content);
+    @Select("select * from simproblem s where s.content = #{0} and s.type = #{1}")
+    List<Map<String,Object>> selSimByContent(String content,int type);
+
+    @Update("update simproblem set content = #{0},score = #{1} where simproblem_id = #{2}")
+    int updateSimContentAndScore(String simContent, BigDecimal simScore, int simId);
+
+    @Select("SELECT simproblem_id simId FROM simproblem WHERE paper_id = #{0} ORDER BY type")
+    List<Map<String,Object>> selSimIdByPaperId(int paperId);
+
+    @Update("UPDATE simproblem t SET t.pos = #{1} WHERE t.simproblem_id = #{0}")
+    int updatePosBySimId(int simId, int pos);
 }

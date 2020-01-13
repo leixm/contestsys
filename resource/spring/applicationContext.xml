@@ -39,7 +39,7 @@
 	<bean id="dataSource"  
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">  
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />  
-        <property name="url" value="jdbc:mysql://119.23.10.89:3306/contestsys?serverTimezone=Asia/Shanghai&amp;useSSL=false&amp;characterEncoding=UTF-8" />
+        <property name="url" value="jdbc:mysql://localhost:3306/contestsys?serverTimezone=Asia/Shanghai&amp;useSSL=false&amp;characterEncoding=UTF-8" />
         <property name="username" value="root" />  
         <property name="password" value="root" />
     </bean>  

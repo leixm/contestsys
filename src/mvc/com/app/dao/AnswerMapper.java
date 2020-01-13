@@ -2,8 +2,12 @@ package com.app.dao;
 
 import com.code.model.Answer;
 import com.code.model.AnswerExample;
-import java.util.List;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.Map;
+import java.util.List;
 
 public interface AnswerMapper {
     int countByExample(AnswerExample example);
@@ -33,4 +37,10 @@ public interface AnswerMapper {
     int updateByPrimaryKeyWithBLOBs(Answer record);
 
     int updateByPrimaryKey(Answer record);
+
+    @Delete("delete from answer t where t.simproblem_id = #{0}")
+    int deleteAnswerBySimId(int SimId);
+
+    @Select("select t.content, t.pos from answer t where t.simproblem_id = #{0}")
+    List<Map<String,Object>> selAnBySimId(int simId);
 }

@@ -45,9 +45,15 @@ public class ContestPaperController {
 	@ResponseBody
 	public String GetAllContestPaper(HttpServletRequest request, HttpServletResponse response, String Keyword,String startTime,String endTime)
 			throws Exception {
+		// 获取所属课程id
+		int simCourseId = 0;
+		if(request.getSession().getAttribute("course_id")!=null) {
+			simCourseId = Integer.parseInt(request.getSession().getAttribute("course_id").toString());
+		}
+
 		String pageSize = request.getParameter("limit"); //一页多少个
 		String pageNumber = request.getParameter("page");	//第几页
-		List resultList = contestpaperService.GetAllContestPaper(Keyword,startTime,endTime,pageSize,pageNumber);
+		List resultList = contestpaperService.GetAllContestPaper(Keyword,startTime,endTime,simCourseId,pageSize,pageNumber);
 		JSONObject obj = new JSONObject();
 		JSONArray arr = JSONArray.fromObject(resultList);
 		//获取分页插件的数据只能通过PageInfo来获取

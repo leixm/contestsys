@@ -1,8 +1,3 @@
-/** 
- * @author lxm
- * @create_date 2019.5.3
- * @description 考试实例
- * */
 package com.code.model;
 
 import java.util.Date;
@@ -19,28 +14,30 @@ public class Contest {
     private String title;
 
     private String teacher;
-    
+
+    private Integer fkCourseId;
+
     private String startTimeS;
-   
-    private String endTimeS; 
+
+    private String endTimeS;
 
     public String getStartTimeS() {
-		return startTimeS;
-	}
+        return startTimeS;
+    }
 
-	public void setStartTimeS(String startTimeS) {
-		this.startTimeS = startTimeS;
-	}
+    public void setStartTimeS(String startTimeS) {
+        this.startTimeS = startTimeS;
+    }
 
-	public String getEndTimeS() {
-		return endTimeS;
-	}
+    public String getEndTimeS() {
+        return endTimeS;
+    }
 
-	public void setEndTimeS(String endTimeS) {
-		this.endTimeS = endTimeS;
-	}
+    public void setEndTimeS(String endTimeS) {
+        this.endTimeS = endTimeS;
+    }
 
-	public Integer getContestId() {
+    public Integer getContestId() {
         return contestId;
     }
 
@@ -86,5 +83,13 @@ public class Contest {
 
     public void setTeacher(String teacher) {
         this.teacher = teacher == null ? null : teacher.trim();
+    }
+
+    public Integer getFkCourseId() {
+        return fkCourseId;
+    }
+
+    public void setFkCourseId(Integer fkCourseId) {
+        this.fkCourseId = fkCourseId;
     }
 }

@@ -1,8 +1,3 @@
-/** 
- * @author lxm
- * @create_date 2019.5.3
- * @description 试卷类
- * */
 package com.code.model;
 
 import java.util.Date;
@@ -15,6 +10,10 @@ public class Contestpaper {
     private String title;
 
     private Date date;
+
+    private Integer papertype;
+
+    private Integer fkCourseId;
 
     public Integer getPaperId() {
         return paperId;
@@ -46,5 +45,21 @@ public class Contestpaper {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Integer getPapertype() {
+        return papertype;
+    }
+
+    public void setPapertype(Integer papertype) {
+        this.papertype = papertype;
+    }
+
+    public Integer getFkCourseId() {
+        return fkCourseId;
+    }
+
+    public void setFkCourseId(Integer fkCourseId) {
+        this.fkCourseId = fkCourseId;
     }
 }

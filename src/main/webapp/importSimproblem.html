@@ -8,7 +8,7 @@
 		<link rel="stylesheet" href="lib/layui/css/layui.css">
 		<link rel="stylesheet" href="css/font.css">
 		<link rel="stylesheet" href="css/xadmin.css">
-		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+		<script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
 		<script src="./lib/layui/layui.all.js" charset="utf-8"></script>
 		<script type="text/javascript" src="./js/xadmin.js"></script>
 		<!--[if lt IE 9]>
@@ -17,10 +17,10 @@
         <![endif]-->
         <style type="text/css">
 	        body {
-	    			overflow: hidden;  
+				overflow: hidden;
 	    	}
         	#bigDiv {
-        		margin-top:20%;
+        		margin-top:15%;
         		margin-left: 25%;
         	}
         	#selDiv {
@@ -34,7 +34,7 @@
         		float:right;
         	}
         	#demoDiv {
-        		margin-top:35%;
+        		margin-top:25%;
         		
         	}
         </style>
@@ -43,7 +43,16 @@
 
 	<body>
 		<body>
+
+
 			<div id="bigDiv">
+				<li class="layui-nav-item " style="font-size: 16px;color: #3c3c3c">
+					<span class="x-red" >*</span>题目所属课程：
+					<select name="selCourse"  lay-filter="test" id="selCourse" style="height:30px; min-width: 140px; font-size: 14px; text-align:center;border-radius: 3px;opacity:80%; cursor: pointer;">
+						<option value='0'>请选择课程</option>
+					</select>
+				</li>
+
 				<div class="layui-upload">
 					<div id="selDiv">
 						<button type="button" class="layui-btn layui-btn-normal" id="selectFile">选择文件</button>
@@ -60,13 +69,7 @@
 		</body>
 
 
-
-
-	
-
-
 		<script>
-			/* 文件上传与导入 */
 			layui.use('upload',function() {
 				  var type = 3; //导入模板所属类型
 				  var upload = layui.upload;
@@ -74,7 +77,13 @@
 				  upload.render({
 				    elem: '#selectFile',
 				    url: 'Excel/importObject',
-				    data: {type:type},
+                    data: {			// 必须用此写法才能动态传select 的值进参数去
+                        type:type,
+                        courseId: function() {
+                            return $("#selCourse").val();
+                        },
+                        importPaper: '0'
+                    },
 				    auto: false,
 				    accept: 'file', //普通文件
 					exts: 'xls|xlsx', //允许上传的文件后缀
@@ -86,12 +95,12 @@
 						}); //上传loading
 					},
 				    done: function(res){
-  						layer.closeAll('loading'); //关闭loading
-				    	layer.alert(res[0].msg);
+				        layer.closeAll('loading'); //关闭loading
+                		layer.alert(res[0].msg);
 				    }
 				  });
 			});
-			
+
 			/* 下载导入模板 */
 			function downloadDemo(fileName) {
 				window.location.href = "Excel/downloadDemo/importDemo?fileName="+fileName; 
@@ -99,10 +108,12 @@
 					time: 2000
 				});
 			}
+
 		</script>
 		<script type="text/javascript">
 			$(document).ready(function() {
 					loadingUserName();
+                	getSelectCourse();
 			});
 		
 			
@@ -122,7 +133,30 @@
 								}
 							})
 		      }
-		
+
+
+            /*获取初始化下拉框课程选项*/
+            function getSelectCourse() {
+                $.ajax({
+                    type: "POST",
+                    url: "User/getSelectCourse",
+                    data: '',
+                    async: false,
+                    dataType: 'json',
+                    success: function(data) {
+                        var course = data.data.dataList;	//获取数据库返回结果集
+                        //遍历成功返回的json数据，取出对应内容进行展示
+                        $.each(course, function (index,item) {
+
+                            var course_name = course[index].courseName;
+                            var course_id = course[index].courseId;
+                            //构造动态option
+                            $('#selCourse').append("<option value='"+course_id+"'>"+course_name+"</option>")
+                        });
+                    }
+                })
+            }
+
 		</script>
 	</body>
 

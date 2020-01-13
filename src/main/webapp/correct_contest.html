@@ -1,7 +1,7 @@
 <html class="x-admin-sm">
 	<head>
 		<meta charset="UTF-8">
-		<title>欢迎页面-X-admin2.2</title>
+		<title>主观题批改页面</title>
 		<meta name="renderer" content="webkit">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -9,7 +9,8 @@
 		<link rel="stylesheet" href="css/font.css">
 		<link rel="stylesheet" href="css/xadmin.css">
 		<script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
-		<script src="./lib/layui/layui.all.js" charset="utf-8"></script>
+		<script src="./lib/layui/layui.js" charset="utf-8"></script>
+		<script src="./lib/download.js"></script> 
 		<script type="text/javascript" src="./js/xadmin.js"></script>
 		<!--[if lt IE 9]>
           <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
@@ -37,7 +38,7 @@
 	<body>
 		<body>
 			<div class="x-nav">
-				 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
+				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
 				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
 				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
 				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
@@ -66,18 +67,27 @@
     	</script>
 
 		<script type="text/html" id="header">
-			<div style="float: right; class="layui-inline layui-show-xs-block">
-				<!-- <button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加用户</button>
-				<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>	 --!>
-				<button class="layui-btn" lay-event="exportExcel" data-type="exportExcel" id="exportScore"><i class="layui-icon layui-icon-download-circle" ></i>导出</button>
-			</div>
-
 			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
-					<input name="id" class="layui-input" id="contestname" placeholder="考试名称" autocomplete="off">
+					<input name="stuid" class="layui-input" id="stuid" placeholder="学号" autocomplete="off" value="" >
 			</div>
-			
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
+					<input name="id" class="layui-input" id="stuname" placeholder="学生姓名" autocomplete="off" value="">
+			</div>
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
+					<input name="id" class="layui-input" id="contestname" placeholder="考试名称" autocomplete="off" value="">
+			</div>
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;" >
+					<input name="id" class="layui-input" id="classname" placeholder="班级" autocomplete="off" value="">
+			</div>
 			<button class="layui-btn" type="button" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
 		</script>
+
+		<script type="text/html" id="demotool">
+			<div style="display:none;"  class="caozuo">
+				<a class="layui-btn layui-btn-xs " lay-event="edit" >批改</a>
+				<a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="pdf" >PDF预览</a>
+			</div>
+   		 </script>
 
 
 		<script>
@@ -104,14 +114,11 @@
 					endTime = timeArea.split(" - ")[1]; //结束时间
 			}
 			
-			/* //监听按钮的事件
-			layui.use('layer', function(){
-			  var $ = layui.jquery, layer = layui.layer;
-			  $(document).on('click','#exportScore',function(){
-					 layer.msg('hello');
-			   });
-			});       
-			 */
+
+			
+			/* 定义搜索框的值对象 */
+			var search_user_id = "",search_realname = "",
+				search_contestname = "",search_classname = "";
 				
 			layui.use('table', function() {
 					var table = layui.table;
@@ -121,17 +128,32 @@
 						id: 'demoReload',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						height: '720', //容器高度
+				
 						toolbar: '#header',
 						cols: [
-							[ {
+							[{
+								checkbox: true
+							}, {
+								field: 'contest_status_id',
+								title: '考试状态id',
+								minWidth: 160,
+								sort: true,
+								hide: true //要隐藏 用于传参
+							}, {
+                                field: 'status',
+                                title: '考试状态',
+                                minWidth: 160,
+                                sort: true,
+                                hide: true //要隐藏 用于传参
+                            },{
 								field: 'stuid',
 								title: '学号',
-								minWidth: 180,
+								minWidth: 160,
 								sort: true
 							}, {
 								field: 'stuname',
 								title: '姓名',
-								minWidth: 120,
+								minWidth: 100,
 								sort: true
 							}, {
 								field: 'contestname',
@@ -151,86 +173,78 @@
 							}, {
 								field: 'contesttime',
 								title: '考试时间',
-								minWidth: 124,
+								minWidth: 120,
 								sort: true
+							}, {
+								title: '操作',
+								toolbar: '#demotool',
+								'fixed': 'right',
+								minWidth: 180
 							}]
 						],
-						url: 'Student/selOneStuScore',
+						url: 'Teacher/selStuScore?shortAnswer=1',
 						method: 'post',
 						title:'学生成绩表',
 						limits: [15, 30, 50, 100],
 						limit: 15, //默认采用10
 						loading: true,
-						page: true
+						page: true,
+                        done: function(res, curr, count){	  //如果是异步请求数据方式，res即为你接口返回的信息。curr为页码
+                            roleControl(); // 判权限
+
+                            //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+                            for(var i in res.data){		//遍历整个表格数据
+                                var item = res.data[i].status;	//获取当前行数据
+                                // 02.如果已结算则整行变绿色
+                                if(item == 1){ //考试没批改完
+                                    $("tr[data-index='" + i + "']").attr({"style":"color:#27aa80"});  //将当前行变成绿色
+                                }
+                            }
+                        }
 					});
 					
 					table.on('toolbar(demo)', function(obj) {
 						if (obj.event === 'add') {
-							layer.open({
+							/* layer.open({
 								type: 2,
 								title: "新增",
 								shadeClose: false, //点击遮罩关闭层
 								area: ['40%', '70%'],
 								content: "addstudent.do"
-							});
+							}); */
 							
 						}else if (obj.event === 'reload') {	
+							search_user_id = $("#stuid").val();
+							search_classname =  $("#classname").val();
+							search_contestname =  $("#contestname").val();
+							search_realname =  $("#stuname").val();
+							
 							console.log("执行搜索")
 							var type = $(this).data('type');
 							active[type] ? active[type].call(this) : '';
 							
-						}else if (obj.event === 'exportExcel') {
-							console.log("执行导出")
-							layer.confirm('是否导出Excel?', function(index) {
-								window.location.href = "Teacher/gradeScoreExcel";
-								layer.msg("导出成功!", {
-												time: 1000
-								});
-							 	/* $.ajax({
-									url: "Teacher/gradeScoreExcel",
-									type: "post",
-									data: "",
-									async: false,
-									success: function(result) {
-	
-										if (!result.code) {
-											layer.msg("导出成功!", {
-												time: 1000
-											});
-											active.reload();
-										} else {
-											layer.msg(result.msg, {
-												time: 2000
-											});
-											return false;
-										}
-	
-									}
-								});  */
-								layer.close(index);
-							})
-						};
-						
+						}
 					});
 
-/* 
+
 					table.on('tool(demo)', function(obj) {
 						if (obj.event == "edit") {
 							//编辑：对成绩的修改
 							console.log("edit")
 							layer.open({
 								type: 2,
-								title: "编辑",
+								title: "题目批改",
 								shadeClose: false, //点击遮罩关闭层
-								area: ['30%', '50%'],
-								content: "editScore.do?cstatusid=" + obj.data.contest_status_id +"&stuid="+obj.data.stuid+"&stuname="+obj.data.stuname
-								+"&classname="+obj.data.classname+"&score="+obj.data.score+"&contestname="+obj.data.contestname
+								area: ['480px','680px'],
+								content: "correct.do?cStatusId=" + obj.data.contest_status_id + "&cStatus=" + obj.data.status
 							});
 
-						} 
+						} else if (obj.event == "pdf") {
+                            window.location.href='ContestStatus/Pdf?contestStatusId='+obj.data.contest_status_id+"&stuid="+obj.data.stuid;
+						}
 					});
-					 */
-					/* //删除用户函数
+					
+					//删除用户函数
 					function delinventory(id) {
 						layer.confirm('是否删除?', function(index) {
 							$.ajax({
@@ -254,7 +268,7 @@
 							});
 							layer.close(index);
 						})
-					} */
+					}
 
 					
 				 	//查询操作会调用
@@ -275,37 +289,35 @@
 								});
 						},
 					}; 
-					
-						
-					/*   //将搜索框的值随请求传到后台
-					   $('#keyword').keyup(function () {
-					   console.log('aa')
-					      active['reload'].call(this); 
-					  });  */
-					
+
 				});
 			}
 			
-			/* function exportExcel() {
-			//创建对象
-				var xhr = new XMLHttpRequest();
-				//复写函数
-				xhr.onreadystatechange = function() {
-					//判断状态码（两个 Ajax 和 响应状态码）
-					if(xhr.readyState == 4) {
-						if(xhr.status == 200) {
-							var result = xhr.responseText;
-							window.location.href='Teacher/gradeScoreExcel';
-						}
-					}
-				}
-				//发送请求
-				xhr.open("post",'index.html');
-				xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-				//对于post里头可写参数
-				xhr.send(null);
-			} */
-			
+			/* 获取用户角色信息 */
+			function roleControl() {
+				$.ajax({
+							type: "POST", 
+							url: "User/getUsername",
+							data: '',
+							async: false,
+							dataType: 'json', 
+							success: function(data) {
+								if(data.level<1) {	//判断有误权限进来此页面
+									alert("无访问权限");
+									window.location.href = "./error.html";
+								}else {
+									if(data.realname!=null&&data.realname!="") {
+										if(data.level==2) { //管理员角色可编辑学生信息
+											$(".caozuo").show();
+										}
+									}else {
+										alert("请先登录系统");
+										window.location.href = "./error.html";
+									}
+								}
+							}
+				})
+			}
 		</script>
 	</body>
 

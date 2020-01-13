@@ -8,7 +8,7 @@
 		<link rel="stylesheet" href="lib/layui/css/layui.css">
 		<link rel="stylesheet" href="css/font.css">
 		<link rel="stylesheet" href="css/xadmin.css">
-		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+		<script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
 		<script src="./lib/layui/layui.js" charset="utf-8"></script>
 		<script type="text/javascript" src="./js/xadmin.js"></script>
 		<!--[if lt IE 9]>
@@ -35,9 +35,7 @@
 	<body>
 		<body>
 			<div class="x-nav">
-				<span class="layui-breadcrumb"> <a href="">首页</a> <a href="">演示</a>
-					<a> <cite>导航元素</cite></a>
-				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
+				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
 				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
 				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
 				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
@@ -78,7 +76,7 @@
 
 		<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
 		<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
-			<input name="id" class="layui-input" id="keyword" placeholder="id/名称/出卷人">
+			<input name="id" class="layui-input" id="keyword" placeholder="id/名称/出卷人" autocomplete="off">
 		</div>
 									
 		<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
@@ -177,7 +175,7 @@
 							layer.open({
 							  type: 2,
 							  area: ['700px', '450px'],
-							  title: "批量导入",
+							  title: "批量导入试卷",
 							  fixed: false, //不固定
 							  maxmin: true,
 							  content: 'importPaper.html'

@@ -18,7 +18,7 @@ public interface ExcelService {
 	 * @param 4、考试名称
 	 * @return 成绩实体Map对象集合
 	 */
-	public List<Map<String,Object>> selStuScoreByKeyword(String className,String stuId,String stuName,String contestName); 
+	 List<Map<String,Object>> selStuScoreByKeyword(String className,String stuId,String stuName,String contestName,int simCourseId);
 	
 	
 	/**
@@ -29,7 +29,7 @@ public interface ExcelService {
 	 * @return		导入结果等信息
 	 * @throws Exception	抛出导入带有的错误信息
 	 */
-	LayResponse batchImportStudent(String fileName, MultipartFile file) throws Exception;
+	 LayResponse batchImportStudent(String fileName, MultipartFile file) throws Exception;
 	
 	/**
 	 * 
@@ -39,7 +39,7 @@ public interface ExcelService {
 	 * @return		导入结果等信息
 	 * @throws Exception	抛出导入带有的错误信息
 	 */
-	LayResponse batchImportTeacher(String fileName, MultipartFile file) throws Exception;
+	 LayResponse batchImportTeacher(String fileName, MultipartFile file) throws Exception;
 	
 	/**
 	 * 
@@ -49,7 +49,7 @@ public interface ExcelService {
 	 * @return		导入结果等信息
 	 * @throws Exception	抛出导入带有的错误信息
 	 */
-	LayResponse batchImportClass(String fileName, MultipartFile file) throws Exception;
+	 LayResponse batchImportClass(String fileName, MultipartFile file) throws Exception;
 
 	/**
 	 *
@@ -59,5 +59,13 @@ public interface ExcelService {
 	 * @return		导入结果等信息
 	 * @throws Exception	抛出导入带有的错误信息
 	 */
-	LayResponse batchImportSimproblem(String fileName, MultipartFile file) throws Exception;
+	 LayResponse batchImportSimproblem(String fileName, MultipartFile file, int courseId, String teacherId, String importPaper) throws Exception;
+
+
+	/**
+	 * 为新的试题的simproblem配置pos值
+	 * @param paperId
+	 * @return
+	 */
+	 int updateSimPosByPaperId(int paperId);
 }

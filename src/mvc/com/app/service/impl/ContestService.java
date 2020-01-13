@@ -39,7 +39,7 @@ public class ContestService {
 	@Autowired
 	private UserMapper userDao;
 	
-	public List GetAllContest(String Keyword,String startTime,String endTime,String pageSize,String pageNumber){
+	public List GetAllContest(String Keyword,int fkCourseId, String startTime,String endTime,String pageSize,String pageNumber){
 		//分页所需相关参数的计算
 		//根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
 		if(pageSize!=null&&pageNumber!=null) {
@@ -47,23 +47,23 @@ public class ContestService {
 			int pageNumberInt = Integer.parseInt(pageNumber);
 			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
 		}
-        System.out.println("key=" + Keyword);
+        //System.out.println("key=" + Keyword);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		
 		if(Keyword!=null && !Keyword.trim().isEmpty()){
 			if(startTime!=null && endTime!=null && !startTime.trim().isEmpty() && !endTime.trim().isEmpty()){
-				list = contestDao.listAllByKeywordAndDate(Keyword, startTime, endTime);
+				list = contestDao.listAllByKeywordAndDate(Keyword,fkCourseId,startTime,endTime);
 			}
 			else{
-				list = contestDao.listAllByKeyword(Keyword);
+				list = contestDao.listAllByKeyword(Keyword,fkCourseId);
 			}
 		}else if(startTime!=null && endTime!=null && !startTime.trim().isEmpty() && !endTime.trim().isEmpty())
 		{
-			list = contestDao.listAllByDate(startTime,endTime);
+			list = contestDao.listAllByDate(fkCourseId,startTime,endTime);
 		}else
 		{
-			list = contestDao.listAll();  //都为空
+			list = contestDao.listAll(fkCourseId);  //都为空
 		}
 		
          
@@ -162,12 +162,12 @@ public class ContestService {
 	
 	/**
 	 * 根据考试id获取contest对象
-	 * @param contest_id
+	 * @param
 	 */
 	public List<Map<String,Object>> selOneContestById(String contestId) {
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
 		
-		resultList = contestDao.listAllByKeyword(contestId);
+		resultList = contestDao.listAllByKeyword(contestId,0);
 		return resultList;
 	}
 	

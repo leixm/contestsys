@@ -3,6 +3,8 @@ package com.app.dao;
 import com.code.model.Simsolution;
 import com.code.model.SimsolutionExample;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface SimsolutionMapper {
@@ -33,4 +35,7 @@ public interface SimsolutionMapper {
     int updateByPrimaryKeyWithBLOBs(Simsolution record);
 
     int updateByPrimaryKey(Simsolution record);
+
+    List<Map<String, Object>> selSolutionSimproblemByTypeAndcStatusId(@Param("type") int type,@Param("cStatusId") int cStatusId);
+
 }

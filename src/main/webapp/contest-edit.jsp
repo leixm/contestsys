@@ -36,7 +36,7 @@
 							<span class="x-red">*</span>考试id
 						</label>
 						<div class="layui-input-inline">
-							<input type="text" id="contestId" name="contestId" required="" lay-verify="required" autocomplete="off" class="layui-input" value="${contest.contest_id}">
+							<input type="text" id="contestId" name="contestId" required="" lay-verify="required" autocomplete="off" class="layui-input" value="${contest.contest_id}" disabled>
 						</div>
 						<div class="layui-form-mid layui-word-aux">
 							<span class="x-red">*</span>
@@ -90,7 +90,7 @@
 							
 								<c:forEach var="obj" items="${paper}" varStatus="s">
 									<option value="${obj.paper_id}" <c:if test='${obj.paper_id==contest.paper_id}'> selected='selected'</c:if> >${obj.title}</option>
- 
+
 								</c:forEach>
 
 							</select>

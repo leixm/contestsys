@@ -31,13 +31,13 @@ public interface ContestMapper {
 
     int updateByPrimaryKey(Contest record);
     
-    List<Map<String,Object>> listAll();
+    List<Map<String,Object>> listAll(@Param("fkCourseId") int fkCourseId);
     
-    List<Map<String,Object>> listAllByKeyword(String keyword);
+    List<Map<String,Object>> listAllByKeyword(String keyword, @Param("fkCourseId") int fkCourseId);
     
-    List<Map<String,Object>> listAllByDate(String startTime,String endTime);
+    List<Map<String,Object>> listAllByDate(@Param("fkCourseId") int fkCourseId,String startTime,String endTime);
     
-    List<Map<String,Object>> listAllByKeywordAndDate(String keyword,String startTime,String endTime);
+    List<Map<String,Object>> listAllByKeywordAndDate(@Param("keyword")String keyword,@Param("fkCourseId")int fkCourseId,@Param("startTime")String startTime,@Param("endTime")String endTime);
     
     @Select("select * from contest where teacher = #{id}")
     List<Contest> selAllContest(String id);

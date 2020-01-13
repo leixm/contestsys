@@ -26,8 +26,8 @@ public class ContestPaperService {
 	@Autowired
 	private ContestpaperMapper contestpaperDao;
 	
-	public List GetAllContestPaper(String Keyword,String startTime,String endTime,String pageSize,String pageNumber){
-        System.out.println("key=" + Keyword + " startTime=" + startTime + "endTime=" + endTime);
+	public List GetAllContestPaper(String Keyword,String startTime,String endTime,int simCourseId,String pageSize,String pageNumber){
+        //System.out.println("key=" + Keyword + " startTime=" + startTime + "endTime=" + endTime);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		
@@ -37,8 +37,9 @@ public class ContestPaperService {
 			int pageNumberInt = Integer.parseInt(pageNumber);
 			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
 		}
-		
-		if(Keyword!=null && !Keyword.trim().isEmpty()){
+
+
+		/*if(Keyword!=null && !Keyword.trim().isEmpty()){
 			if(startTime!=null && endTime!=null && !startTime.trim().isEmpty() && !endTime.trim().isEmpty()){
 				list = contestpaperDao.listAllByKeywordAndDate(Keyword, startTime, endTime);
 			}
@@ -51,8 +52,9 @@ public class ContestPaperService {
 		}else
 		{
 			list = contestpaperDao.listAll();  //都为空
-		}
-		
+		}*/
+
+		list = contestpaperDao.listAllByKeywordAndDate(Keyword, startTime, endTime,simCourseId);
 
 	    for(Map<String,Object> map : list){
 	        map.put("date", sdf.format((Date)map.get("date")));

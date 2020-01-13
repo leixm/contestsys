@@ -8,14 +8,14 @@
 		<link rel="stylesheet" href="lib/layui/css/layui.css">
 		<link rel="stylesheet" href="css/font.css">
 		<link rel="stylesheet" href="css/xadmin.css">
-		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-		<script src="./lib/layui/layui.all.js" charset="utf-8"></script>
+		<script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
+		<script src="./lib/layui/layui.js" charset="utf-8"></script>
 		<script type="text/javascript" src="./js/xadmin.js"></script>
 		<!--[if lt IE 9]>
           <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
           <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
-		
+
 		<style type="text/css">
 			/* 表格行高 等*/
 	        .layui-table-cell{
@@ -36,9 +36,7 @@
 	<body>
 		<body>
 			<div class="x-nav">
-				<span class="layui-breadcrumb"> <a href="">首页</a> <a href="">演示</a>
-					<a> <cite>导航元素</cite></a>
-				</span> <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
+				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
 				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
 				 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
 				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>			
@@ -195,7 +193,7 @@
 								type: 2,
 								title: "添加考试", 
 								shadeClose: false, //点击遮罩关闭层
-								area: ['480px','550px'],  // 宽  高
+								area: ['480px','600px'],  // 宽  高
 								content: "addcontest.do"
 							});
 						}

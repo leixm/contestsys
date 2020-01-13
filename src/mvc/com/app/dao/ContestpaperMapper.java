@@ -37,12 +37,15 @@ public interface ContestpaperMapper {
 	
 	List<Map<String, Object>> listAllByDate(String startTime,String endTime);
 	
-	List<Map<String, Object>> listAllByKeywordAndDate(String keyword,String startTime,String endTime);
+	List<Map<String, Object>> listAllByKeywordAndDate(@Param("keyword")String keyword,@Param("startTime")String startTime,
+													  @Param("endTime")String endTime,@Param("simCourseId")int simCourseId);
 	
     @Select("select max(paper_id) from contestpaper")
     int selMaxPaperId();
     
     @Select("select  count(*) from contestpaper")
     int selPaperCount();
-    
+
+    @Select("select * from contestpaper t where t.title = #{0}")
+    List<Map<String,Object>> selPaperByTitle(String paperTitle);
 }

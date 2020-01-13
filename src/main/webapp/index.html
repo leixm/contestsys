@@ -119,23 +119,29 @@
                             <cite>测试管理</cite>
                              <i class="iconfont nav_right">&#xe697;</i></a>
                         <ul class="sub-menu">
-                            <li>
+                             <li>
                                 <a onclick="xadmin.add_tab('考试管理','contest.html')">
                                     <i class="iconfont">&#xe6a7;</i>
                                     <cite>考试管理</cite></a>
+                             </li>
+
+                            <li>
+                                <a onclick="xadmin.add_tab('主观题批改','correct_contest.html')">
+                                    <i class="iconfont">&#xe6a7;</i>
+                                    <cite>主观题批改</cite></a>
                             </li>
-                            
+
                              <li>
                                 <a onclick="xadmin.add_tab('成绩管理','grade.html')">
                                     <i class="iconfont">&#xe6a7;</i>
                                     <cite>成绩管理</cite></a>
-                            </li>
+                             </li>
                             
                              <li>
                                 <a onclick="xadmin.add_tab('成绩统计','stuGradeShow.html')">
                                     <i class="iconfont">&#xe6a7;</i>
                                     <cite>成绩统计</cite></a>
-                            </li>
+                             </li>
                         </ul>
                     </li>
                     <li>
@@ -304,7 +310,9 @@
 					 data: data, 
 					 success: function(data){  
 					 	layer.msg('切换课程成功！', {
+                            javascript:top.location.reload(),
 					        	time: 2000, //4s后自动关闭
+
 				      	});
 					 }
 				 })

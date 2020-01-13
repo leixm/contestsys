@@ -388,8 +388,7 @@ public class StudentController {
 			HttpSession session = request.getSession(); 
 			User user = (User)session.getAttribute("user");		
 			String stuId = user.getUserId();
-			System.out.println("userId:----"+user.getUserId());
-			
+
 			LayResponse layResp = new LayResponse();//layui参数返回格式
 			layResp.setCode(1); //默认设置为1
 			

@@ -14,7 +14,6 @@
 		<link rel="stylesheet" href="css/xadmin.css">
 		<link rel="stylesheet" href="lib/layui/css/layui.css">
 		<script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
-		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 		<script src="./lib/layui/layui.js" charset="utf-8"></script>
 		<script type="text/javascript" src="./js/xadmin.js"></script>
 
@@ -27,7 +26,24 @@
 					<!-- 无用div控制布局作用 -->
                 	<div style="height: 30px">
                 	</div>
-                	
+				<%--	<li class="layui-nav-item " style="font-size: 14px;">
+						<span class="x-red" >*</span>试卷所属课程 &nbsp; &nbsp;
+						<select lay-ignore name="selCourse"  lay-filter="test" id="selCourse" style="height:30px; min-width: 140px; font-size: 14px; text-align:center;border-radius: 3px;opacity:80%; cursor: pointer;">
+							<option value='0'>请选择课程</option>
+						</select>
+					</li>--%>
+
+					<div class="layui-form-item">
+						<label for="selCourse" class="layui-form-label">
+							<span class="x-red">*</span>考试课程</label>
+						<div class="layui-input-inline">
+							<select id="selCourse" name="selCourse" class="valid" lay-filter="selCourse" lay-verify="required">
+								<option value="0"> 请选择考试所属课程 </option>
+
+							</select>
+						</div>
+					</div>
+
 					<div class="layui-form-item">
 						<label for="title" class="layui-form-label">
 							<span class="x-red">*</span>考试名称
@@ -162,7 +178,7 @@
 
 
 									} else {
-										layer.alert(data.msg, {
+										layer.alert(da.msg, {
 											icon: 5
 										});
 
@@ -233,6 +249,7 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 					loadingUserName();
+                	getSelectCourse();
 			});
 		
 			
@@ -252,6 +269,29 @@
 								}
 							})
 		      }
+
+            /*获取初始化下拉框课程选项*/
+            function getSelectCourse() {
+                $.ajax({
+                    type: "POST",
+                    url: "User/getSelectCourse",
+                    data: '',
+                    async: false,
+                    dataType: 'json',
+                    success: function(data) {
+                        var course = data.data.dataList;	//获取数据库返回结果集
+                        //遍历成功返回的json数据，取出对应内容进行展示
+                        $.each(course, function (index,item) {
+
+                            var course_name = course[index].courseName;
+                            var course_id = course[index].courseId;
+                            //构造动态option
+                            $('#selCourse').append("<option value='"+course_id+"'>"+course_name+"</option>")
+                        });
+                    }
+                })
+            }
+
 		
 		</script>
 	</body>
