@@ -83,7 +83,7 @@
 		</script>
 
 		<script type="text/html" id="demotool">
-			<div style="display:none;"  class="caozuo">
+			<div style="display:block;"  class="caozuo">
 				<a class="layui-btn layui-btn-xs " lay-event="edit" >批改</a>
 				<a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="pdf" >PDF预览</a>
 			</div>
@@ -128,11 +128,12 @@
 						id: 'demoReload',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						height: '720', //容器高度
-				
 						toolbar: '#header',
+						defaultToolbar: ['', '', ''],
 						cols: [
 							[{
-								checkbox: true
+								checkbox: true,
+                                width: 60
 							}, {
 								field: 'contest_status_id',
 								title: '考试状态id',
@@ -191,12 +192,12 @@
 						page: true,
                         done: function(res, curr, count){	  //如果是异步请求数据方式，res即为你接口返回的信息。curr为页码
                             roleControl(); // 判权限
-
                             //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
                             for(var i in res.data){		//遍历整个表格数据
                                 var item = res.data[i].status;	//获取当前行数据
                                 // 02.如果已结算则整行变绿色
                                 if(item == 1){ //考试没批改完
+                                    ifCorrect = 0;
                                     $("tr[data-index='" + i + "']").attr({"style":"color:#27aa80"});  //将当前行变成绿色
                                 }
                             }
@@ -226,6 +227,7 @@
 						}
 					});
 
+					var ifCorrect = 1;
 
 					table.on('tool(demo)', function(obj) {
 						if (obj.event == "edit") {
@@ -240,7 +242,17 @@
 							});
 
 						} else if (obj.event == "pdf") {
-                            window.location.href='ContestStatus/Pdf?contestStatusId='+obj.data.contest_status_id+"&stuid="+obj.data.stuid;
+                            layer.confirm('是否导出为pdf文件?', function(index) {
+                                if(ifCorrect == 1) {
+                                    window.location.href='ContestStatus/Pdf?contestStatusId='+obj.data.contest_status_id+"&stuid="+obj.data.stuid;
+                                } else {
+                                    layer.msg("请先批改完试题，才能进行PDF预览！", {
+                                        time: 1000
+                                    });
+								}
+
+                                layer.close(index);
+                            })
 						}
 					});
 					

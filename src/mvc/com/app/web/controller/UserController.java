@@ -24,6 +24,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.annotation.SystemControllerLog;
+import com.app.service.LogService;
+import com.app.tools.MD5Util2;
+import com.code.model.*;
+import net.sf.json.JSON;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -40,11 +46,6 @@ import com.app.service.impl.ClassService;
 import com.app.service.impl.UserService;
 import com.app.tools.PathHelper;
 import com.app.tools.RandomValidateCode;
-import com.code.model.Course;
-import com.code.model.LayResponse;
-import com.code.model.Response;
-import com.code.model.User;
-import com.code.model.loginUser;
 import com.github.pagehelper.PageInfo;
 
 import net.sf.json.JSONArray;
@@ -58,7 +59,10 @@ public class UserController {
 	
 	@Resource  
 	private ClassService classService;
-	
+
+	@Resource
+	private LogService logService;
+
 	/**
 	 * @author lxm
 	 * @description 用户登录
@@ -66,6 +70,8 @@ public class UserController {
 	 */
 	@RequestMapping(value = "User/Login", method = { RequestMethod.POST }, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	//此处为记录AOP拦截Controller记录用户操作
+	@SystemControllerLog(description = "用户登录系统")
 	public String Login(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Response re = new Response();
 		re.setSuccess(0);
@@ -95,7 +101,7 @@ public class UserController {
 			re.setSuccess(1);
 			re.setType(state);
 		} 
-		System.out.println(JSONObject.fromObject(re).toString());
+		//System.out.println(JSONObject.fromObject(re).toString());
 		return JSONObject.fromObject(re).toString();
 	}
 	
@@ -295,6 +301,7 @@ public class UserController {
 	 */
 	@RequestMapping(value = "User/AddStudent", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "添加一名学生用户")
 	public String AddUser(HttpServletRequest request, User user) {
 		System.out.println("AddUser!!!!!!\n" + JSONObject.fromObject(user).toString());
 		LayResponse response = new LayResponse();
@@ -333,12 +340,17 @@ public class UserController {
 	 */
 	@RequestMapping(value = "User/UpdateUser", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "修改用户信息（用户管理）")
 	public String UpdateUser(HttpServletRequest request, User user) {
-		System.out.println(JSONObject.fromObject(user).toString());
 		LayResponse response = new LayResponse();
 		response.setCode(1);  
-		if(user.getPassword().trim().isEmpty())
+		if(user.getPassword().trim().isEmpty()) {
 			user.setPassword(null);
+		} else {
+			// MD5加盐加密
+			String newPwd = MD5Util2.getSaltMD5(user.getPassword());
+			user.setPassword(newPwd);
+		}
 		if (userService.UpdateUser(user) > 0) {
 			response.setCode(0);
 			return JSONObject.fromObject(response).toString();
@@ -356,6 +368,7 @@ public class UserController {
 	 */
 	@RequestMapping(value = "User/DeleteUser", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "删除用户")
 	public String DeleteUser(HttpServletRequest request, String id) {
 
 		LayResponse response = new LayResponse();
@@ -377,6 +390,7 @@ public class UserController {
 	 */
 	@RequestMapping(value = "User/DelAll", consumes = "application/json", produces = "text/html;charset=UTF-8", method = {RequestMethod.POST })
 	@ResponseBody
+	@SystemControllerLog(description = "批量删除用户")
 	public String DelAll(HttpServletRequest request, @RequestBody List<String> ids) {
 
 		System.out.println(JSONArray.fromObject(ids).toString());
@@ -429,6 +443,7 @@ public class UserController {
 	 */
 	@RequestMapping(value = "User/AddTeacher", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "添加一名教师用户")
 	public String AddTeacher(HttpServletRequest request, User user) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -479,6 +494,7 @@ public class UserController {
 	 */
 	@RequestMapping(value = "upload/fileUpload", method = RequestMethod.POST)
 	@ResponseBody
+	@SystemControllerLog(description = "文件上传")
 	public void fileUpload(HttpServletRequest request, HttpServletResponse response) {
 		System.out.println("file upload!");
 		// 文件保存目录路径
@@ -674,6 +690,17 @@ public class UserController {
 	    if(level > 0) {		//管理员或教师
 	    	//userId为参，null的时候默认查全部的课程，即管理员角色
 	    	resultList = userService.selCourseNameByTeacherId(userId,keyword,pageSize,pageNumber);
+
+			//判断首页index页面选择课程模块 进入此请求
+			String isIndex = request.getParameter("isIndex");	//第几页
+			if("1".equals(isIndex)) {
+				// 手动加入全部课程选项：
+				Map<String,Object> tempMap = new HashedMap();
+				tempMap.put("courseName","全部课程");
+				tempMap.put("courseId",0);
+				resultList.add(0,tempMap);
+			}
+
 	    }else {
 			layResp.setCode(0);
 			layResp.setMsg("抱歉，权限不足！");
@@ -751,6 +778,7 @@ public class UserController {
 	 */
 	@RequestMapping(value = "Course/addTeach", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "添加课程任课关系")
 	public String AddTeach(HttpServletRequest request) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -787,6 +815,7 @@ public class UserController {
 	 */
 	@RequestMapping(value = "Course/addCourse", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "添加一门课程")
 	public String AddCourse(HttpServletRequest request) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -843,12 +872,12 @@ public class UserController {
 	
 	/**
 	 * @author zzs
-	 * @param cla: 班级id
-	 * @description 更新班级
+	 * @description 更新课程
 	 * @return 响应状态
 	 */
 	@RequestMapping(value = "Course/updateCourse", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "更新课程信息")
 	public String updateCourse(HttpServletRequest request) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -877,12 +906,12 @@ public class UserController {
 	
 	/**
 	 * @author zzs
-	 * @param id: 班级id
 	 * @description 删除单个课程
 	 * @return 响应状态
 	 */
 	@RequestMapping(value = "Course/deleteCourse", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "删除单个课程")
 	public String deleteCourse(HttpServletRequest request, String id) {
 		
 		LayResponse response = new LayResponse();
@@ -909,11 +938,12 @@ public class UserController {
 	/**
 	 * @author zzs
 	 * @param classId,teacherId
-	 * @description 移除任课关系
+	 * @description 移除课程任课关系
 	 * @return 响应状态
 	 */
 	@RequestMapping(value = "Course/deleteTeach", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "移除课程任课关系")
 	public String deleteTeach(HttpServletRequest request, String courseId, String teacherId) {
 		
 		LayResponse response = new LayResponse();
@@ -939,11 +969,12 @@ public class UserController {
 	/**
 	 * @author zzs
 	 * @param ids: 课程id列表
-	 * @description 删除多个k课程
+	 * @description 删除多个课程
 	 * @return 响应状态
 	 */
 	@RequestMapping(value = "Course/delAll", consumes = "application/json", produces = "text/html;charset=UTF-8", method = {RequestMethod.POST })
 	@ResponseBody
+	@SystemControllerLog(description = "批量删除课程")
 	public String delAllCourse(HttpServletRequest request, @RequestBody List<String> ids) {
 		  LayResponse response = new LayResponse(); 
 		  response.setCode(1);
@@ -967,7 +998,6 @@ public class UserController {
 	    }
 	}
 	
-	
 	//复用方法
 	private String getError(String message) {
 		JSONObject obj = new JSONObject();
@@ -975,5 +1005,52 @@ public class UserController {
 		obj.put("message", message);
 		return obj.toString();
 	}
-	
+
+	/**
+	 * @author zzs
+	 * @description 查询日志列表信息
+	 * @return 日志实例列表
+	 */
+	@RequestMapping(value = "User/getLogList", method = { RequestMethod.POST }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String getLogList(HttpServletRequest request)
+			throws Exception {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		//获取时间参数
+		String startTime = request.getParameter("startTime");
+		String endTime = request.getParameter("endTime");
+		if(startTime == null) {
+			startTime = "";
+		}
+		if(endTime == null) {
+			endTime = "";
+		}
+		//获取分页所需相关数据
+		String pageSize = request.getParameter("limit"); //一页多少个
+		String pageNumber = request.getParameter("page");	//第几页
+
+		List<Map<String,Object>> resultList =  logService.getLogList(startTime,endTime,pageSize,pageNumber);
+
+		//获取分页插件的数据只能通过PageInfo来获取
+		PageInfo pInfo = new PageInfo(resultList);
+		Long total = pInfo.getTotal();
+
+		response.setCount(total.intValue());
+		response.setMsg("请求成功");
+		response.setData(resultList);
+		response.setCode(0);
+
+		return JSONObject.fromObject(response).toString();
+	}
+
 }

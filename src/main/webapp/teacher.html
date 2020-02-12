@@ -1,7 +1,7 @@
 <html class="x-admin-sm">
 	<head>
 		<meta charset="UTF-8">
-		<title>欢迎页面-X-admin2.2</title>
+		<title>教师管理</title>
 		<meta name="renderer" content="webkit">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -80,7 +80,7 @@
 		<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加用户</button>
 						
 		<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
-			<input name="id" class="layui-input" id="keyword" placeholder="工号/名字/邮箱地址">
+			<input name="id" class="layui-input" id="keyword" placeholder="工号/名字/邮箱地址"  autocomplete="off">
 		</div>
 		<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
 		<button class="layui-btn" style="float:right"; lay-event="importTeacher" data-type="importTeacher" id="importTeacher"><i class="layui-icon layui-icon-download-circle" ></i>批量导入</button>
@@ -124,9 +124,11 @@
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						height: '720', //容器高度
 						toolbar: '#header',
+						defaultToolbar: ['', '', ''],
 						cols: [
 							[{
-								checkbox: true
+								checkbox: true,
+                                width: 60
 							}, {
 								field: 'user_id',
 								title: '工号',
@@ -295,26 +297,6 @@
 							}
 						}
 					};
-
-
-					/*   //将搜索框的值随请求传到后台
-					   $('#keyword').keyup(function () {
-					   console.log('aa')
-					      active['reload'].call(this); 
-					  });  */
-
-
-					/*   $('#keyword').keyup(function () {
-					   console.log($('#keyword').val() )
-					         table.reload('demo', {             //table的id
-					             where: {
-					                 user_id: $('#keyword').val() 
-					             }
-					         });
-					  }); */
-
-
-
 				});
 
 			}

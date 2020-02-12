@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.annotation.SystemServiceLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -118,7 +119,7 @@ public class StudentServiceImpl implements StudentService{
 	}
 	
 	 /**
-	  * 根据条件更新学生用户的个人信息
+	  * 根据条件更新用户的个人信息（修改个人信息（修改资料））
 	  * @param stuId	检索用的学生id
 	  * @param stuName
 	  * @param stuEmail
@@ -126,8 +127,8 @@ public class StudentServiceImpl implements StudentService{
 	  * @return 更新是否成功 
 	  */
 	@Override
+	@SystemServiceLog(description = "修改个人信息（修改资料）")
 	public int updateStuInfo(String stuId, String stuName, String stuEmail, String newPwd) {
-		System.out.println("stuInfo----"+stuId+"---"+stuName+"---"+stuEmail+"---"+newPwd);
 		return userDao.updateStuInfoByStuId(stuId, stuName, stuEmail, newPwd);
 	}
 	

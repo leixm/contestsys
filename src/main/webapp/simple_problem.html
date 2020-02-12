@@ -96,7 +96,7 @@
 
 
 	<script type="text/html" id="demotool">
-		<div class="caozuo" style="display:none;">
+		<div class="caozuo" style="display:block;">
 			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
 			<a class="layui-btn layui-btn-normal " lay-event="reuse">复用题目</a>
             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
@@ -123,7 +123,7 @@
 									window.location.href = "./login.html";
 								}else {
 									if(data.realname!=null&&data.realname!="") {
-										if(data.level>0) { //管理员角色可编辑学生信息
+										if(data.level>1) { //管理员角色可编辑学生信息
 											$(".caozuo").show();
 											$("#import").show();
 										}else{
@@ -153,13 +153,16 @@
 						id: 'demo',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						toolbar: '#header',
+						defaultToolbar: ['', '', ''],
 						cols: [
 							[{
-								checkbox: true
+								checkbox: true,
+                                width: 60
 							},{	
 								title: '序号',
 								type:'numbers',
-								align: 'center'
+								align: 'center',
+                                width: 80
 								
 							},{
 								field: 'simCourseId',
@@ -280,49 +283,64 @@
                             });
                         } else if (obj.event === 'del') {
 							//删除
-							delinventory(obj.data.simId);
+							delinventory(obj.data.simId,obj);
 						}
 						
 					});
 					
 					//删除用户函数
-					function delinventory(id) {
-						layer.confirm('是否删除?', function(index) {
-							$.ajax({
-								url: "Teacher/delSimproblem?simId=" + id,
-								type: "post",
-								success: function(result) {
+					function delinventory(id,obj) {
+						$.ajax({
+                                url: "Teacher/judgePowerToEditSimproblem?simPaperId=" + obj.data.simPaperId ,	 	// 判断是否具有权限
+                                type: "post",
+                                dataType: 'json',
+                                success: function(result) {
+                                    if (!result.code) {
+                                        layer.confirm('是否删除?', function(index) {
+											$.ajax({
+												url: "Teacher/delSimproblem?simId=" + id,
+												type: "post",
+												success: function(result) {
+				
+													if (!result.code) {
+														layer.msg("删除成功!", {
+															time: 1000
+														});
+														active.reload();
+													} else {
+														layer.msg(result.msg, {
+															time: 2000
+														});
+														return false;
+													}
+				
+												}
+											});
+											layer.close(index);
+										})
+                                    } else {
+                                        layer.msg(result.msg, {
+                                            time: 2000
+                                        });
+                                        return false;
+                                    }
 
-									if (!result.code) {
-										layer.msg("删除成功!", {
-											time: 1000
-										});
-										active.reload();
-									} else {
-										layer.msg(result.msg, {
-											time: 2000
-										});
-										return false;
-									}
-
-								}
-							});
-							layer.close(index);
-						})
+                                }
+                         });
 					}
 
 					active = {
 						reload: function() {
 							//执行重载
 							table.reload('demo', {
-									page: {
-										curr: 1 //重新从第 1 页开始
-									},
-									where: {
-										simPaperTitle: $('#simPaperTitle').val(),
-										simType: $('#simType').val()
-									}
-								});
+								page: {
+									curr: 1 //重新从第 1 页开始
+								},
+								where: {
+									simPaperTitle: $('#simPaperTitle').val(),
+									simType: $('#simType').val()
+								}
+							});
 						},
 						delAll: function() {
 							var checkStatus = table.checkStatus('demo')

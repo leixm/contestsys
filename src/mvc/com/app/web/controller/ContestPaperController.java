@@ -10,7 +10,9 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import com.annotation.SystemControllerLog;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +24,7 @@ import com.app.service.impl.ContestPaperService;
 import com.code.model.Contest;
 import com.code.model.Contestpaper;
 import com.code.model.LayResponse;
+import com.code.model.User;
 import com.github.pagehelper.PageInfo;
 
 import net.sf.json.JSONArray;
@@ -90,6 +93,7 @@ public class ContestPaperController {
 	 */
 	@RequestMapping(value = "ContestPaper/UpdateContestPaper", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "更新试卷信息")
 	public String UpdateContest(HttpServletRequest request,Contestpaper contestpaper) {
 
 		LayResponse response = new LayResponse();
@@ -111,38 +115,58 @@ public class ContestPaperController {
 	 */
 	@RequestMapping(value = "ContestPaper/DeleteContestPaper", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "删除试卷")
 	public String DeleteContestPaper(HttpServletRequest request, String id) {
 
 		LayResponse response = new LayResponse();
 		response.setCode(1);
-		if (contestpaperService.DeleteContestPaper(id) > 0) {
-			response.setCode(0);
-			return JSONObject.fromObject(response).toString();
-		} else {
-			response.setMsg("更新失败");
-			return JSONObject.fromObject(response).toString();
+		
+		int resultCode = contestpaperService.DeleteContestPaper(id);
+		if (resultCode > 0) {
+			response.setMsg("删除成功！");
+			return "1";
+			
+		} else if(resultCode == -2) {
+			response.setMsg("该试卷已经用于某场考试，无法进行删除！");
+			return "-2";
+		}
+		else {
+			response.setMsg("删除失败");
+			return "-1";
 		}
 	}
 	
 	/**
-	 * @author lxm
+	 * @author zzs
 	 * @param 
 	 * @description 批量删除试卷
 	 * @return 响应状态
 	 */
 	@RequestMapping(value = "ContestPaper/DelAll", consumes = "application/json", produces = "text/html;charset=UTF-8", method = {RequestMethod.POST })
 	@ResponseBody
+	@SystemControllerLog(description = "批量删除试卷")
 	public String DelAll(HttpServletRequest request, @RequestBody List<String> ids) {
-
-		  LayResponse response = new LayResponse(); response.setCode(1);
+		  
+		  LayResponse response = new LayResponse(); 
+		  response.setCode(1);
+		  //获取所登录用户的user对象
+			HttpSession session = request.getSession();
+			User user = (User)session.getAttribute("user");
+			int level = user.getLevel();
+			if(level < 2) {
+				response.setMsg("无操作权限");
+				return JSONObject.fromObject(response).toString();
+			}
+		  
 		  if(contestpaperService.DeleteAllContestPaper(ids)>0){
 		   response.setCode(0); 
-		   System.out.println(JSONObject.fromObject(response).toString());
+		   //System.out.println(JSONObject.fromObject(response).toString());
 		   return JSONObject.fromObject(response).toString(); 
 		   }
 		  else{
-		  response.setMsg("删除失败"); 
-		  return JSONObject.fromObject(response).toString(); }
+			  response.setMsg("删除失败"); 
+			  return JSONObject.fromObject(response).toString(); 
+		  }
 		 
 	}
 }

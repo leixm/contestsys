@@ -67,7 +67,7 @@
 				</div>
 
 				<div class="layui-form-item">
-					<label for="L_repass" class="layui-form-label"></label>
+					<label class="layui-form-label"></label>
 					<button class="layui-btn" lay-filter="add" lay-submit="">更新</button>
 				</div>
 			</form>

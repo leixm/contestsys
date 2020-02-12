@@ -206,12 +206,16 @@
   </select>
    
   <select id="listAllStudents" resultType="map" >
-   select user_id,email,realName,level,name,registerTime from user,class where user.class_id = class.class_id and level=0
-   order by user.class_id,user_id
+    select user_id,email,realName,level,name,registerTime from user
+    left join class on user.class_id = class.class_id
+    where user.level = 0
+    order by user.class_id,user_id
   </select>
    
   <select id="listAllStudentsByKeyword" resultType="map" parameterType="java.lang.String">
-   select user_id,email,realName,level,name,registerTime from user,class where level=0 and (user.user_id=#{0} or email = #{0} or name=#{0} or realName=#{0}) and user.class_id = class.class_id
+   select user_id,email,realName,level,name,registerTime from user
+   left join class on user.class_id = class.class_id
+   where level=0 and (user.user_id=#{0} or email = #{0} or name=#{0} or realName=#{0}) and user.class_id = class.class_id
    order by user.class_id,user_id
   </select>
   

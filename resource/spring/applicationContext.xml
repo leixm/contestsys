@@ -15,66 +15,66 @@
            http://www.springframework.org/schema/context/spring-context-3.0.xsd
            http://www.springframework.org/schema/mvc
            http://www.springframework.org/schema/mvc/spring-mvc.xsd" >
-     
+	    <!-- 告知Spring，我们启用注解驱动 -->
+    <!-- myBatis整合 -->
+    <!-- 数据源 -->
+    <bean id="dataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/contestsys?serverTimezone=Asia/Shanghai&amp;useSSL=false&amp;characterEncoding=UTF-8" />
+        <property name="username" value="root" />
+        <property name="password" value="root" />
+    </bean>
 
-	    <!-- 告知Spring，我们启用注解驱动 -->  
-    <mvc:annotation-driven/>  
-    <!-- org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler，  
+    <!--会话工厂-->
+    <!-- 配置Mybatis的文件 ，mapperLocations配置**Mapper.xml文件位置，configLocation配置mybatis-config文件位置-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <!--mybatis的配置文件-->
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml" />
+        <!--扫描 XXXmapper.xml映射文件,配置扫描的路径-->
+        <property name="mapperLocations" value="classpath:com/app/mapping/*.xml"></property>
+    </bean>
+
+    <!--mapper工厂-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.app.dao" />
+    </bean>
+
+    <bean id="appTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <tx:annotation-driven proxy-target-class="true" transaction-manager="appTransactionManager" />
+
+    <!-- 启动对@AspectJ注解的支持 -->
+    <aop:aspectj-autoproxy/>
+    <aop:aspectj-autoproxy proxy-target-class="true" />
+
+    <mvc:annotation-driven/>
+    <!-- org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler，
     它会像一个检查员，对进入DispatcherServlet的URL进行筛查，如果发现是静态资源的请求，  
-    就将该请求转由Web应用服务器默认的Servlet处理，如果不是静态资源的请求，才由DispatcherServlet继续处理。 -->  
+    就将该请求转由Web应用服务器默认的Servlet处理，如果不是静态资源的请求，才由DispatcherServlet继续处理。 -->
     <mvc:default-servlet-handler/>  
 
-    <!-- 对静态资源文件的访问,因为Spring MVC会拦截所有请求,导致jsp页面中对js和CSS的引用也被拦截,配置后可以把对资源的请求交给项目的  
-    默认拦截器而不是Spring MVC-->  
-<!-- 对静态资源的访问 -->    
-	
-	
-  
-    <!-- 配置Spring MVC的视图解析器 -->  
-    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
-        <!-- 有时我们需要访问JSP页面,可理解为在控制器controller的返回值加前缀和后缀,变成一个可用的URL地址 -->  
-    </bean>  
-    
+    <!-- 对静态资源文件的访问,因为Spring MVC会拦截所有请求,导致jsp页面中对js和CSS的引用也被拦截,配置后可以把对资源的请求交给项目的
+        默认拦截器而不是Spring MVC-->
+    <!-- 对静态资源的访问 -->
 
-	<bean id="dataSource"  
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">  
-        <property name="driverClassName" value="com.mysql.jdbc.Driver" />  
-        <property name="url" value="jdbc:mysql://localhost:3306/contestsys?serverTimezone=Asia/Shanghai&amp;useSSL=false&amp;characterEncoding=UTF-8" />
-        <property name="username" value="root" />  
-        <property name="password" value="root" />
+    <!-- 配置Spring MVC的视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 有时我们需要访问JSP页面,可理解为在控制器controller的返回值加前缀和后缀,变成一个可用的URL地址 -->
     </bean>  
-     
+
 	<bean name="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<property name="defaultEncoding" value="UTF-8"></property>
 		<property name="maxUploadSize" value="2048000"/>
 	</bean>
 
-	    
-	<bean id="appTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-	  <property name="dataSource" ref="dataSource" />
-	</bean>
-	
-	<tx:annotation-driven proxy-target-class="true" transaction-manager="appTransactionManager" />
-	
-	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
-        <property name="basePackage" value="com.app.dao" />  
-    </bean> 
-     
+
     <context:property-placeholder location="classpath:spring/config.properties" />
 
-    <!-- 配置Mybatis的文件 ，mapperLocations配置**Mapper.xml文件位置，configLocation配置mybatis-config文件位置-->
-    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
-        <property name="dataSource" ref="dataSource"></property>  
-        <!--mybatis的配置文件-->  
-        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml" />  
-        <!--扫描 XXXmapper.xml映射文件,配置扫描的路径-->  
-        <property name="mapperLocations" value="classpath:com/app/mapping/*.xml"></property>  
-    </bean>
-
-     
     <context:component-scan base-package="com" />
-    
-        
-	
+
 </beans>

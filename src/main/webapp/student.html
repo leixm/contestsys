@@ -1,7 +1,7 @@
 <html class="x-admin-sm">
 	<head>
 		<meta charset="UTF-8">
-		<title>欢迎页面-X-admin2.2</title>
+		<title>学生管理页面</title>
 		<meta name="renderer" content="webkit">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -78,7 +78,7 @@
 				<button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon" ></i>添加用户</button>
 			</div>			
 			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
-				<input name="id" class="layui-input" id="keyword" placeholder="学号/名字/班级/邮箱地址">
+				<input name="id" class="layui-input" id="keyword" placeholder="学号/名字/班级/邮箱地址"  autocomplete="off">
 			</div>
 			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
 			<button class="layui-btn" id="import"  style="display:none;float:right"; lay-event="importStu" data-type="importStu" id="importStu"><i class="layui-icon layui-icon-download-circle" ></i>批量导入</button>
@@ -154,10 +154,12 @@
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						height: '720', //容器高度
 						toolbar: '#header',
-						 cellMinWidth: 80,
+						defaultToolbar: ['', '', ''],
+						cellMinWidth: 80,
 						cols: [
 							[{
-								checkbox: true
+								checkbox: true,
+                                width: 60
 							}, {
 								field: 'user_id',
 								title: '学号',

@@ -252,6 +252,9 @@
     <if test="fkCourseId!=null and fkCourseId!=0">
       and contest.fk_course_id = #{fkCourseId}
     </if>
+    <if test="userId!=null and userId!='root'">
+     and user.user_id = #{userId}
+   </if>
     and contest.teacher = user.user_id
     and contest.paper_id = contestpaper.paper_id
   </where>
@@ -264,6 +267,9 @@
       <if test="fkCourseId!=null and fkCourseId!=0">
       and contest.fk_course_id = #{fkCourseId}
     </if>
+    <if test="userId!=null and userId!='root'">
+     and user.user_id = #{userId}
+   </if>
       and contest.teacher = user.user_id
       and contest.paper_id = contestpaper.paper_id
       and (contest_id=#{0} or contest.title=#{0} or contestpaper.title=#{0} or user.realName=#{0})
@@ -277,6 +283,9 @@
     <if test="fkCourseId!=null and fkCourseId!=0">
       and contest.fk_course_id = #{fkCourseId}
     </if>
+    <if test="userId!=null and userId!='root'">
+     and user.user_id = #{userId}
+   </if>
       and contest.teacher = user.user_id
        and contest.paper_id = contestpaper.paper_id
        and (startTime between #{1} and #{2})
@@ -290,6 +299,10 @@
    <if test="fkCourseId!=null and fkCourseId!=0">
      and contest.fk_course_id = #{fkCourseId}
    </if>
+   <if test="userId!=null and userId!='root'">
+     and user.user_id = #{userId}
+   </if>
+   
     and contest.teacher = user.user_id
    and contest.paper_id = contestpaper.paper_id
    and (contest_id=#{keyword} or contest.title=#{keyword} or contestpaper.title=#{keyword} or user.realName=#{keyword})

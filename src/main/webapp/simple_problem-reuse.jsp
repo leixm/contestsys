@@ -64,6 +64,12 @@
 					
 				</form>
         	</div>
+        	<div id="demoDiv">
+				<a style="color:red;">*注意：1、已经被用作考试的试卷，将不会出现在上述选项中。</a>
+				</br>
+				<a style="color:red;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				2、未选择系统所属课程，上述选项将为空。</a>
+			</div>
 		</div>
         
 	 	<script src="./lib/layui/layui.all.js" type="text/javascript" charset="utf-8"></script>

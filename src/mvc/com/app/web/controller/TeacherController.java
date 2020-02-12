@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.annotation.SystemControllerLog;
 import com.app.service.impl.ContestPaperService;
 import com.code.model.*;
 import com.lowagie.text.Paragraph;
@@ -108,14 +109,25 @@ public class TeacherController {
 	 */
 	//@RequestBody Response resp,
 	@ResponseBody
+	@SystemControllerLog(description = "手动组卷")
 	public String addNewpaper(@RequestBody String resp ,HttpServletRequest request,HttpServletResponse response) {
-
-
-		User user = new User();
-		String userId = "123";
+		LayResponse layresp = new LayResponse();
+		layresp.setCode(1);
+		
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		String userId = user.getUserId();
+		int level = user.getLevel();
+		
+		if(level < 1) {
+			layresp.setMsg("无操作权限");
+			return JSONObject.fromObject(layresp).toString();
+		}
+		
 		String basePath = PathHelper.getNormativePath(request);
-		//测试
-		user.setLevel(1);
+		
+		user.setLevel(user.getLevel());
 		user.setUserId(userId);
 
 		//1、使用JSONObject(把json字符串转Java对象)
@@ -128,105 +140,11 @@ public class TeacherController {
 		classMap.put("answer", Answer.class);
 		classMap.put("urls", UrlData.class);
 		OnePaper newpaper=(OnePaper)JSONObject.toBean(jsonObject,OnePaper.class,classMap);
-		//System.out.println(resp);
+		System.out.println("手动组卷内容为：======="+resp);
 		List<OneSimproblem> oneSimps = newpaper.getSimp();
+		
 		return JSONObject.fromObject(teacherService.addNewpaper(newpaper,user,oneSimps,basePath)).toString();
 	}
-	
-	
-	
-	/**
-	 * 添加新考试
-	 * @param request
-	 * @param response
-	 * @return 0添加考试失败  1添加考试成功  -1权限不足
-	 */
-	@RequestMapping(value="Teacher/addContest",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
-	@ResponseBody
-	public String addContest(HttpServletRequest request,HttpServletResponse response) throws ParseException {
-		
-		String startTimeStr = request.getParameter("starttime");
-		String endTimeStr = request.getParameter("endtime");
-		Date startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startTimeStr);
-		Date endTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endTimeStr);
-		int paperId = Integer.parseInt(request.getParameter("paperid"));
-		String title = request.getParameter("title");
-		
-		
-//		User user = (User)request.getSession().getAttribute("user");
-//		String userId = user.getUserId();
-		
-		//测试
-		User user = new User();
-		String userId = "123";
-		user.setLevel(1);
-		user.setUserId(userId);
-		
-		//存数据进实体
-		Contest contest = new Contest();
-		contest.setContestId(6);
-		contest.setEndtime(endTime);
-		contest.setStarttime(startTime);
-		contest.setPaperId(paperId);
-		contest.setTeacher(userId);
-		contest.setTitle(title);
-		//System.out.println(contest.getEndtime());
-		//System.out.println(contest.getTitle());
-		//String className = request.getParameter("classname");
-		String className = "软件一班";
-		return JSONObject.fromObject(teacherService.addContest(contest, className)).toString();
-		
-	}
-	
-	
-	
-	
-	/**
-	 * 教师查询所有考试Status
-	 * @return Response
-	 * 
-	 */
-	@RequestMapping(value="Teacher/selContestStatus",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
-	@ResponseBody
-	public String selContestStatus(HttpServletRequest request,HttpServletResponse response) {
-		//User user = (User)request.getSession().getAttribute("user");
-		//测试
-		User user = new User();
-		user.setUserId("123");
-		user.setLevel(1);
-
-		return JSONObject.fromObject(teacherService.selContestStatus(user)).toString();
-	}
-	
-	/**
-	 *  查询全级学生分数
-	 * 
-	 */
-	@RequestMapping(value="Teacher/selGradeScore",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
-	@ResponseBody
-	public String selGradeScore(HttpServletRequest request,HttpServletResponse response) throws Exception{
-		//从session获取信息
-		/*User user = (User)request.getSession().getAttribute("user");
-		Contest contest = (Contest)request.getSession().getAttribute("contest");*/
-		//捏数据测试
-		User user = new User();
-		user.setLevel(1);
-		Contest contest = new Contest();
-		contest.setContestId(1014);
-		contest.setTitle("期中考试");
-		contest.setPaperId(129);
-		contest.setTeacher("123");
-
-		//返回规定格式给前端
-		JSONObject obj = new JSONObject();
-		JSONArray arr = JSONArray.fromObject(teacherService.selGradeScore(user,contest));
-		obj.put("code", 0);
-		obj.put("msg", "返回成功");
-		obj.put("count", arr.size());
-		obj.put("data", arr);
-		return obj.toString();
-	}
-	
 	
 	/**
 	 * 导出年级成绩表========================此接口已经没有调用
@@ -238,13 +156,15 @@ public class TeacherController {
 	 */
 	@RequestMapping(value="Teacher/gradeScoreExcel",produces="text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "导出成绩表")
 	protected String exportGradeScoreExcel(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		LayResponse resp = new LayResponse();
 		resp.setCode(1); //默认设置失败code
 		User user = (User)request.getSession().getAttribute("user");
-		//System.out.println("level------------"+user.getLevel());
-		if(user.getLevel()==0) {
-			resp.setMsg("该用户没有导出excel表格权限");
+		
+		int level = user.getLevel();
+		if(level < 1) {
+			resp.setMsg("无操作权限");
 			return JSONObject.fromObject(resp).toString();
 		}
 
@@ -252,7 +172,10 @@ public class TeacherController {
 		if(request.getSession().getAttribute("course_id")!=null) {
 			simCourseId = Integer.parseInt(request.getSession().getAttribute("course_id").toString());
 		}
-
+		String userId = user.getUserId();
+		if(level == 2) {
+			userId = "root";
+		}
 		/*----获取导出的数据集开始----*/
 		String className = request.getParameter("classname"); 
 		String stuId = request.getParameter("stuid");
@@ -280,7 +203,7 @@ public class TeacherController {
 		List statusList = new ArrayList();
 		statusList.add(2);
 		//数据库查询返回的学生成绩结果集
-		List<Map<String,Object>> resultList = teacherService.selStuScore(className, stuId, stuName, contestName,simCourseId,statusList,pageSize,pageNumber);
+		List<Map<String,Object>> resultList = teacherService.selStuScore(className, stuId, stuName, contestName,simCourseId,statusList,userId,pageSize,pageNumber);
 		/*----获取导出的数据集结束----*/
 		
 		//自动创建文件夹docs
@@ -450,7 +373,13 @@ public class TeacherController {
 			layResp.setMsg("无操作权限");
 			return JSONObject.fromObject(response).toString();
 		}
-
+		String userId = user.getUserId();
+		if(level == 2) {	//管理员权限
+			userId = "root";
+		}
+		
+		
+		
 		int simCourseId = 0;
 		if(session.getAttribute("course_id")!=null) {
 			simCourseId = Integer.parseInt(session.getAttribute("course_id").toString());
@@ -479,11 +408,12 @@ public class TeacherController {
 
 		List statusList = new ArrayList();
 		statusList.add(2); // 2表示只查询判题好了的cstatus
+		
 		if(request.getParameter("shortAnswer")!=null) {	// 表示当主观题批改页面调用此接口，查询正在批改的题
 			statusList.add(1);
 		}
-
-		List<Map<String,Object>> resultList = teacherService.selStuScore(className, stuId, stuName, contestName,simCourseId,statusList,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
+		// 根据userId等条件，查询某个教师/管理员权限下的<负责的>学生的成绩等信息
+		List<Map<String,Object>> resultList = teacherService.selStuScore(className, stuId, stuName, contestName,simCourseId,statusList,userId,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
 		//获取分页插件的数据只能通过PageInfo来获取
 		PageInfo pInfo = new PageInfo(resultList);
 		Long total = pInfo.getTotal();
@@ -529,6 +459,7 @@ public class TeacherController {
 	 */
 	@RequestMapping(value = "Teacher/updateScore", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "修改学生总成绩")
 	public String updateScore(HttpServletRequest request,String score,String cstatusid) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -885,6 +816,7 @@ public class TeacherController {
 	 */
 	@RequestMapping(value = "Teacher/delSimproblem", produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "删除单条simproblem")
 	public String delSimproblem(HttpServletRequest request,String simId) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);  
@@ -912,6 +844,7 @@ public class TeacherController {
 	 */
 	@RequestMapping(value = "Teacher/delBatchSimproblem", produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "批量删除simproblem")
 	public String delBatchSimproblem(HttpServletRequest request,@RequestBody List<String> ids) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);  
@@ -919,7 +852,7 @@ public class TeacherController {
 		HttpSession session = request.getSession();
 		User user = (User)session.getAttribute("user");
 		int level = user.getLevel();
-		if(level < 1) {
+		if(level < 2) {
 			response.setMsg("无操作权限");
 			return JSONObject.fromObject(response).toString();
 		}
@@ -958,8 +891,13 @@ public class TeacherController {
 		if(level>0) {
 			String simPaperId = request.getParameter("simPaperId");
 			if(simPaperId == null || "undefined".equals(simPaperId)) {
-				response.setCode(0);
-				response.setMsg("操作权限验证通过");
+				if( level>1) {
+					response.setCode(0);
+					response.setMsg("操作权限验证通过");
+					return JSONObject.fromObject(response).toString();
+				}
+				response.setCode(1);
+				response.setMsg("无权限，编辑失败");
 				return JSONObject.fromObject(response).toString();
 			}
 			//判断操作用户的id是否和contest表中的teacher一样
@@ -1017,6 +955,7 @@ public class TeacherController {
 	 */
 	@RequestMapping(value = "Teacher/updateSimpleProblem", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "更新通用题库题目的内容等信息")
 	public String updateSimpleProblem(HttpServletRequest request) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -1101,19 +1040,14 @@ public class TeacherController {
 		int level = user.getLevel(); //学生： 0  老师：1  管理员：2
 		String userId = user.getUserId();
 		String simId = request.getParameter("simId");
-		if(level == 2) {	//管理员角色
-			ModelAndView mav = new ModelAndView();
-			mav.addObject("simId", simId);
-			mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null, simCourseId,null,null)));
-			mav.setViewName("simple_problem-reuse.jsp");
-			return mav;
-		}
-		//	教师角色
+		
+		// 管理员角色、教师角色
 		ModelAndView mav = new ModelAndView();
 		mav.addObject("simId", simId);
-		mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null, simCourseId, null,null)));
+		mav.addObject("paper",contestpaperService.selReusePaper(user.getUserId(), simCourseId));
 		mav.setViewName("simple_problem-reuse.jsp");
 		return mav;
+		
 	}
 
 
@@ -1124,6 +1058,7 @@ public class TeacherController {
 	 */
 	@RequestMapping(value = "Teacher/reuseSimproblem", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "复用通用题库题目")
 	public String reuseSimproblem(HttpServletRequest request) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -1138,7 +1073,12 @@ public class TeacherController {
 
 		String simIdStr = request.getParameter("simId");		// 逗号分隔的字符串
 		String paperIdStr = request.getParameter("paperId");
-
+		
+		if(paperIdStr == null || "".equals(paperIdStr)) {
+			response.setMsg("请选择试卷后，再进行添加");
+			return JSONObject.fromObject(response).toString();
+		}
+		
 		int result = teacherService.reuseSimproblem(simIdStr,paperIdStr);
 
 		if(result > 0) {
@@ -1166,7 +1106,7 @@ public class TeacherController {
 		int cStatusId = Integer.parseInt(request.getParameter("cStatusId"));
 		int cStatus = Integer.parseInt(request.getParameter("cStatus"));		// 考试状态是否已经批改
 
-		int type = 4; //简答题
+		int type = 5; //简答题
 		List<Map<String,Object>> correctList = teacherService.selSolutionSimproblemByTypeAndcStatusId(type,cStatusId);
 
 		ModelAndView mav = new ModelAndView();
@@ -1185,12 +1125,13 @@ public class TeacherController {
 
 
 	/**
-	 * 复用通用题库题目等信息
+	 * 手动批改通用题库题目
 	 * @param request
 	 * @return
 	 */
 	@RequestMapping(value = "Teacher/correctSimpleProblem", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "手动批改通用题库题目")
 	public String correctSimpleProblem(HttpServletRequest request) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -1206,7 +1147,7 @@ public class TeacherController {
 		String simCountStr = request.getParameter("simCount");		// 题目数量
 		int cStatusId = Integer.parseInt(request.getParameter("cStatusId"));
 		int cStatus= Integer.parseInt(request.getParameter("cStatus"));
-		System.out.println("cStatus---------"+cStatus);
+		//System.out.println("cStatus---------"+cStatus);
 
 		if(simCountStr == null || "".equals(simCountStr)) {
 			response.setMsg("此试卷无需手动批改");
@@ -1225,6 +1166,9 @@ public class TeacherController {
 			String oldSocre = request.getParameter("oldScore"+i);
 			String realScore = request.getParameter("realScore"+i);
 			realScoreMap.put(soluId,realScore);
+			if(oldSocre == null || "".equals(oldSocre)) {
+				oldSocre = "0.0";
+			}
 			oldScoreSum += Double.parseDouble(oldSocre);
 			realScoreSum += Double.parseDouble(realScore);
 		}

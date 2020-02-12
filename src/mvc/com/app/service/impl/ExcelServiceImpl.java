@@ -12,7 +12,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.math.BigDecimal;
 
+import com.annotation.SystemServiceLog;
 import com.app.dao.*;
+import com.app.tools.MD5Util;
+import com.app.tools.MD5Util2;
 import com.code.model.*;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -72,9 +75,6 @@ public class ExcelServiceImpl implements ExcelService{
 		return resultList;
 	}
 	
-
-	
-	
 	/**
 	 * 
 	 * 批量导入学生用户
@@ -85,6 +85,7 @@ public class ExcelServiceImpl implements ExcelService{
 	 */
 	@Override
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
+	@SystemServiceLog(description = "批量导入学生用户")
 	public LayResponse batchImportStudent(String fileName, MultipartFile file) throws Exception {
 		int successNum = 0; //导入成功数量
 		int existNum = 0; //已存在数据数量
@@ -179,6 +180,9 @@ public class ExcelServiceImpl implements ExcelService{
 			User stuObj = new User();
 			//完整的循环一次 就组成了一个对象
 			stuObj.setUserId(userId);
+
+			//MD5加盐加密
+			password = MD5Util2.getSaltMD5(password);
 			stuObj.setPassword(password);
 			stuObj.setRealname(realname);
 			stuObj.setClassId(classId);
@@ -216,6 +220,7 @@ public class ExcelServiceImpl implements ExcelService{
 	 */
 	@Override
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
+	@SystemServiceLog(description = "批量导入教师用户")
 	public LayResponse batchImportTeacher(String fileName, MultipartFile file) throws Exception {
 		int successNum = 0; //导入成功数量
 		int existNum = 0; //已存在数据数量
@@ -293,6 +298,8 @@ public class ExcelServiceImpl implements ExcelService{
 			User teaObj = new User();
 			//完整的循环一次 就组成了一个对象
 			teaObj.setUserId(userId);
+			//MD5加盐加密
+			password = MD5Util2.getSaltMD5(password);
 			teaObj.setPassword(password);
 			teaObj.setRealname(realname);
 			teaObj.setLevel(1);
@@ -329,6 +336,7 @@ public class ExcelServiceImpl implements ExcelService{
 	 */
 	@Override
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
+	@SystemServiceLog(description = "批量导入班级")
 	public LayResponse batchImportClass(String fileName, MultipartFile file) throws Exception {
 		int successNum = 0; //导入成功数量
 		int existNum = 0; //已存在数量
@@ -433,6 +441,7 @@ public class ExcelServiceImpl implements ExcelService{
 	 */
 	@Override
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
+	@SystemServiceLog(description = "批量导入通用题")
 	public LayResponse batchImportSimproblem(String fileName, MultipartFile file, int courseId, String teacherId, String importPaper) throws Exception {
 		List<com.code.model.Class> classList = new ArrayList<>();
 		String extraMessage = ""; //附加通知，用来通知有几条信息是数据库已经存在的等信息
@@ -1099,6 +1108,7 @@ public class ExcelServiceImpl implements ExcelService{
 	 * @return
 	 */
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
+	@SystemServiceLog(description = "为新的试题的simproblem配置pos值")
 	public int updateSimPosByPaperId(int paperId) {
 		// 根据paperId查所有的simId，simId按照Type来排列
 		List<Map<String,Object>> simIdList = simproblemMapper.selSimIdByPaperId(paperId);

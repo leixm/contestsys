@@ -212,39 +212,6 @@
 
 				});
 
-
-			/* 	$("#level").change(function() {
-					console.log("kkk")
-				});  */
-
-
-			/*  tt();
-			 
-			function tt()
-			{
-			var obj = document.getElementById("level").parentNode.children[1].children[1];
-			console.log(obj)
-			
-			for(var i=0;i<obj.children.length;i++)
-			{
-			if($(obj.children[i]).attr("class")=="layui-this")
-			{
-			console.log($(obj.children[i]).attr("lay-value"))
-			}
-			}
-			
-			$(obj).change(function()
-			{
-			console.log("ss")
-			})
-			
-			
-			}; 
-			   */
-			/*  $("#email").change(function(){
-				 tt();
-			 }) */
-			//console.log(document.getElementById("level"))
 		</script>
 		<script type="text/javascript">
 			$(document).ready(function() {

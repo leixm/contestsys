@@ -75,7 +75,7 @@
 								<option value="null"> 请选择班级  </option>
 							
 								<c:forEach var="obj" items="${classes}" varStatus="s">
-									<option value="${obj.class_id}" <c:if test='${obj.class_id==user.classId}'> selected='selected'</c:if> >${obj.name}</option>
+									<option value="${obj.classId}" <c:if test='${obj.classId==user.classId}'> selected='selected'</c:if> >${obj.className}</option>
 								</c:forEach>
 
 							</select>

@@ -184,7 +184,7 @@
 					}
 				}, 
 				pwdlength: function(value) {
-					if (value.length != 6 && value!="") {
+					if (value.length < 6 && value!="") {
 						return '用户密码至少要6个字符';
 					}
 					if(value=="" && $('#oldpwd').val()!="") {

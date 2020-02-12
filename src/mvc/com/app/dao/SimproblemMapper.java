@@ -44,6 +44,9 @@ public interface SimproblemMapper {
 
     @Delete("DELETE a.*,b.*,c.* FROM simproblem a LEFT JOIN `options` b on a.simproblem_id = b.simproblem_id LEFT JOIN answer c on a.simproblem_id = c.simproblem_id "
     		+"WHERE a.simproblem_id = #{0}")
+    int delSimproblemByIdBak(int simId);
+    
+    @Delete("DELETE a.* FROM simproblem a WHERE a.simproblem_id = #{0}")
     int delSimproblemById(int simId);
 
 

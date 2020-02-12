@@ -31,18 +31,22 @@ public interface ContestMapper {
 
     int updateByPrimaryKey(Contest record);
     
-    List<Map<String,Object>> listAll(@Param("fkCourseId") int fkCourseId);
+    List<Map<String,Object>> listAll(@Param("fkCourseId") int fkCourseId, @Param("userId") String userId);
     
-    List<Map<String,Object>> listAllByKeyword(String keyword, @Param("fkCourseId") int fkCourseId);
+    List<Map<String,Object>> listAllByKeyword(String keyword, @Param("fkCourseId") int fkCourseId,  @Param("userId") String userId);
     
-    List<Map<String,Object>> listAllByDate(@Param("fkCourseId") int fkCourseId,String startTime,String endTime);
+    List<Map<String,Object>> listAllByDate(@Param("fkCourseId") int fkCourseId,String startTime,String endTime,  @Param("userId") String userId);
     
-    List<Map<String,Object>> listAllByKeywordAndDate(@Param("keyword")String keyword,@Param("fkCourseId")int fkCourseId,@Param("startTime")String startTime,@Param("endTime")String endTime);
+    List<Map<String,Object>> listAllByKeywordAndDate(@Param("keyword")String keyword,@Param("fkCourseId")int fkCourseId,@Param("startTime")String startTime,@Param("endTime")String endTime, @Param("userId") String userId);
     
     @Select("select * from contest where teacher = #{id}")
     List<Contest> selAllContest(String id);
     
     List<Map<String,Object>> selAllByUserId(String keyword);
+    
+    @Select("select * from contest where paper_id = #{0}")
+    List<Map<String,Object>> selContestByPaperId(String paperId);
+   
     
     
 }

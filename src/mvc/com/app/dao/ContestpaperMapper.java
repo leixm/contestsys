@@ -45,7 +45,11 @@ public interface ContestpaperMapper {
     
     @Select("select  count(*) from contestpaper")
     int selPaperCount();
-
+    
     @Select("select * from contestpaper t where t.title = #{0}")
     List<Map<String,Object>> selPaperByTitle(String paperTitle);
+    
+    List<Map<String, Object>> selReusePaper(@Param("teacherId") String teacherId, @Param("simCourseId") int simCourseId);
+    
+    
 }

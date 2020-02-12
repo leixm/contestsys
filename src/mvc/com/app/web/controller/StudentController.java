@@ -5,8 +5,11 @@
  * */
 package com.app.web.controller;
 
+import com.annotation.SystemControllerLog;
 import com.app.service.impl.*;
 import com.app.tools.FileHelper;
+import com.app.tools.MD5Util;
+import com.app.tools.MD5Util2;
 import com.app.tools.PathHelper;
 import com.code.model.*;
 import com.github.pagehelper.PageInfo;
@@ -129,7 +132,7 @@ public class StudentController {
 			model.setViewName("error");
 			return model;
         } 
-        System.out.println("$$$$$$id=" + id);
+        //System.out.println("$$$$$$id=" + id);
        
         Contestpaper contestPaper = studentService.selectContestpaperByPrimaryKey(id);
         
@@ -234,6 +237,7 @@ public class StudentController {
 	 */
     @RequestMapping(value = "submit.do", consumes = "application/json" ,produces = "text/html;charset=UTF-8", method = {RequestMethod.POST })
     @ResponseBody
+	@SystemControllerLog(description = "学生交卷")
 	public String examSubmit(@RequestBody String paper,HttpServletRequest request,HttpServletResponse response) throws Exception{
 	      
     	System.out.println(paper);
@@ -333,6 +337,7 @@ public class StudentController {
 	 */
 	@RequestMapping(value="Student/updateStuInfo",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "修改个人信息（修改资料）")
 	public String updateStuInfo(HttpServletRequest request,HttpServletResponse response) {
 		LayResponse layResp = new LayResponse();//layui参数返回格式
 		layResp.setCode(1); //默认设置为1,1为失败
@@ -341,7 +346,12 @@ public class StudentController {
 		String stuName = request.getParameter("stuname");
 		String stuEmail = request.getParameter("stuemail");
 		String newPwd = request.getParameter("newpwd1");
-		
+
+		// MD5加盐加密
+		if(newPwd!=null && !"".equals(newPwd)) {
+			newPwd = MD5Util2.getSaltMD5(newPwd);
+		}
+
 		int updateResult = studentService.updateStuInfo(stuId, stuName, stuEmail, newPwd);
 		if(updateResult>0) {
 			layResp.setCode(0);
@@ -366,8 +376,8 @@ public class StudentController {
 		
 		User user = (User) request.getSession().getAttribute("user");
 		String sessionPwd = user.getPassword();
-		
-		if(sessionPwd.equals(oldPwd)) {
+
+		if(MD5Util2.getSaltverifyMD5(oldPwd,sessionPwd)){
 			return "1";
 		}
 		

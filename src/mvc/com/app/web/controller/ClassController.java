@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.annotation.SystemControllerLog;
 import com.code.model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -115,7 +116,7 @@ public class ClassController {
 		}else {
 			 mav.addObject("teachers",userService.getTeacherById(userId));
 		}
-		mav.addObject("classes", classService.GetAllClass(userId,null,null,null));
+		mav.addObject("classes", classService.GetAllClass("root",null,null,null));
 		mav.setViewName("class-addTeach.jsp");
 		return mav;
 	}
@@ -128,6 +129,7 @@ public class ClassController {
 	 */
 	@RequestMapping(value = "Class/AddClass", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "添加班级")
 	public String AddClass(HttpServletRequest request, com.code.model.Class cla) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -179,6 +181,7 @@ public class ClassController {
 	 */
 	@RequestMapping(value = "Class/UpdateClass", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "更新班级信息")
 	public String UpdateClass(HttpServletRequest request,com.code.model.Class cla) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -209,6 +212,7 @@ public class ClassController {
 	 */
 	@RequestMapping(value = "Class/DeleteClass", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "删除班级")
 	public String DeleteClass(HttpServletRequest request, String id) {
 		
 		LayResponse response = new LayResponse();
@@ -240,6 +244,7 @@ public class ClassController {
 	 */
 	@RequestMapping(value = "Class/deleteTeach", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "移除班级任课关系")
 	public String deleteTeach(HttpServletRequest request, String classId, String teacherId) {
 		
 		LayResponse response = new LayResponse();
@@ -270,6 +275,7 @@ public class ClassController {
 	 */
 	@RequestMapping(value = "Class/DelAll", consumes = "application/json", produces = "text/html;charset=UTF-8", method = {RequestMethod.POST })
 	@ResponseBody
+	@SystemControllerLog(description = "批量删除班级")
 	public String DelAll(HttpServletRequest request, @RequestBody List<String> ids) {
 		  LayResponse response = new LayResponse(); 
 		  response.setCode(1);
@@ -301,6 +307,7 @@ public class ClassController {
 	 */
 	@RequestMapping(value = "Class/AddTeach", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "添加班级任课关系")
 	public String AddTeach(HttpServletRequest request) {
 		LayResponse response = new LayResponse();
 		response.setCode(1);

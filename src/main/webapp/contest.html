@@ -1,7 +1,7 @@
 <html class="x-admin-sm">
 	<head>
 		<meta charset="UTF-8">
-		<title>欢迎页面-X-admin2.2</title>
+		<title>考试管理</title>
 		<meta name="renderer" content="webkit">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -125,9 +125,11 @@
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						height: '720', //容器高度
 						toolbar: '#header',
+						defaultToolbar: ['', '', ''],
 						cols: [
 							[{
-								checkbox: true
+								checkbox: true,
+                                width: 60
 							}, {
 								field: 'contest_id',
 								title: '考试id',
@@ -338,8 +340,7 @@
 					active = {
 						reload: function() {
 							//执行重载
-							table
-								.reload('demo', {
+							table.reload('demo', {
 									page: {
 										curr: 1 //重新从第 1 页开始
 									},
@@ -348,7 +349,21 @@
 										startTime: $('#startTime').val(),
 										endTime: $('#endTime').val()
 									}
+
 								});
+                            laydate.render({
+                                elem : '#startTime',
+                                type : 'datetime',
+                                format : 'yyyy-MM-dd HH:mm:ss',
+                                min : '2019-5-20'
+                            });
+
+                            laydate.render({
+                                elem : '#endTime',
+                                type : 'datetime',
+                                format : 'yyyy-MM-dd HH:mm:ss',
+                                min : '2019-5-20'
+                            });
 						},
 						delAll: function() {
 							var checkStatus = table.checkStatus('demo')
@@ -360,7 +375,7 @@
 							});  
 							console.log(delList)
 							if (delList != '') {
-								layer.confirm('确定删除所选项吗？', function(index) {
+								layer.confirm('确定删除所选项吗？', function(index) {	// 后台作了权限校验ok的
 									$.ajax({
 										url: 'Contest/DelAll',
 										type: 'post',
@@ -412,26 +427,14 @@
 						elem : '#startTime',
 						type : 'datetime',
 						format : 'yyyy-MM-dd HH:mm:ss',
-						max : '2020-5-20',
-						min : '2019-5-20',
-						closeStop: '#search', //这里代表的意思是：点击 test1 所在元素阻止关闭事件冒泡。如果不设定，则无法弹出控件
-						done : function(value, date, endDate) {
-							startTime = date;
-							startTimeS = value;
-						}
+						min : '2019-5-20'
 					});
 					
 					laydate.render({
 						elem : '#endTime',
 						type : 'datetime',
 						format : 'yyyy-MM-dd HH:mm:ss',
-						max : '2020-5-20',
-						min : '2019-5-20',
-						closeStop: '#search', //这里代表的意思是：点击 test1 所在元素阻止关闭事件冒泡。如果不设定，则无法弹出控件
-						done : function(value, date, endDate) {
-							endTime = date;
-							startTimeS = value;
-						}
+						min : '2019-5-20'
 					});
 		
 		

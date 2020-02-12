@@ -105,7 +105,7 @@ public interface TeacherService {
 	 * @param 4、考试名称
 	 * @return 成绩实体Map对象集合
 	 */
-	public List<Map<String,Object>> selStuScore(String className,String stuId,String stuName,String contestName,int simCourseId,List statusList,String pageSize,String pageNumber);
+	public List<Map<String,Object>> selStuScore(String className,String stuId,String stuName,String contestName,int simCourseId,List statusList,String userId,String pageSize,String pageNumber);
 	
 
 	/**

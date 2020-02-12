@@ -1,7 +1,7 @@
 <html class="x-admin-sm">
 	<head>
 		<meta charset="UTF-8">
-		<title>欢迎页面-X-admin2.2</title>
+		<title>试卷管理页面</title>
 		<meta name="renderer" content="webkit">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -72,9 +72,7 @@
 
 	<script type="text/html" id="header">
 
-
-
-		<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
+		<button id="dellAll" class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>
 		<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
 			<input name="id" class="layui-input" id="keyword" placeholder="id/名称/出卷人" autocomplete="off">
 		</div>
@@ -99,11 +97,36 @@
 
 
 		<script>
-			$(document).ready(function() {
-
-				initTable();
-			});
-
+				
+			initTable();
+			
+			/* 获取用户角色信息 */
+			function roleControl() {
+				$.ajax({
+							type: "POST", 
+							url: "User/getUsername",
+							data: '',
+							async: false,
+							dataType: 'json', 
+							success: function(data) {
+								if(data.level<1) {	//判断有误权限进来此页面
+									alert("无登录权限");
+									window.location.href = "./login.html";
+								}else {
+									if(data.realname!=null&&data.realname!="") {
+										if(data.level==2) { //管理员角色可编辑学生信息
+										}else {
+											$("#dellAll").hide();
+										}
+									}else {
+										alert("请先登录系统");
+										window.location.href = "./login.html";	
+									}
+								}
+							}
+				})
+			}
+			
 			function initTable() {
 				var timeArea = $("#timearea").val();
 				var startTime = "";
@@ -120,9 +143,11 @@
 						id: 'demo',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						toolbar: '#header',
+						defaultToolbar: ['', '', ''],
 						cols: [
 							[{
-								checkbox: true
+								checkbox: true,
+                                width: 60
 							}, {
 								field: 'paper_id',
 								title: '试卷编号',
@@ -155,7 +180,10 @@
 						limits: [15, 20, 30, 50, 100],
 						limit: 15, //默认采用10
 						loading: true,
-						page: true
+						page: true,
+						done: function a() {
+							roleControl();
+						}
 					});
 
 
@@ -186,20 +214,51 @@
 
 					table.on('tool(demo)', function(obj) {
 						if (obj.event == "edit") {
-							//新增
-							console.log("edit")
-							layer.open({
-								type: 2,
-								title: "编辑",
-								shadeClose: false, //点击遮罩关闭层
-								area: ['480px','300px'],
-								content: "editcontestpaper.do?id=" + obj.data.paper_id
-							});
+							$.ajax({
+                                url: "Teacher/judgePowerToEditSimproblem?simPaperId=" + obj.data.paper_id ,	 	// 判断是否具有权限
+                                type: "post",
+                                dataType: 'json',
+                                async:'false',
+                                success: function(result) {
+                                    if (!result.code) {
+                                        //新增
+										layer.open({
+											type: 2,
+											title: "编辑",
+											shadeClose: false, //点击遮罩关闭层
+											area: ['480px','300px'],
+											content: "editcontestpaper.do?id=" + obj.data.paper_id
+										});
+                                    } else {
+                                        layer.msg(result.msg, {
+                                            time: 2000
+                                        });
+                                        return false;
+                                    }
+
+                                }
+                            });
 
 						} 
 						else if (obj.event === 'del') {
-							//删除
-							delinventory(obj.data.paper_id); 
+							$.ajax({
+                                url: "Teacher/judgePowerToEditSimproblem?simPaperId=" + obj.data.paper_id ,	 	// 判断是否具有权限
+                                type: "post",
+                                dataType: 'json',
+                                success: function(result) {
+                                    if (!result.code) {
+                                       //删除
+										delinventory(obj.data.paper_id); 
+                                    } else {
+                                        layer.msg(result.msg, {
+                                            time: 2000
+                                        });
+                                        return false;
+                                    }
+
+                                }
+                            });
+							
 						}
 						else if(obj.event == "view"){
 						layer.open({
@@ -218,20 +277,18 @@
 							$.ajax({
 								url: "ContestPaper/DeleteContestPaper?id=" + id,
 								type: "post",
-								success: function(result) {
-
-									if (!result.code) {
-										layer.msg("删除成功!", {
+								success: function(data) {
+									if (data!=-2) {
+										layer.msg("删除成功！", {
 											time: 1000
 										});
 										active.reload();
 									} else {
-										layer.msg(result.msg, {
+										layer.msg("该试卷已经用于某场考试，无法进行删除！", {
 											time: 2000
 										});
 										return false;
 									}
-
 								}
 							});
 							layer.close(index);

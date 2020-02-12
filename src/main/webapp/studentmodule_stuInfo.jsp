@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>注册页面</title>
+<title>个人资料页面</title>
 <%@ page isELIgnored="false"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -95,7 +95,7 @@
 					</div>
 				</div>
 				
-				<div class="layui-form-item" style="width:  65%%;">
+				<div class="layui-form-item" style="width:  65%;">
 					<label class="layui-form-label">新密码</label>
 					<div class="layui-input-block" style="width:  65%;">
 						<input type="password" name="newpwd1" placeholder="不改密码可为空" autocomplete="off"
@@ -184,7 +184,7 @@
 					}
 				}, 
 				pwdlength: function(value) {
-					if (value.length != 6 && value!="") {
+					if (value.length < 6 && value!="") {
 						return '用户密码至少要6个字符';
 					}
 					if(value=="" && $('#oldpwd').val()!="") {

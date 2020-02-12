@@ -263,4 +263,20 @@
    </where>
    order by date desc
   </select>
+  
+   
+   <select id="selReusePaper" resultType="map" >
+	   select * from contestpaper t where t.paper_id not in 
+	   (select a.paper_id from contestpaper a
+		inner join contest b on a.paper_id = b.paper_id 
+		inner join contest_status c on c.contest_id = b.contest_id
+		GROUP BY a.paper_id)
+		
+		and (t.teacher = 'root' or t.teacher = #{teacherId}) 
+		and t.fk_course_id = #{simCourseId} 
+   </select>
+   
+   
+   
+   
 </mapper>

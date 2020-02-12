@@ -54,7 +54,7 @@
 							所属课程
 						</label>
 						<div class="layui-input-inline">
-							<input type="text" id="simType" name="" required="" lay-verify="required" autocomplete="off" class="layui-input" value="${correctObjects[0].courseName}" disabled>
+							<input type="text" id="simType" name="" required=""  autocomplete="off" class="layui-input" value="${correctObjects[0].courseName}" disabled>
 						</div>
 					</div>
 
@@ -64,7 +64,7 @@
 								题目数量统计，方便更新分数
 							</label>
 							<div class="layui-input-inline">
-								<input type="text" id="simCount" name="simCount" required="" lay-verify="required" autocomplete="off" class="layui-input" value="${s.count}" disabled>
+								<input type="text" id="simCount" name="simCount" required="" autocomplete="off" class="layui-input" value="${s.count}" disabled>
 							</div>
 						</div>
 
@@ -86,7 +86,7 @@
 								题目内容
 							</label>
 							<div class="layui-input-inline">
-							<textarea type="text" id="simContent" name="" required="" lay-verify="required" style="height: 180px" autocomplete="off" class="layui-textarea" value="${obj.simContent}" disabled>
+							<textarea type="text" id="simContent" name="" required=""  style="height: 180px" autocomplete="off" class="layui-textarea" value="${obj.simContent}" disabled>
 									${obj.simContent}</textarea>
 							</div>
 						</div>
@@ -96,7 +96,7 @@
 								学生作答内容
 							</label>
 							<div class="layui-input-inline">
-							<textarea type="text" id="stuAnswer" name="" required="" lay-verify="required" style="height: 180px" autocomplete="off" class="layui-textarea" value="${obj.stuAnswer}" disabled>
+							<textarea type="text" id="stuAnswer" name="" required="" style="height: 180px" autocomplete="off" class="layui-textarea" value="${obj.stuAnswer}" disabled>
 									${obj.stuAnswer}</textarea>
 							</div>
 						</div>
@@ -106,7 +106,7 @@
 								上次提交的得分，方便数据库进行更新分数统计
 							</label>
 							<div class="layui-input-inline">
-								<input type="text" id="oldScore" name="oldScore${s.count}" required="" lay-verify="required" autocomplete="off" class="layui-input" value="${obj.realScore}">
+								<input type="text" id="oldScore" name="oldScore${s.count}" required=""  autocomplete="off" class="layui-input" value="${obj.realScore}">
 							</div>
 						</div>
 

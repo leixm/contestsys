@@ -949,7 +949,7 @@ catch(ex){}
 		s = Create_inputtext(index);
 		
 		s = Create_div_table_radio_question(s,index);
-		var head = Create_div_title_question(obj.problem.content,index);
+		var head = Create_div_title_question(obj.simproblem.content,index);
 		head = Create_div_title_question_all(head,index);
 		s = Create_div_question(head + s,index);
 		return s;
@@ -1074,9 +1074,11 @@ function generate_submit_paper()
         }
         else if(type==3)  //判断
         {
-            if($('#q' + index + '_1').prop("checked"))
+            if($('#q' + index + '_1').prop("checked")) {
                 solution[index] = "正确";
-            else solution[index] = "错误";
+            }else if($('#q' + index + '_2').prop("checked")) {
+              	solution[index] = "错误";
+            }
         }
         else if(type==4)  //填空
         {

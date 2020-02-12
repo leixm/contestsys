@@ -36,7 +36,7 @@ public interface ContestStatusMapper {
     
     List<Map<String,Object>> selStuScoreBykeyword(@Param("classname") String className,@Param("stuid") String stuId,
                                                   @Param("stuname") String stuName,@Param("contestname") String contestName,
-                                                  @Param("simCourseId") int simCourseId,@Param("status") List status);
+                                                  @Param("simCourseId") int simCourseId,@Param("status") List status,@Param("userId")String userId);
     
     List<Map<String,Object>> selAllStuScore( );
     

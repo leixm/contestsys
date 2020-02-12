@@ -1,0 +1,147 @@
+<!doctype html>
+    <html>
+    	<head>
+    		 <script type="text/javascript" src="./assets/js/jquery-1.8.3.min.js" ></script>
+    		<style type="text/css">
+    			body {
+    				/*  transform: scale(0.25) translate(-2000px,-100px);   */
+    				  overflow: hidden;  
+    				background-color: #f6f6f6;
+    			}
+ 		     	.bigCareBox {
+					width:20%;
+					position: absolute;
+					top: 10%;
+					left:6%;
+			    }
+			     #welcome {
+			    	font-family:SimHei;
+			    	font-size: 30px;
+			    	white-space:nowrap;
+			    	color: #C0C0C0;
+			    	position: absolute;
+			    	top: 44%;
+					left:36%;
+			    }
+    			
+	   			.cardBox {
+	               width: 170px;
+	               height: 120px;
+	               box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	               text-align: center;
+	               border-radius:8px;
+				   margin-bottom: 40px;
+				   position: relative;
+				   top:8px;
+	               left:8px;
+	            }
+	
+	            .headerBox {
+	                color: #fff;
+	                padding: 8px;
+	                font-size: 28px;
+	                font-family:SimHei;
+	                text-align:center;
+	                /* 文字居中 */
+	                display: flex;
+				    align-items: center;
+				    justify-content: space-around;
+				    flex-direction: column;
+				    
+	                height: 75%;
+	                width: 80%;
+	                position: relative;
+	                top:8px;
+	                left:9px;
+	                cursor:pointer; 
+	                background-color: #4baea0;
+	                border-radius:8px;
+		               
+
+	            }
+	            
+				            
+				.cardBox:hover {
+					transition: all 0.1s ease-in-out 0s;
+			        background-color:#4baea0;
+			    }
+			    
+				.headerBox:hover {
+					transition: all 0.1s ease-in-out 0s;
+			        font-size: 32px;
+			    }
+			    
+			    #clockDiv {
+					width:10%;
+					position: absolute;
+					top: 0%;
+					left:80%;
+			    }
+
+			    
+			    .fontClock {
+			    	position: absolute;
+			    	font-size: 12px;
+			    	color: #216583;
+			    	white-space:nowrap;
+			    }
+			   
+    		</style>
+    	</head>
+    	<body>
+			<div class="x-nav">
+				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
+				   title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
+				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
+				   title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
+			</div>
+    		<div class="bigBox">
+    			 <div  class="bigCareBox">
+			          <div class="cardBox" >
+			               <div class="headerBox" onclick="window.open('importPaper.html','_self')" >
+			               		<p>Excel组卷</p>
+			               </div>
+			           </div>
+
+			           <div class="cardBox" onclick="window.open('addnewpaper.html','_self')" >
+			               <div class="headerBox" >
+			                   <p>手动组卷</p>
+			               </div>
+			           </div>
+	           	</div>
+	           	
+	           	<!--<div id="welcome">
+	    			<span id="text">欢迎使用学生在线考试系统</span>
+	    		</div>-->
+
+	    		
+	      	</div>
+	      
+
+    	</body>
+		
+		 <script type="text/javascript">
+        //页面加载执行函数
+        	$(document).ready(function() {
+				loadingUserName();
+			});
+        	/* 显示登录的用户名 */
+		      function loadingUserName() {
+		      		$.ajax({
+								type: "POST", 
+								url: "User/getUsername",
+								data: '',
+								async: false,
+								dataType: 'json', 
+								success: function(data) {
+									if(data.level<1) {	//判断有误权限进来此页面
+										alert("无登录权限");
+										window.location.href = "./login.html";
+									}
+								}
+							})
+		      }
+        </script>
+    </html>
+
+

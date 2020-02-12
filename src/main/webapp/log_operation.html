@@ -1,0 +1,233 @@
+<html class="x-admin-sm">
+	<head>
+		<meta charset="UTF-8">
+		<title>日志管理</title>
+		<meta name="renderer" content="webkit">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+		<link rel="stylesheet" href="lib/layui/css/layui.css">
+		<link rel="stylesheet" href="css/font.css">
+		<link rel="stylesheet" href="css/xadmin.css">
+		<script type="text/javascript" src="./js/jquery-3.3.1.js"></script>
+		<script src="./lib/layui/layui.js" charset="utf-8"></script>
+		<script type="text/javascript" src="./js/xadmin.js"></script>
+		<!--[if lt IE 9]>
+          <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+          <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+		
+		<style type="text/css">
+			/* 表格行高 等*/
+	        .layui-table-cell{
+			    height:28px;
+			    line-height: 28px;
+			    text-align: center;
+			    font-size: 14px;
+			}
+			/* 解决checkbox不居中 */
+			.layui-table-cell .layui-form-checkbox[lay-skin="primary"]{
+				 left:15%;
+			     top: 50%;
+			     transform: translateY(-50%);
+			}
+    	</style>
+	</head>
+
+	<body>
+		<body>
+			<div class="x-nav">
+				 <a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: right" onclick="location.reload()"
+				 title="刷新"> <i class="layui-icon layui-icon-refresh" style="line-height: 30px"></i></a>
+				<a class="layui-btn layui-btn-small" style="line-height: 1.6em; margin-top: 3px; float: left" onclick= "javascript:top.location.reload()"
+				 title="主页"> <i class="layui-icon layui-icon-home" style="line-height: 30px"></i></a>
+			</div>
+			<div class="layui-fluid" >
+				<div class="layui-row layui-col-space15" >
+					<div class="layui-col-md12">
+						<div class="layui-card" >
+
+
+							<div class="layui-card-body layui-table-body layui-table-main" >
+								<table class="layui-table" id="demo" lay-filter="demo"></table>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</body>
+
+
+		<script id="dateTpl" type="text/html">
+			{{#  var fn = function(){
+        return moment(d.ApplyDate).format("YYYY-MM-DD");
+         }; if(true){ }}
+        {{ fn() }}
+        {{#  } }}
+
+    </script>
+
+		<script type="text/html" id="header">
+
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
+					<input name="startTime" type="text" class="layui-input" id="startTime" placeholder="开始时间">
+			</div>
+
+			<div class="layui-inline layui-show-xs-block" style="padding-left: 10px;">
+					<input name="endTime" type="text" class="layui-input" id="endTime" placeholder="结束时间">
+			</div>
+
+			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
+
+		</script>
+
+
+		<script>
+			$(document).ready(function() {
+				initTable();
+			});
+
+			/* 获取用户角色信息 */
+			function roleControl() {
+				$.ajax({
+							type: "POST", 
+							url: "User/getUsername",
+							data: '',
+							async: false,
+							dataType: 'json', 
+							success: function(data) {
+								if(data.level<1) {	//判断有误权限进来此页面
+									alert("无登录权限");
+									window.location.href = "./login.html";
+								}
+
+							}
+				})
+			}
+
+			function initTable() {
+				layui.use(['table', 'layer','laydate'], function() {
+					var table = layui.table;
+                    var laydate = layui.laydate;
+					//执行渲染 
+					table.render({
+						id: 'demo',
+						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
+						toolbar: '#header',
+						cols: [
+							[{
+								checkbox: true,
+                                hide:true
+							},{	
+								title: '序号',
+								type:'numbers',
+								align: 'center',
+								sort: true,
+                                width: 80
+
+							},{
+								field: 'description',
+								title: '操作描述',
+								sort: true,
+							}, {
+								field: 'userId',
+								title: '操作人ID',
+								sort: true,
+							}, {
+								field: 'userName',
+								title: '操作人名称',
+								sort: true
+							},  {
+                                field: 'addTime',
+                                title: '操作时间',
+                                sort: true
+                            },  {
+                                field: 'remoteAddr',
+                                title: '请求IP',
+                                sort: true
+                            },{
+                                field: 'title',
+                                title: '请求接口',
+                                sort: true,
+                            }, {
+                                field: 'exception',
+                                title: '异常信息',
+                                sort: true
+                            }]
+						],
+						url: 'User/getLogList',
+						method: 'post',
+						limits:  [15, 30, 50, 100],
+						limit: 15, //默认采用10
+						loading: true,
+						page: true,
+						done: function a() {
+							roleControl();
+						}
+					});
+
+
+					table.on('toolbar(demo)', function(obj) {
+						if (obj.event === 'reload') {
+							//console.log("执行搜索")
+							var type = $(this).data('type');
+							active[type] ? active[type].call(this) : '';
+						}
+						else if (obj.event === 'delAll') {
+							var type = $(this).data('type');
+							active[type] ? active[type].call(this) : '';
+						}
+					});
+
+					active = {
+						reload: function() {
+							//执行重载
+							table.reload('demo', {
+									page: {
+										curr: 1 //重新从第 1 页开始
+									},
+									where: {
+                                        startTime: $('#startTime').val(),
+                                        endTime: $('#endTime').val()
+									}
+								});
+
+                            laydate.render({
+                                elem : '#startTime',
+                                type : 'datetime',
+                                format : 'yyyy-MM-dd HH:mm:ss',
+                                min : '2019-5-20'
+                            });
+
+                            laydate.render({
+                                elem : '#endTime',
+                                type : 'datetime',
+                                format : 'yyyy-MM-dd HH:mm:ss',
+                                min : '2019-5-20'
+                            });
+						}
+					};
+
+
+                    laydate.render({
+                        elem : '#startTime',
+                        type : 'datetime',
+                        format : 'yyyy-MM-dd HH:mm:ss',
+                        min : '2019-5-20'
+                    });
+
+                    laydate.render({
+                        elem : '#endTime',
+                        type : 'datetime',
+                        format : 'yyyy-MM-dd HH:mm:ss',
+                        min : '2019-5-20'
+                    });
+				});
+
+			}
+		</script>
+	</body>
+
+
+
+</html>

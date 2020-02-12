@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -231,44 +232,60 @@ class MyThread extends Thread{
 
 
 
-	public void run()
-	{
-		while(true)
-		{
-
+	public void run() {
+		while(true) {
 			try{
 				SimsolutionExample simsolutionExample = new SimsolutionExample();
 				SimsolutionExample.Criteria simsolutionCriteria = simsolutionExample.createCriteria();
 				simsolutionCriteria.andStatusEqualTo(new Integer(0));
 				List<Simsolution> simsolutions = simsolutionDao.selectByExampleWithBLOBs(simsolutionExample);  //未批改的题目
-				if(simsolutions.size()>0)
-				{
-					for(Simsolution simsolution : simsolutions)
-					{
-						Simproblem simproblem = simproblemDao.selectByPrimaryKey(simsolution.getSimproblemId());  //找对应的题目
+				//System.out.println("simSolus1===="+simsolutions);
+				HashSet<Integer> set = new HashSet<>();	// set具有去重功能
 
-						if(simproblem==null) continue;  //找不到题目
-						AnswerExample answerExample = new AnswerExample();
-						AnswerExample.Criteria answerCriteria = answerExample.createCriteria();
-						answerCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());  //找到这题的答案
-						List<Answer> answers = answerDao.selectByExampleWithBLOBs(answerExample);
-						if(answers.size()>0){
-							BigDecimal bd = new BigDecimal(0);  //分数
+				if(simsolutions.size()>0) {
+					//一次性获取所有的多场考试的cStatusId
+					for (Simsolution simsolution:simsolutions) {
+						set.add(simsolution.getContestStatusId());
+					}
 
-							int type = simproblem.getType().intValue();   //题目类型
+					for(int cStatusId : set) {
+						// 筛选出同个学生某场考试的solution对象集合
+						simsolutionCriteria.andContestStatusIdEqualTo(cStatusId);
+						List<Simsolution> simsolutions2 = simsolutionDao.selectByExampleWithBLOBs(simsolutionExample);  //未批改的题目
+						//初始化分数累加对象
+						double tempScore = 0;
 
-							if(type==1 || type==3)  //单选和判断 只需要匹配一个答案即可 且答案必定只有一个
-							{
-								for(Answer answer : answers)  //答题正确
+						for(Simsolution simsolution : simsolutions2)
+						{
+							Simproblem simproblem = simproblemDao.selectByPrimaryKey(simsolution.getSimproblemId());  //找对应的题目
+
+							if(simproblem==null) {
+								continue;  //找不到题目
+							}
+
+							AnswerExample answerExample = new AnswerExample();
+							AnswerExample.Criteria answerCriteria = answerExample.createCriteria();
+							answerCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());  //找到这题的答案
+							List<Answer> answers = answerDao.selectByExampleWithBLOBs(answerExample);
+							if(answers.size()>0){
+								BigDecimal bd = new BigDecimal(0);  //分数
+
+								int type = simproblem.getType().intValue();   //题目类型
+
+								if(type==1 || type==3)  //单选和判断 只需要匹配一个答案即可 且答案必定只有一个
 								{
-									if(answer.getContent().equals(simsolution.getAnswer())){
-										simsolution.setStatus(new Integer(1));
-										bd = simproblem.getScore();
-										break;
+									for(Answer answer : answers)  //答题正确
+									{
+										if(answer.getContent().equals(simsolution.getAnswer())){
+											simsolution.setStatus(new Integer(1));
+											bd = simproblem.getScore();
+											break;
+										}
 									}
 								}
-							}
-							else if(type==5) //简答题
+
+								//简答题手动批改
+							/*else if(type==5) //简答题
 							{
 								for(Answer answer : answers)  //简答题 包含答案即可
 								{
@@ -278,60 +295,64 @@ class MyThread extends Thread{
 										break;
 									}
 								}
-							}
-							else if(type==2){ //多选题
-								String[] s = simsolution.getAnswer().split("§§§");
-								JSONArray arr = JSONArray.fromObject(s);
-								boolean flag = true;
-								int correctCount = 0;
-								for(int i=0;i<answers.size();i++)  //根据对的个数得分，最后四舍五入
-								{
-									if(arr.contains(answers.get(i).getContent())){
-										correctCount++;
-									}
-								}
-								double correctRate = (double)correctCount / answers.size();
-								bd = new BigDecimal(correctRate * simproblem.getScore().doubleValue()).setScale(1,BigDecimal.ROUND_HALF_UP);
-							}
-							else if(type==4)  //填空题 对应的空必须等于正确答案
-							{
-								String[] s = simsolution.getAnswer().split("§§§");
-								JSONArray arr = JSONArray.fromObject(s);
-								double count = 0;
-								for(int i=0;i<simproblem.getBlanks().intValue();i++)  //第i+1个空
-								{
-									for(int j=0;j<answers.size();j++){
-										if(answers.get(j).getPos().intValue()==i && i<arr.size() && arr.get(i)!=null && answers.get(j).getContent().equals(arr.get(i))){
-											count++;  //答对一个空
-											break;
+							}*/
+
+								else if(type==2){ //多选题
+									String[] s = simsolution.getAnswer().split("§§§");
+									JSONArray arr = JSONArray.fromObject(s);
+									boolean flag = true;
+									int correctCount = 0;
+									for(int i=0;i<answers.size();i++)  //根据对的个数得分，最后四舍五入
+									{
+										if(arr.contains(answers.get(i).getContent())){
+											correctCount++;
 										}
 									}
+									double correctRate = (double)correctCount / answers.size();
+									bd = new BigDecimal(correctRate * simproblem.getScore().doubleValue()).setScale(1,BigDecimal.ROUND_HALF_UP);
+								}
+								else if(type==4)  //填空题 对应的空必须等于正确答案
+								{
+									String[] s = simsolution.getAnswer().split("§§§");
+									JSONArray arr = JSONArray.fromObject(s);
+									double count = 0;
+									for(int i=0;i<simproblem.getBlanks().intValue();i++)  //第i+1个空
+									{
+										for(int j=0;j<answers.size();j++){
+											if(answers.get(j).getPos().intValue()==i && i<arr.size() && arr.get(i)!=null && answers.get(j).getContent().equals(arr.get(i))){
+												count++;  //答对一个空
+												break;
+											}
+										}
+
+									}
+
+									bd = new BigDecimal(simproblem.getScore().doubleValue() * (count/simproblem.getBlanks().intValue())); //根据对的空 给分
 
 								}
 
-								bd = new BigDecimal(simproblem.getScore().doubleValue() * (count/simproblem.getBlanks().intValue())); //根据对的空 给分
+								Simsolution newSimsolution = new Simsolution();
+								// 对0.5取整
+								bd = new BigDecimal((int)(bd.doubleValue() / 0.5) * 0.5);
+								//System.out.println("bd===="+bd);
+								newSimsolution.setScore(bd);
+								newSimsolution.setStatus(new Integer(1));
+								newSimsolution.setSimsolutionId(simsolution.getSimsolutionId());
+								simsolutionDao.updateByPrimaryKeySelective(newSimsolution);  //更新提交记录
 
-							}
-
-							Simsolution newSimsolution = new Simsolution();
-							// 对0.5取整
-							bd = new BigDecimal((int)(bd.doubleValue() / 0.5) * 0.5);
-							newSimsolution.setScore(bd);
-							newSimsolution.setStatus(new Integer(1));
-							newSimsolution.setSimsolutionId(simsolution.getSimsolutionId());
-							simsolutionDao.updateByPrimaryKeySelective(newSimsolution);  //更新提交记录
-
-							ContestStatus contestStatus =  contestStatusDao.selectByPrimaryKey(simsolution.getContestStatusId());
-							if(contestStatus!=null)
-							{
-								contestStatus.setScore(new BigDecimal(contestStatus.getScore().doubleValue() + bd.doubleValue())); //更新分数
-								contestStatusDao.updateByPrimaryKey(contestStatus);
+								//总分进行记录（累加）
+								tempScore += bd.doubleValue();
 							}
 						}
-
-
+						//System.out.println("tempScore===="+tempScore);
+						ContestStatus contestStatus =  contestStatusDao.selectByPrimaryKey(cStatusId);
+						if(contestStatus!=null)
+						{
+							//更新分数(累加)
+							contestStatus.setScore(new BigDecimal(contestStatus.getScore().doubleValue() + tempScore));
+							contestStatusDao.updateByPrimaryKey(contestStatus);
+						}
 					}
-
 				}
 
 				//编程题
@@ -361,8 +382,7 @@ class MyThread extends Thread{
 				contestStatusCriteria.andStatusEqualTo(new Integer(1));   //所有待完成批改的考试记录
 				List<ContestStatus> contestStatuss = contestStatusDao.selectByExample(contestStatusExample);
 
-				for(ContestStatus contestStatus : contestStatuss)
-				{
+				for(ContestStatus contestStatus : contestStatuss) {
 					simsolutionExample = new SimsolutionExample();
 					simsolutionExample.clear();
 					simsolutionCriteria = simsolutionExample.createCriteria();
@@ -383,8 +403,9 @@ class MyThread extends Thread{
 					contestStatus.setStatus(new Integer(2));  //这次考试已经批改完成了
 					contestStatusDao.updateByPrimaryKey(contestStatus);
 
+
 					//尝试生成该试卷的答卷情况PDF
-					OneContest oneContest = new OneContest();
+					/*OneContest oneContest = new OneContest();
 
 					OnePaper paper = new OnePaper();
 					Contest contest = contestDao.selectByPrimaryKey(contestStatus.getContestId());
@@ -400,7 +421,7 @@ class MyThread extends Thread{
 					if(student==null) continue;
 					oneContest.setStudent(student);  //考生信息
 
-					//         paper.setContestStatus(contestStatus);
+					//paper.setContestStatus(contestStatus);
 
 					SimproblemExample simproblemExample = new SimproblemExample();
 					SimproblemExample.Criteria simproblemExampleCriteria = simproblemExample.createCriteria();
@@ -459,7 +480,7 @@ class MyThread extends Thread{
 							solutionCriteria.andContestStatusIdEqualTo(contestStatus.getContestStatusId());
 							solutionCriteria.andProblemIdEqualTo(problem.getProblemId());
 							List<SolutionWithBLOBs> solutionList = solutionDao.selectByExampleWithBLOBs(solutionExample);
-							if(solutions.size()>0)
+							if(solutionList.size() > 0)
 								oneProblem.setSolution(solutionList.get(0));  //作答情况
 
 							oneProblems.add(oneProblem);
@@ -470,10 +491,11 @@ class MyThread extends Thread{
 
 
 					oneContest.setPaper(paper);
-					(new PdfHelper()).GeneratePDFForContestStatus(oneContest,contestStatus.getContestStatusId(),contestStatus.getScore().setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue());
+					String path = (new PdfHelper()).GeneratePDFForContestStatus(oneContest,contestStatus.getContestStatusId(),contestStatus.getScore().setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue());
+					System.out.println("path=="+path);
+					*/
 				}
-			}
-			catch (Exception e){
+			} catch (Exception e){
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				e.printStackTrace(new PrintStream(baos));
 				String exception_message = baos.toString();

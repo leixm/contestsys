@@ -16,12 +16,7 @@ import java.util.*;
 import javax.mail.MessagingException;
 
 import com.code.model.*;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Phrase;
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
@@ -32,9 +27,12 @@ import net.sf.json.JSONObject;
 public class PdfHelper {
 
 	public static String pdf_dir  = "F:/pdf/";
-	private  Font headfont ;// ���������С 
-    private  Font keyfont;// ���������С 
-    private  Font textfont;// ���������С 
+
+	private  Font headfont ;
+    private  Font keyfont;
+    private  Font textfont;
+	private Font redkeyfont;
+	private Font optionfont;
     private int maxWidth = 520; 
     private  String fontPath = "/com/app/text/msyh.ttf";
     Document document = new Document();   
@@ -209,21 +207,28 @@ public class PdfHelper {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		BaseFont bfChinese = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
 		headfont = new Font(bfChinese, 14, Font.BOLD);
-        keyfont = new Font(bfChinese, 10, Font.BOLD); 
-        textfont = new Font(bfChinese, 8, Font.NORMAL);
-        
+        keyfont = new Font(bfChinese, 10, Font.BOLD);
+		optionfont = new Font(bfChinese, 9, Font.BOLD);
+        textfont = new Font(bfChinese, 10, Font.NORMAL);
+		redkeyfont = new Font(bfChinese, 10, Font.NORMAL, new BaseColor(255, 0, 0));
+
 		table.addCell(createCell(paper.getContestpaper().getTitle(),headfont,Element.ALIGN_CENTER,3,false));
-		table.addCell(createCell(String.format("姓名: %s", contest.getStudent().getRealname()),headfont,Element.ALIGN_CENTER,3,false));
-		table.addCell(createCell(String.format("成绩: %.1f", score),headfont,Element.ALIGN_CENTER,3,false));
-		table.addCell(createCell("批改日期：" + sdf.format(new Date()),headfont,Element.ALIGN_CENTER,3,false));
+
+		table.addCell(createCell("批改日期：" + sdf.format(new Date())+ "                                        "
+				+String.format("姓名: %s", contest.getStudent().getRealname())+ "                                        "
+				+String.format("成绩: %.1f", score),
+				keyfont,Element.ALIGN_CENTER,3,false,30,10));
+
+		/*table.addCell(createCell(String.format("成绩: %.1f", score),headfont,Element.ALIGN_CENTER,3,false));
+		table.addCell(createCell("批改日期：" + sdf.format(new Date()),headfont,Element.ALIGN_CENTER,3,false));*/
 		
 		int problemSize = paper.getProb() == null ? 0 : paper.getProb().size();
 		int simproblemSize = paper.getSimp() == null ?0 : paper.getSimp().size();
 		for(int k=1;k<=problemSize + simproblemSize;k++)
 		{
 
-			String simsolutionContent = "未作答";
-			String answerContent = "未找到答案";
+			String simsolutionContent = "学生未作答";
+			String answerContent = "未找到答案/无标准答案";
 
 			if(paper.getSimp()!=null)
 			for(OneSimproblem oneSimproblem : paper.getSimp())  //选择题{
@@ -241,7 +246,7 @@ public class PdfHelper {
 							optionsMap.put(options.getPos(), options.getContent());
 
 						for(Map.Entry<Integer,String> entry : optionsMap.entrySet()){
-							table.addCell(createCell( ContestHelper.indexToCharIndex(entry.getKey()) + "." + entry.getValue(),keyfont,Element.ALIGN_LEFT,3,false,8,8));
+							table.addCell(createCell( ContestHelper.indexToCharIndex(entry.getKey()) + "." + entry.getValue(),optionfont,Element.ALIGN_LEFT,3,false,8,8));
 						}
 
 						Map<String,Integer> optionsMapReserved = new HashMap<String,Integer>();
@@ -260,13 +265,15 @@ public class PdfHelper {
 							}
 						}
 						answerContent = answerSB.substring(0,answerSB.length()-1);
-						String answer = oneSimproblem.getSimsolution().getAnswer();
 
-						if(answer!=null) {
+						String answer = oneSimproblem.getSimsolution().getAnswer();
+						//System.out.println("answer---------"+answer);
+						if(answer!=null && !"".equals(answer)) {
 							StringBuilder simsolutionSB = new StringBuilder();
 							String[] simsolutionArr = answer.split("§§§");
 							for(String arr : simsolutionArr){
 								try{
+									//System.out.println("arr---------"+arr);
 									simsolutionSB.append(ContestHelper.indexToCharIndex((int)optionsMapReserved.get(arr)));
 									simsolutionSB.append("、");
 								}
@@ -276,7 +283,12 @@ public class PdfHelper {
 							}
 							simsolutionContent = simsolutionSB.substring(0,simsolutionSB.length()-1);
 						}
-					}else{ //其他题目的正确答案和作答内容生成
+
+					} else if(oneSimproblem.getSimproblem().getType().intValue() == 5 ) {  // 简答题
+							StringBuilder answerContentSB = new StringBuilder();
+							simsolutionContent = oneSimproblem.getSimsolution().getAnswer();
+
+					} else{ //其他题目的正确答案和作答内容生成
 				    	StringBuilder answerContentSB = new StringBuilder();
 				    	Map<Integer,String> answerMap = new TreeMap<>();
 				    	for(Answer answer : oneSimproblem.getAnswer()){
@@ -289,13 +301,33 @@ public class PdfHelper {
 						}
 				    	answerContent = answerContentSB.substring(0,answerContentSB.length()-1);
 
-						simsolutionContent = oneSimproblem.getSimsolution().getAnswer();
+				    	// 作答内容
+						String answer = oneSimproblem.getSimsolution().getAnswer();
+						//System.out.println("answer---------"+answer);
+						//分割作答内容，美观
+						if(answer!=null && !"".equals(answer)) {
+							StringBuilder simsolutionSB = new StringBuilder();
+							String[] simsolutionArr = answer.split("§§§");
+							if(simsolutionArr.length > 0) {
+								for(String arr : simsolutionArr){
+									try{
+										//System.out.println("arr---------"+arr);
+										simsolutionSB.append(arr);
+										simsolutionSB.append(" 、");
+									}
+									catch (NullPointerException e){
+										e.printStackTrace();
+									}
+								}
+								simsolutionContent = simsolutionSB.substring(0,simsolutionSB.length()-1);
+							}
+						}
 					}
 
-					table.addCell(createCell("正确答案: " + answerContent,keyfont,Element.ALIGN_LEFT,3,false,15,6));
-					table.addCell(createCell("作答: " + simsolutionContent,keyfont,Element.ALIGN_LEFT,3,false,6,6));
-				    table.addCell(createCell(String.format("题目分值：%.1f" , oneSimproblem.getSimproblem().getScore().setScale(1,BigDecimal.ROUND_HALF_UP).doubleValue()),keyfont,Element.ALIGN_LEFT,3,false,6,6));
-				    table.addCell(createCell(String.format("得分：%.1f" , oneSimproblem.getSimsolution().getScore().setScale(1,BigDecimal.ROUND_HALF_UP).doubleValue()) ,keyfont,Element.ALIGN_LEFT,3,false,6,6));
+					table.addCell(createCell("正确答案: " + answerContent,textfont,Element.ALIGN_LEFT,3,false,25,6));
+					table.addCell(createCell("作答: " + simsolutionContent,redkeyfont,Element.ALIGN_LEFT,3,false,6,6));
+				    table.addCell(createCell(String.format("题目分值：%.1f" , oneSimproblem.getSimproblem().getScore().setScale(1,BigDecimal.ROUND_HALF_UP).doubleValue()),textfont,Element.ALIGN_RIGHT,3,false,6,6));
+				    table.addCell(createCell(String.format("得分：%.1f" , oneSimproblem.getSimsolution().getScore().setScale(1,BigDecimal.ROUND_HALF_UP).doubleValue()) ,redkeyfont,Element.ALIGN_RIGHT,3,false,6,6));
 			}
 
 			if (paper.getProb()!=null)
@@ -313,14 +345,23 @@ public class PdfHelper {
 			
 		}
 
-		String path = pdf_dir + String.valueOf(contestStatusId) + ".pdf";
+		 //下载到服务器特定文件夹里
+		 String classPath = this.getClass().getResource("/").getPath();
+		 String webappRoot = classPath.replaceAll("WEB-INF/classes/", ""); 	//根目录
+		 webappRoot  = webappRoot.replace("%20"," ");	//替换空格
+
+		 String filePath = webappRoot + "solutionPdfDownload" + File.separator;		//模板文件绝对路径
+
+		 String path = filePath + String.valueOf(contestStatusId) + ".pdf";
 		 File file = new File(path);
-         if(!file.getParentFile().exists()) file.getParentFile().mkdirs();
+         if(!file.getParentFile().exists()) {
+         	file.getParentFile().mkdirs();
+		 }
          file.createNewFile(); 
          PdfWriter.getInstance(document,new FileOutputStream(file)); 
          document.open();
-		document.add(table);
-		document.close();
+		 document.add(table);
+		 document.close();
 		
 		return path;
 		

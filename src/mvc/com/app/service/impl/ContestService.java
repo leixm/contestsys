@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.annotation.SystemServiceLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,7 @@ public class ContestService {
 	@Autowired
 	private UserMapper userDao;
 	
-	public List GetAllContest(String Keyword,int fkCourseId, String startTime,String endTime,String pageSize,String pageNumber){
+	public List GetAllContest(String Keyword,int fkCourseId, String startTime,String endTime,String userId,String pageSize,String pageNumber){
 		//分页所需相关参数的计算
 		//根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
 		if(pageSize!=null&&pageNumber!=null) {
@@ -53,17 +54,17 @@ public class ContestService {
 		
 		if(Keyword!=null && !Keyword.trim().isEmpty()){
 			if(startTime!=null && endTime!=null && !startTime.trim().isEmpty() && !endTime.trim().isEmpty()){
-				list = contestDao.listAllByKeywordAndDate(Keyword,fkCourseId,startTime,endTime);
+				list = contestDao.listAllByKeywordAndDate(Keyword,fkCourseId,startTime,endTime,userId);
 			}
 			else{
-				list = contestDao.listAllByKeyword(Keyword,fkCourseId);
+				list = contestDao.listAllByKeyword(Keyword,fkCourseId,userId);
 			}
 		}else if(startTime!=null && endTime!=null && !startTime.trim().isEmpty() && !endTime.trim().isEmpty())
 		{
-			list = contestDao.listAllByDate(fkCourseId,startTime,endTime);
+			list = contestDao.listAllByDate(fkCourseId,startTime,endTime,userId);
 		}else
 		{
-			list = contestDao.listAll(fkCourseId);  //都为空
+			list = contestDao.listAll(fkCourseId,userId);  //都为空
 		}
 		
          
@@ -75,25 +76,27 @@ public class ContestService {
 	    System.out.println("contestList_------"+JSONArray.fromObject(list).toString());
 	    return list;
 	}
-	
+
+	@SystemServiceLog(description = "添加考试")
 	public int AddContest(Contest contest){
 		return contestDao.insertSelective(contest);
 	}
-	
+
+	@SystemServiceLog(description = "更新考试信息")
 	public int UpdateContest(Contest contest){
 		return contestDao.updateByPrimaryKeySelective(contest);
 	}
-	
+
+	@SystemServiceLog(description = "删除考试")
 	public int DeleteContest(String id){
 		return contestDao.deleteByPrimaryKey(Integer.parseInt(id));
 	}
-	
 
-	
 	public Contest GetContest(String id){
 		return contestDao.selectByPrimaryKey(Integer.parseInt(id));
 	}
-	
+
+	@SystemServiceLog(description = "批量删除考试")
 	public int DeleteAllContest(List<String> ids)
 	{  
 	   int count = 0;
@@ -114,6 +117,7 @@ public class ContestService {
 	 * @param contest_id
 	 * @param class_id
 	 */
+	@SystemServiceLog(description = "添加考试班级")
 	public void AddContestClass(Integer contest_id,Integer class_id)
 	{
 
@@ -166,8 +170,8 @@ public class ContestService {
 	 */
 	public List<Map<String,Object>> selOneContestById(String contestId) {
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
-		
-		resultList = contestDao.listAllByKeyword(contestId,0);
+		// 根据contestId查询考试
+		resultList = contestDao.listAllByKeyword(contestId,0,"root");
 		return resultList;
 	}
 	

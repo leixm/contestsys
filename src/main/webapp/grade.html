@@ -1,7 +1,7 @@
 <html class="x-admin-sm">
 	<head>
 		<meta charset="UTF-8">
-		<title>欢迎页面-X-admin2.2</title>
+		<title>成绩管理</title>
 		<meta name="renderer" content="webkit">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -67,9 +67,8 @@
     	</script>
 
 		<script type="text/html" id="header">
-			<div style="float: right; class="layui-inline layui-show-xs-block">
-				<!-- <button class="layui-btn layui-btn-normal" lay-event="add"><i class="layui-icon"></i>添加用户</button>
-				<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll"><i class="layui-icon"></i>批量删除</button>	 --!>
+			<div style="float: right;" class="layui-inline layui-show-xs-block">
+
 				<button class="layui-btn" lay-event="exportExcel" data-type="exportExcel" id="exportScore"><i class="layui-icon layui-icon-download-circle" ></i>导出</button>
 			</div>
 
@@ -89,7 +88,7 @@
 		</script>
 
 		<script type="text/html" id="demotool">
-			<div style="display:none;"  class="caozuo">
+			<div style="display:block;"  class="caozuo">
 				<a class="layui-btn layui-btn-xs " lay-event="edit" >编辑</a>
 				<a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="pdf" >PDF预览</a>
 			</div>
@@ -141,11 +140,12 @@
 						id: 'demoReload',
 						elem: '#demo', //指定原始表格元素选择器（推荐id选择器）
 						height: '720', //容器高度
-				
 						toolbar: '#header',
+						defaultToolbar: ['', '', ''],
 						cols: [
 							[{
-								checkbox: true
+								checkbox: true,
+                                width: 60
 							}, {
 								field: 'contest_status_id',
 								title: '考试状态id',
@@ -271,7 +271,10 @@
 							});
 
 						} else if (obj.event == "pdf") {
-                            window.location.href='ContestStatus/Pdf?contestStatusId='+obj.data.contest_status_id+"&stuid="+obj.data.stuid;
+                            layer.confirm('是否导出为pdf文件?', function(index) {
+                                window.location.href='ContestStatus/Pdf?contestStatusId='+obj.data.contest_status_id+"&stuid="+obj.data.stuid;
+                                layer.close(index);
+                            })
 						}
 					});
 					
@@ -331,25 +334,7 @@
 				});
 			}
 			
-			/* function exportExcel() {
-			//创建对象
-				var xhr = new XMLHttpRequest();
-				//复写函数
-				xhr.onreadystatechange = function() {
-					//判断状态码（两个 Ajax 和 响应状态码）
-					if(xhr.readyState == 4) {
-						if(xhr.status == 200) {
-							var result = xhr.responseText;
-							window.location.href='Teacher/gradeScoreExcel';
-						}
-					}
-				}
-				//发送请求
-				xhr.open("post",'index.html');
-				xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-				//对于post里头可写参数
-				xhr.send(null);
-			} */
+			
 			
 			/* 获取用户角色信息 */
 			function roleControl() {

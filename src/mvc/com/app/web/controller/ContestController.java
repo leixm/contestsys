@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.annotation.SystemControllerLog;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,20 +68,25 @@ public class ContestController {
 		HttpSession session = request.getSession();
 		User user = (User)session.getAttribute("user");
 		int level = user.getLevel();
+		String userId = user.getUserId();
 		if(level < 1) {
 			response.setMsg("无操作权限");
 			return JSONObject.fromObject(response).toString();
+		} else if(level == 2) {
+			userId = "root";
 		}
 		// 获取session中的课程id
 		int fkCourseId = 0;
 		if(session.getAttribute("course_id")!=null) {
 			fkCourseId = Integer.parseInt(session.getAttribute("course_id").toString());
 		}
-
+		
+		
+		
 		//获取分页所需相关数据
 		String pageSize = request.getParameter("limit"); //一页多少个
 		String pageNumber = request.getParameter("page");	//第几页
-		List resultList = contestService.GetAllContest(Keyword,fkCourseId,startTime,endTime,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
+		List resultList = contestService.GetAllContest(Keyword,fkCourseId,startTime,endTime,userId,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
 		//获取分页插件的数据只能通过PageInfo来获取
 		PageInfo pInfo = new PageInfo(resultList);
 		Long total = pInfo.getTotal();
@@ -135,6 +141,7 @@ public class ContestController {
 	 */
 	@RequestMapping(value = "Contest/AddContest", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "添加考试")
 	public String AddContest(HttpServletRequest request, Contest contest) throws ParseException {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
@@ -183,7 +190,7 @@ public class ContestController {
 			ModelAndView mav = new ModelAndView();
 			mav.addObject("paper",JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,fkCourseId,null,null)));
 			mav.addObject("teachers", userService.getAllTeacher());
-			JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,fkCourseId,null,null,null,null));
+			JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,fkCourseId,null,null,"root",null,null));
 			for(int i=0;i<arr.size();i++){
 				if(arr.getJSONObject(i).getInt("contest_id") == Integer.parseInt(id)){
 						mav.addObject("contest",arr.getJSONObject(i));
@@ -198,7 +205,7 @@ public class ContestController {
 		
 		mav.addObject("paper", JSONArray.fromObject(contestpaperService.GetAllContestPaper(null,null,null,fkCourseId,null,null)));
 		mav.addObject("teachers",userService.getTeacherById(userId));
-		JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,0,null,null,null,null));
+		JSONArray arr = JSONArray.fromObject(contestService.GetAllContest(id,fkCourseId,null,null,"root",null,null));
 		for(int i=0;i<arr.size();i++)
 		{
 		if(arr.getJSONObject(i).getInt("contest_id") == Integer.parseInt(id))
@@ -221,8 +228,9 @@ public class ContestController {
 	 */
 	@RequestMapping(value = "Contest/UpdateContest", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "更新考试信息")
 	public String UpdateContest(HttpServletRequest request,Contest contest) throws ParseException {
-		System.out.println(JSONObject.fromObject(contest).toString());
+		//System.out.println(JSONObject.fromObject(contest).toString());
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		contest.setStarttime(sdf.parse(contest.getStartTimeS())); 
 		contest.setEndtime(sdf.parse(contest.getEndTimeS()));
@@ -245,6 +253,7 @@ public class ContestController {
 	 */
 	@RequestMapping(value = "Contest/DeleteContest", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "删除考试")
 	public String DeleteContest(HttpServletRequest request, String id) {
 
 		LayResponse response = new LayResponse();
@@ -266,6 +275,7 @@ public class ContestController {
 	 */
 	@RequestMapping(value = "Contest/DelAll", consumes = "application/json", produces = "text/html;charset=UTF-8", method = {RequestMethod.POST })
 	@ResponseBody
+	@SystemControllerLog(description = "批量删除考试")
 	public String DelAll(HttpServletRequest request, @RequestBody List<String> ids) {
 		  //规定返回对象，默认设置Code为1表示失败
 		  LayResponse response = new LayResponse(); 
@@ -275,13 +285,13 @@ public class ContestController {
 		User user = (User)request.getSession().getAttribute("user");
 		int level = user.getLevel(); //学生： 0  老师：1  管理员：2
 		String userId = user.getUserId();
-		System.out.println("userid+++"+userId);
+		//System.out.println("userid+++"+userId);
 		if(level>0) {
 			//权限校验：
 			/*用用户的userId查contest表，获取所有的contestId集合，校验用户选中删除的考试id和数据库表的考试id有没有不同，有则退出，不给予删除*/
 			List<Map<String,Object>> selList = contestService.selAllContestByUserId(userId);	//获取userId对应下的contest集合
-			System.out.println("selList----"+selList);
-			System.out.println("idsSize-----"+ids.size());
+			//System.out.println("selList----"+selList);
+			//System.out.println("idsSize-----"+ids.size());
 			
 			int i = 0; //记录ids是否全部与数据库的contestId对应
 			if(selList.size()>0 ) {
@@ -292,7 +302,7 @@ public class ContestController {
 						}
 					}
 				}
-				System.out.println("iSize------"+i);
+				//System.out.println("iSize------"+i);
 				if(i != ids.size()) {	//校验用户选中删除的考试id和数据库表的考试id有不同
 					response.setMsg("删除失败,只能选择自己负责的考试进行删除"); 
 					return JSONObject.fromObject(response).toString();
@@ -301,7 +311,7 @@ public class ContestController {
 				//进行删除操作
 				if(contestService.DeleteAllContest(ids)>0){
 				    response.setCode(0); 
-				    System.out.println(JSONObject.fromObject(response).toString());
+				    //System.out.println(JSONObject.fromObject(response).toString());
 				    return JSONObject.fromObject(response).toString(); 
 				}else{
 				   response.setMsg("删除失败"); 
@@ -311,7 +321,7 @@ public class ContestController {
 				//进行删除操作
 				if(contestService.DeleteAllContest(ids)>0){
 				    response.setCode(0); 
-				    System.out.println(JSONObject.fromObject(response).toString());
+				    //System.out.println(JSONObject.fromObject(response).toString());
 				    return JSONObject.fromObject(response).toString(); 
 				}else{
 				   response.setMsg("删除失败"); 
@@ -394,6 +404,7 @@ public class ContestController {
 	 */
 	@RequestMapping(value = "Contest/AddContestClass", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "添加考试班级")
 	public String AddContestClass(HttpServletRequest request) throws ParseException {
 		//规定返回对象，默认设置Code为1表示失败
 		LayResponse response = new LayResponse();	
@@ -417,7 +428,7 @@ public class ContestController {
 			//判断操作用户的id是否和contest表中的teacher一样
 			List<Map<String,Object>> selList = contestService.selOneContestById(contestId);
 			String selUserId = selList.get(0).get("teacher").toString();	//获取某个conetstId对应下的userId
-			System.out.println("selUserId-----"+selUserId);
+			//System.out.println("selUserId-----"+selUserId);
 			if(selUserId.equals(userId) || level>1) {	//用户的id是否和contest表中的teacher一样  或者  是管理员
 				//分割classId 组成集合
 				String[] classIdStrArr = classId.split(",");
@@ -444,7 +455,7 @@ public class ContestController {
 	
 	/**
 	 * @author zzs
-	 * @description 添加考试班级(教师只能给负责的考试加考试班级)
+	 * @description 判断权限是否能对考试进行操作
 	 * @return 响应状态
 	 */
 	@RequestMapping(value = "Contest/judgeUserPower", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
@@ -465,7 +476,7 @@ public class ContestController {
 			//判断操作用户的id是否和contest表中的teacher一样
 			List<Map<String,Object>> selList = contestService.selOneContestById(contestId);
 			String selUserId = selList.get(0).get("teacher").toString();	//获取某个conetstId对应下的userId
-			System.out.println("selUserId-----"+selUserId);
+			//System.out.println("selUserId-----"+selUserId);
 			if(selUserId.equals(userId) || level>1) {	//用户的id是否和contest表中的teacher一样  或者  是管理员
 				response.setCode(0);
 				response.setMsg("操作权限验证通过"); 

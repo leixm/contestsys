@@ -223,14 +223,14 @@
   		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,date_format(c.startTime,'%Y-%m-%d') as contesttime,a.score,a.status,a.contest_status_id
 		from contest_status a 
 		left join user u on a.student = u.user_id 
-		left join class b on u.class_id=b.class_id
-		left join contest c on a.contest_id=c.contest_id
+		left join class b on u.class_id = b.class_id
+		left join contest c on a.contest_id = c.contest_id
 		<where>
             and a.status in
             <foreach collection="status" item="sta" index="index" open="(" close=")" separator=",">
                 #{sta}
             </foreach>
-
+			
 			<if test="classname!=null and classname!=''">
 				and b.name like "%"#{classname}"%"
 			</if>
@@ -250,6 +250,11 @@
             <if test="simCourseId!=null and simCourseId!=0">
                 and c.fk_course_id = #{simCourseId}
             </if>
+            
+            <if test="userId!=null and userId!='root'">
+                and c.teacher = #{userId}
+            </if>
+            
 		</where>
 		order by b.class_id,a.contest_id,u.user_id
   </select>
@@ -318,7 +323,7 @@
 				LEFT JOIN user u on a.student = u.user_id 
 				LEFT JOIN class cla on u.class_id=cla.class_id
 				LEFT JOIN contest con on a.contest_id=con.contest_id
-				WHERE 1=1 and cla.class_id = b.class_id and con.contest_id = c.contest_id
+				WHERE 1=1 and cla.class_id = b.class_id and con.contest_id = c.contest_id and a.status = 2
 				GROUP BY cla.class_id,c.contest_id
 				ORDER BY cla.class_id
 		)	as class_avg
@@ -329,7 +334,6 @@
 				LEFT JOIN contest c on a.contest_id=c.contest_id
 				WHERE 1=1 
 				and u.user_id = #{stuid}
-				and a.status = 2
 		<if test="contestname!=null and contestname!=''">
 			and c.title in
 			<foreach collection="contestname" item="item" index="index" open="(" close=")" separator=",">

@@ -1,7 +1,7 @@
 /**
  * @author lxm
  * @create_date 2019.9.22
- * @description Í³Ò»Ğ±¸Ü£¬±ÜÃâlinux»·¾³ÏÂ±¨´í
+ * @description ç»Ÿä¸€æ–œæ ï¼Œé¿å…linuxç¯å¢ƒä¸‹æŠ¥é”™
  * */
 package com.app.tools;
 import javax.servlet.http.HttpServletRequest;

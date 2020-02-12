@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 
+import com.annotation.SystemServiceLog;
+import com.app.tools.MD5Util2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,10 +52,9 @@ public class UserService {
 		UserExample userExample = new UserExample();
 		UserExample.Criteria criteria= userExample.createCriteria();
 		criteria.andUserIdEqualTo(userName);
-		
-		
+
 		List<User> list = userDao.selectByExample(userExample);
-		System.out.println("size=" + list.size()); 
+		//System.out.println("size=" + list.size());
 	    if(list.size()==1)
 	    {
 	    	User user = list.get(0);
@@ -73,21 +74,25 @@ public class UserService {
     		
     		return -1;
     		}
-	    	
-	    	criteria.andPasswordEqualTo(passWord);
+			// 根据用户名查询用户信息
 	    	list = userDao.selectByExample(userExample);
-	    	if(list.size()==1)
-	    	{
+			System.out.println("user=="+list);
+	    	if(list.size()==1) {
 	    		user = list.get(0);
-	    		if(user.getState()<0)
-	    			return -1; //状态异常（封禁状态）
-	    		else if(user.getLevel()==2)
-		    		return 4;  //管理员
-		    	else if(user.getLevel()==1)
-		    		return 3;   //教师用户
-		    	else return 2; //普通用户:学生
+	    		String selPassword = user.getPassword();
+	    		if (MD5Util2.getSaltverifyMD5(passWord,selPassword)) {
+					if(user.getState()<0)
+						return -1; //状态异常（封禁状态）
+					else if(user.getLevel()==2)
+						return 4;  //管理员
+					else if(user.getLevel()==1)
+						return 3;   //教师用户
+					else return 2; //普通用户:学生
+				} else {
+	    			return 1;
+				}
 	    	}
-	    	else return 1; //密码错误
+	    	else return 0; //用户名不存在
 	    		
 	    }
 	    else return 0;  //用户名不存在
@@ -99,22 +104,20 @@ public class UserService {
 		UserExample userExample = new UserExample();
 		UserExample.Criteria criteria= userExample.createCriteria();
 		criteria.andEmailEqualTo(email);
-		
-		
+
 		List<User> list = userDao.selectByExample(userExample);
-	    if(list.size()==1)
-	    {
+	    if(list.size()==1) {
 	    	User user = list.get(0);
-	    	if(user.getState()==0  )
-	    	{
-	    		if(user.getValidatetime().before(new Date()))
-	    		{
+	    	if(user.getState()==0  ) {
+	    		if(user.getValidatetime().before(new Date())) {
 	    			User record = new User();
 		    		Calendar ca = Calendar.getInstance();
 		    		ca.setTime(new Date());
 		    		ca.add(Calendar.MINUTE, 15);
+
 		    		record.setValidatetime(ca.getTime());
 		    		record.setValidatecode(MD5Util.encryption(RandomString.getRandomString(32)));
+
 		    		userDao.updateByExampleSelective(record, userExample);
 		    		ApplyActivate(user.getEmail(),user.getValidatecode());
 		    		
@@ -122,25 +125,27 @@ public class UserService {
 	    		
 	    		return -1;
 	    	}
-	    	
-	    	criteria.andPasswordEqualTo(passWord);
-	    	list = userDao.selectByExample(userExample);
-	    	if(list.size()==1)
-	    	{
-	    		user = list.get(0);
-	    		if(user.getState()<0)
-	    			return -1; //状态异常（封禁状态）
-	    		else if(user.getLevel()==2)
-		    		return 4;  //管理员
-		    	else if(user.getLevel()==1)
-		    		return 3;   //教师用户
-		    	else return 2; //普通用户
-	    	}
-	    	else return 1; //密码错误
+			// 根据email查询用户信息
+			list = userDao.selectByExample(userExample);
+			if(list.size()==1) {
+				user = list.get(0);
+				String selPassword = user.getPassword();
+				if (MD5Util2.getSaltverifyMD5(passWord,selPassword)) {
+					if(user.getState()<0)
+						return -1; //状态异常（封禁状态）
+					else if(user.getLevel()==2)
+						return 4;  //管理员
+					else if(user.getLevel()==1)
+						return 3;   //教师用户
+					else return 2; //普通用户:学生
+				} else {
+					return 1;
+				}
+			}
+			else return 0; //用户名/邮箱不存在
 	    		
 	    }
-	    else return 0;  //用户名不存在
-	    
+	    else return 0;  //用户名/邮箱不存在
 	}
 
 	/**
@@ -167,7 +172,13 @@ public class UserService {
 			return "用户名已经存在";
 		if(LoginByEmail(user.getEmail(),user.getPassword())>0)
 			return "邮箱地址已经被使用";
-		
+		// MD5加盐加密
+		String password = user.getPassword();
+		password = MD5Util2.getSaltMD5(password);
+		user.setPassword(password);
+		//System.out.println("注册pss==="+password);
+
+
 		user.setRegistertime(new Date());
 		String validateCode = MD5Util.encryption(RandomString.getRandomString(32));
 		user.setValidatecode(validateCode);
@@ -176,7 +187,8 @@ public class UserService {
 		ca.add(Calendar.MINUTE, 15);	//将时间延后15分钟
 		user.setValidatetime(ca.getTime());
 		userDao.insertSelective(user);
-		ApplyActivate(user.getEmail(),user.getValidatecode());
+
+//		ApplyActivate(user.getEmail(),user.getValidatecode());   邮箱激活
 		
 		return "注册成功";
 	}
@@ -193,9 +205,12 @@ public class UserService {
 	public int Login(String userName,String passWord) throws UnsupportedEncodingException, MessagingException, GeneralSecurityException
 	{
 		int state = LoginByEmail(userName,passWord);
-		if(state==0)
+
+		if(state==0) {
 			return LoginByUserName(userName,passWord);
-		else return state; 
+		} else {
+			return state;
+		}
 
 	}
 	
@@ -303,7 +318,12 @@ public class UserService {
 	    		user = new User();
 	    		if(Pattern.matches(passWordRegex, newPassword))
 	    		{
-	    			user.setPassword(newPassword);
+					// MD5加盐加密
+					String password = user.getPassword();
+					password = MD5Util2.getSaltMD5(newPassword);
+
+	    			user.setPassword(password);
+
 		    		userDao.updateByExampleSelective(user, userExample);
 		    		return "密码重置成功";
 	    		}
@@ -360,14 +380,16 @@ public class UserService {
 
 	    return list;
 	}
-	
-	
+
+	//此处为AOP拦截Service记录异常信息。方法不需要加try-catch
+	@SystemServiceLog(description = "添加一名学生用户")
 	public int AddUser(User user){
 		user.setState(new Integer(1));
 		user.setRegistertime(new Date());
 		return userDao.insertSelective(user);
 	}
-	
+
+	@SystemServiceLog(description = "修改用户信息（用户管理）")
 	public int UpdateUser(User user){
 		return userDao.updateByPrimaryKeySelective(user);
 	}
@@ -379,6 +401,18 @@ public class UserService {
 
 	
 	public User getUser(String id){
+		String emailRegex= "^[0-9A-Za-z][\\.-_0-9A-Za-z]*@[0-9A-Za-z]+(\\.[0-9A-Za-z]+)+$";
+
+		if(Pattern.matches(emailRegex,id)) {	// 假如id为邮箱格式
+			UserExample userExample = new UserExample();
+			UserExample.Criteria criteria = userExample.createCriteria();
+			criteria.andEmailEqualTo(id);
+			User user = userDao.selectByExample(userExample).get(0);
+			System.out.println("user==="+user.getUserId());
+			System.out.println("user==="+user.getRealname());
+			return user;
+		}
+
 		return userDao.selectByPrimaryKey(id);
 	}
 	
@@ -397,7 +431,8 @@ public class UserService {
 		criteria.andUserIdEqualTo(userId);
 		return userDao.selectByExample(userExample);
 	}
-	
+
+	@SystemServiceLog(description = "批量删除用户（用户管理）")
 	public int DeleteAllUser(List<String> ids)
 	{  
 	   int count = 0;
@@ -438,7 +473,8 @@ public class UserService {
 			return 2; 
 		}
 	}
-	
+
+	@SystemServiceLog(description = "添加课程任课关系")
 	public int addTeach(String courseId,String teacherId) {
 		String[] classIdArr = courseId.split(",");
 		String[] teacherIdArr = teacherId.split(",");
@@ -462,12 +498,14 @@ public class UserService {
 		}
 		return 0;
 	}
-	
+
+	@SystemServiceLog(description = "删除课程")
 	public int deleteCourse(String courseId) {
 		int courseIdInt = Integer.parseInt(courseId);
 		return courseDao.delCourseById(courseIdInt);
 	}
-	
+
+	@SystemServiceLog(description = "批量删除课程")
 	public int deleteAllCourse(List<String> ids) {
 		 int count = 0;
 		 if(!ids.isEmpty()) {
@@ -477,12 +515,14 @@ public class UserService {
 		 }
 		 return count;
 	}
-	
+
+	@SystemServiceLog(description = "解除课程任课关系")
 	public int deleteTeach(String courseId,String teacherId){
 		int courseInt = Integer.parseInt(courseId);
 		return courseDao.deleteTeachById(courseInt,teacherId);
 	}
-	
+
+	@SystemServiceLog(description = "更新课程信息")
 	public int updateCourse(int courseId,String courseName) {
 		
 		return courseDao.updateCourseById(courseId,courseName);

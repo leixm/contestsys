@@ -5,6 +5,7 @@
  **/
 package com.app.service.impl;
 
+import com.annotation.SystemServiceLog;
 import com.app.dao.*;
 import com.app.service.TeacherService;
 import com.code.model.*;
@@ -64,6 +65,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * @return 状态响应
 	 */
 	@Override
+	@SystemServiceLog(description = "添加一场考试")
 	public Response addContest(Contest contest,String className) {
 		Response resp = new Response();
 		//查权限
@@ -155,6 +157,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * @return 状态响应
 	 */
 	@Override
+	@SystemServiceLog(description = "手动组卷")
 	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps,String basePath) {
 		Response resp = new Response();
 		int maxSimpId;
@@ -185,6 +188,7 @@ public class TeacherServiceImpl implements TeacherService{
 			if(newpaper!=null) {
 				Contestpaper cPaper = newpaper.getContestpaper();
 				if(cPaper!=null) {
+					cPaper.setTeacher(user.getUserId());
 					cPaper.setDate(null);
 					cPaper.setPaperId(thisPaperId);
 					cpaperDao.insertSelective(cPaper);
@@ -673,12 +677,13 @@ public class TeacherServiceImpl implements TeacherService{
 	}
 
 	/**
-	 * 导出年级成绩表
+	 * 导出成绩表
 	 * @param user	具体老师
 	 * @param contest 具体考试
 	 * @return 导出结果
 	 */
 	@Override
+	@SystemServiceLog(description = "导出学生成绩表")
 	public Response exportGradeScoreExcel(User user, Contest contest) {
 		Response resp = new Response();
 		//存放导出表格所需要的学生个人成绩信息
@@ -789,7 +794,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * @return 成绩实体Map对象集合
 	 */
 	@Override
-	public List<Map<String, Object>> selStuScore(String className, String stuId, String stuName, String contestName,int simCourseId,List statusList,String pageSize,String pageNumber) {
+	public List<Map<String, Object>> selStuScore(String className, String stuId, String stuName, String contestName,int simCourseId,List statusList,String userId,String pageSize,String pageNumber) {
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
 		//分页所需相关参数的计算
 		if(pageSize!=null&&pageNumber!=null) {
@@ -797,7 +802,7 @@ public class TeacherServiceImpl implements TeacherService{
 			int pageNumberInt = Integer.parseInt(pageNumber);
 			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
 		}
-		resultList = contestStatusDao.selStuScoreBykeyword(className, stuId, stuName, contestName, simCourseId,statusList); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		resultList = contestStatusDao.selStuScoreBykeyword(className, stuId, stuName, contestName, simCourseId,statusList,userId); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
 		return resultList;
 	}
 
@@ -819,6 +824,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * @return 更新操作返回的状态
 	 */
 	@Override
+	@SystemServiceLog(description = "修改学生总成绩")
 	public int updateScore(String cStatusId, String score) {
 		BigDecimal scoreDecimal = new BigDecimal(score);
 		int cStatusIdInt = Integer.parseInt(cStatusId);
@@ -839,7 +845,7 @@ public class TeacherServiceImpl implements TeacherService{
 	@Override
 	public List<Map<String, Object>> selAllContestObj() {
 		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-		list = contestDao.listAll(0);
+		list = contestDao.listAll(0,"root");
 		return list;
 	}
 
@@ -878,6 +884,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * @return
 	 */
 	@Override
+	@SystemServiceLog(description = "删除单条simproblem")
 	public int delSimproblemById(int simId) {
 
 		return simpDao.delSimproblemById(simId);
@@ -885,6 +892,7 @@ public class TeacherServiceImpl implements TeacherService{
 
 
 	@Override
+	@SystemServiceLog(description = "批量删除多条simproblem")
 	public int delBatchSimproblemByIds(List<String> ids) {
 		 int count = 0;
 		 if(!ids.isEmpty()) {
@@ -1043,6 +1051,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 */
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
 	@Override
+	@SystemServiceLog(description = "更新选择题内容和答案等信息")
 	public String updateChoiceQuestion(int simId,BigDecimal simScore,String simContent,List<String> optionList,List<String> answerList) {
 		String resultMessage = "";
 		// 校验答案集合是否在选项中存在（控制层已经去了前	后空格）
@@ -1087,6 +1096,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 */
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
 	@Override
+	@SystemServiceLog(description = "更新填空、判断题内容和答案等信息")
 	public String updateFillBlankAndJudgement(int simId,BigDecimal simScore,String simContent,List<String> answerList) {
 		String resultMessage = "";
 		// 更新步骤： 更新simproblem、删除旧的option、answer、插入新的option、answer
@@ -1110,6 +1120,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 */
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
 	@Override
+	@SystemServiceLog(description = "更新简答题内容和答案等信息")
 	public String updateShortAnswer(int simId,BigDecimal simScore,String simContent) {
 		simpDao.updateSimContentAndScore(simContent,simScore,simId);
 		return "";
@@ -1123,6 +1134,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 */
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
 	@Override
+	@SystemServiceLog(description = "复用通用题库题目等信息")
 	public int reuseSimproblem(String simIdStr, String paperIdStr) {
 		int simId = Integer.parseInt(simIdStr);
 		String[] paperIdArray = paperIdStr.split(",");
@@ -1211,6 +1223,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * @return 1 成功
 	 */
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
+	@SystemServiceLog(description = "手动批改题目，分数追加")
 	public int correctSimpleProblem(int cStatusId,int cStatus,Map<String,Object> realScoreMap,double oldScoreSum,double realScoreSum) {
 
 		//	只需要对simSolution表进行更新（score、status）
@@ -1229,8 +1242,17 @@ public class TeacherServiceImpl implements TeacherService{
 			simsolutionDao.updateByPrimaryKeySelective(simsolution);
 		}
 
+		if(cStatus != 2) { // 未批改完的考试状态，第一次批改
+			double addScore = realScoreSum;
+			// 获取原来试卷分数，进行分数加减后重新插入表
+			ContestStatus c = cStatusDao.selectByPrimaryKey(cStatusId);
+			BigDecimal selScore = c.getScore();
+			double selScoreDouble = selScore.doubleValue();
+			double finalScore = selScoreDouble + addScore;
 
-		if(cStatus == 2) { // 批改完的考试状态 ,进行总分更新才需要进入此
+			c.setScore(new BigDecimal(finalScore));
+			cStatusDao.updateByPrimaryKeySelective(c);
+		}  else if(cStatus == 2) { // 批改完的考试状态 ,进行总分更新才需要进入此（二次修改分数）
 			double addScore = realScoreSum - oldScoreSum;
 			// 获取原来试卷分数，进行分数加减后重新插入表
 			ContestStatus c = cStatusDao.selectByPrimaryKey(cStatusId);

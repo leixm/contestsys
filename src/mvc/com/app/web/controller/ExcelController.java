@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.annotation.SystemControllerLog;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,6 +57,7 @@ public class ExcelController {
     public static Map<String, Map<String,String>> excelParamCache = new HashMap<String, Map<String,String>>();	//缓存容器，用来存取前端传来的查询参数，供导出使用
     
     @RequestMapping(value = "/exportStuScore")
+	@SystemControllerLog(description = "导出学生成绩表")
     public String exportStuScore(HttpServletResponse response,HttpServletRequest request ) {
 		LayResponse resp = new LayResponse();
 		resp.setCode(1); 	//默认设置失败code
@@ -85,7 +87,7 @@ public class ExcelController {
 		paramMap.put("contestName", contestName);
 		
 	    String key = UUID.randomUUID().toString();
-	    System.out.println("key1===="+key);
+	    //System.out.println("key1===="+key);
 	    excelParamCache.put(key, paramMap);			//存参进缓存容器
 	    
 		resp.setMsg("导出学生年级成绩excel表成功！");
@@ -177,6 +179,7 @@ public class ExcelController {
      * @return	导入结果，或者是导入错误信息
      */
     @RequestMapping("/importObject")
+	@SystemControllerLog(description = "进行批量导入操作：学生，教师，班级，通用题")
     public String importObject(HttpServletRequest request, @RequestParam(value = "file")MultipartFile file, int type) {
 		String fileName = file.getOriginalFilename();	//文件名，用于校验文件格式
 		layResponse.setCode(1); 	//默认设置失败code

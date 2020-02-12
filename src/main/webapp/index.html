@@ -105,7 +105,7 @@
 							</li>
 							
 							<li id="daily">
-							    <a onclick="xadmin.add_tab('日志管理','log.html')"> 
+							    <a onclick="xadmin.add_tab('日志管理','log_operation.html')">
 							        <i class="iconfont">&#xe6a7;</i>
 							        <cite>日志管理</cite></a>
 							</li> 
@@ -235,23 +235,30 @@
 				$.ajax({
 						type: "POST", 
 						url: "User/getSelectCourse",
-						data: '',
+						data: {isIndex:1},
 						async: false,
 						dataType: 'json', 
 						success: function(data) {
 						    var course = data.data.dataList;	//获取数据库返回结果集
 						    //console.log(course);
-						    console.log(data);
-						    if(data.data.select_id!=null) {
+						    //console.log(data);
+
+						    /*if(data.data.select_id!=null) {
 						    	$('#selCourse').append("<option value='"+data.data.select_id+"'>"+data.data.select_name+"</option>");
 						    }else {
 						    	$('#selCourse').append("<option value='0'>全部课程</option>");
-						    }
+						    }*/
+                            if(data.data.select_id!=null) {
+                                $('#selCourse').append("<option value='"+data.data.select_id+"'>"+data.data.select_name+"</option>");
+                            }
 				           //遍历成功返回的json数据，取出对应内容进行展示
 				           $.each(course, function (index,item) {
+                               var course_name = course[index].courseName;
+                               var course_id = course[index].courseId;
 
-				               var course_name = course[index].courseName;
-				               var course_id = course[index].courseId;
+                               if(data.data.select_id == course_id) {   //跳出一次循环
+                                   return;
+                               }
 				               //构造动态option
 				               $('#selCourse').append("<option value='"+course_id+"'>"+course_name+"</option>")
 				           });
