@@ -96,7 +96,7 @@
 			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
             <a class="layui-btn layui-btn-xs" lay-event="viewstudent">查看考生名单</a>
-            <a class="layui-btn layui-btn-warm" lay-event="addstudent">添加考试班级</a>
+            <a class="layui-btn layui-btn-warm" lay-event="addstudent">添加/移除考试班级</a>
     </script>
 
 
@@ -147,6 +147,11 @@
 								minWidth: 200,
 								sort: true
 							}, {
+								field: 'course_name',
+								title: '所属课程',
+								minWidth: 200,
+								sort: true
+							}, {
 								field: 'realName',
 								title: '负责人',
 								minWidth: 120,
@@ -165,7 +170,7 @@
 								title: '操作',
 								toolbar: '#demotool',
 								'fixed': 'right',
-								minWidth: 350
+								minWidth: 400
 							}]
 						],
 						url: 'Contest/GetAllContest',
@@ -229,7 +234,7 @@
 										});
 									} else {
 										layer.msg(result.msg, {
-											time: 2000
+											time: 3000
 										});
 										return false;
 									}

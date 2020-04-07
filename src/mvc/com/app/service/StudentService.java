@@ -3,7 +3,7 @@
  * @create_date 2019.5.3
  * @description 学生管理服务-接口
  * */
-package com.app.service.impl;
+package com.app.service;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public interface StudentService {
 	 * @param 4、考试名称
 	 * @return 成绩实体Map对象集合
 	 */
-	 List<Map<String,Object>> selOneStuScore(String stuId,String pageSize,String pageNumber);
+	 List<Map<String,Object>> selOneStuScore(String stuId,String contestName,String pageSize,String pageNumber);
 	
 	 /**
 	  * 根据条件更新学生用户的个人信息

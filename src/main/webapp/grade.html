@@ -89,7 +89,7 @@
 
 		<script type="text/html" id="demotool">
 			<div style="display:block;"  class="caozuo">
-				<a class="layui-btn layui-btn-xs " lay-event="edit" >编辑</a>
+				<a class="layui-btn layui-btn-xs " lay-event="edit" >总分修改</a>
 				<a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="pdf" >PDF预览</a>
 			</div>
    		 </script>
@@ -168,16 +168,21 @@
 								minWidth: 250,
 								sort: true
 							}, {
-								field: 'classname',
-								title: '班级',
-								minWidth: 160,
-								sort: true
-							}, {
 								field: 'score',
 								title: '考试成绩',
 								minWidth: 120,
 								sort: true
 							}, {
+								field: 'course_name',
+								title: '所属课程',
+								minWidth: 120,
+								sort: true
+							},{
+								field: 'classname',
+								title: '班级',
+								minWidth: 160,
+								sort: true
+							},{
 								field: 'contesttime',
 								title: '考试时间',
 								minWidth: 120,
@@ -217,12 +222,12 @@
 							search_contestname =  $("#contestname").val();
 							search_realname =  $("#stuname").val();
 							
-							console.log("执行搜索")
+							//console.log("执行搜索")
 							var type = $(this).data('type');
 							active[type] ? active[type].call(this) : '';
 							
 						}else if (obj.event === 'exportExcel') {
-							console.log("执行导出")
+							//console.log("执行导出")
 							layer.confirm('是否导出Excel?', function(index) {
 							 	 $.ajax({
 									url: "Excel/exportStuScore",

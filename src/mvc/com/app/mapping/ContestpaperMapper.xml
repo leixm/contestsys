@@ -228,26 +228,37 @@
   </update>
 
   <select id="listAll" resultType="map" >
-    select paper_id,realName,title,date from contestpaper,user where contestpaper.teacher = user.user_id
+    select paper_id,realName,title,date,course.course_name
+    from contestpaper,user,course
+    where contestpaper.teacher = user.user_id and course.course_id = contestpaper.fk_course_id
     order by date desc
   </select>
 
   <select id="listAllByKeyword" resultType="map" parameterType="java.lang.String">
-   select paper_id,realName,title,date from contestpaper,user where contestpaper.teacher = user.user_id and
-   (paper_id=#{0} or realName=#{0} or title=#{0})
+   select paper_id,realName,title,date,course.course_name
+   from contestpaper,user,course
+   where contestpaper.teacher = user.user_id 
+   and course.course_id = contestpaper.fk_course_id
+   and (paper_id=#{0} or realName=#{0} or title=#{0})
    order by date desc
   </select>
 
   <select id="listAllByDate" resultType="map" parameterType="java.lang.String">
-   select paper_id,realName,title,date from contestpaper,user where contestpaper.teacher = user.user_id and
-   (date between #{0} and #{1})
+   select paper_id,realName,title,date,course.course_name
+   from contestpaper,user,course
+   where 
+   contestpaper.teacher = user.user_id 
+   and course.course_id = contestpaper.fk_course_id
+   and (date between #{0} and #{1})
    order by date desc
   </select>
 
   <select id="listAllByKeywordAndDate" resultType="map" parameterType="java.lang.String">
-   select paper_id,realName,title,date from contestpaper,user
+   select paper_id,realName,title,date,course.course_name
+   from contestpaper,user,course
    <where>
      and contestpaper.teacher = user.user_id
+     and course.course_id = contestpaper.fk_course_id
      <if test="simCourseId!=null and simCourseId!=0">
        and contestpaper.fk_course_id = #{simCourseId}
      </if>

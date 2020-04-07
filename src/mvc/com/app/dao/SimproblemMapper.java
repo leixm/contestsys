@@ -71,4 +71,15 @@ public interface SimproblemMapper {
 
     @Update("UPDATE simproblem t SET t.pos = #{1} WHERE t.simproblem_id = #{0}")
     int updatePosBySimId(int simId, int pos);
+    
+    /**
+     * 查询未批改完的题目类型
+     * @param cStatusId
+     * @return
+     */
+    List<Map<String,Object>> selTypeByStatusIdandStatus(@Param("cStatusId") int cStatusId);
+    
+    
+    
+    
 }

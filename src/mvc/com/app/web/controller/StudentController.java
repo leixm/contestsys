@@ -6,9 +6,8 @@
 package com.app.web.controller;
 
 import com.annotation.SystemControllerLog;
-import com.app.service.impl.*;
+import com.app.service.StudentService;
 import com.app.tools.FileHelper;
-import com.app.tools.MD5Util;
 import com.app.tools.MD5Util2;
 import com.app.tools.PathHelper;
 import com.code.model.*;
@@ -28,8 +27,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -152,18 +149,19 @@ public class StudentController {
 	        onePaper.setContestpaper(contestpaper);
 	        onePaper.setProb(ProblemList); 
 	        onePaper.setSimp(SimproblemList);     
-	        System.out.println(JSONObject.fromObject(onePaper).toString());
+	        // System.out.println(JSONObject.fromObject(onePaper).toString());
 	        model.addObject("paper",JSONObject.fromObject(onePaper).toString());    
 
 	  //      model.addObject("paper",fh.getFileContent(path + "\\测试数据\\text.json"));
 	        Contest contest = new Contest();
 	        contest.setTitle(contestPaper.getTitle());
 	        User user = new User();
-	        user.setRealname("测试用户");
+	        user.setRealname("试卷预览");
+	        user.setLevel(1);
 	        model.addObject("student", user);
 	        model.addObject("contestStatusId", id);
 	        model.addObject("contest", contest);
-	        model.addObject("leftTime", 10);
+	        model.addObject("leftTime", 100000);
 	        
 	        model.setViewName("contestpage.jsp");
         }
@@ -240,7 +238,7 @@ public class StudentController {
 	@SystemControllerLog(description = "学生交卷")
 	public String examSubmit(@RequestBody String paper,HttpServletRequest request,HttpServletResponse response) throws Exception{
 	      
-    	System.out.println(paper);
+    	//System.out.println(paper);
     	Map classMap = new HashMap(); 
 		classMap.put("simp", OneSimproblem.class);
 		classMap.put("prob", OneProblem.class);
@@ -270,7 +268,7 @@ public class StudentController {
 	   			studentService.insert(simsolution); 
    			} 
    		}
-
+  		
 		Integer contestStatusId = Integer.parseInt(request.getParameter("contestStatusId"));
 		ContestStatus contestStatus = new ContestStatus();
 		contestStatus.setContestStatusId(contestStatusId);
@@ -302,8 +300,12 @@ public class StudentController {
 			layResp.setMsg("无数据");
 			return JSONObject.fromObject(layResp).toString();
 		}
-		System.out.println("userId==="+userId);
+		//System.out.println("userId==="+userId);
 		
+		String contestName = request.getParameter("contestname");
+		if(contestName!=null||"".equals(contestName)) {
+			contestName = contestName.trim();
+		}
 		
 		layResp.setCode(1); //默认设置为1
 		
@@ -312,7 +314,7 @@ public class StudentController {
 		//获取分页所需相关数据
 		String pageSize = request.getParameter("limit"); //一页多少个
 		String pageNumber = request.getParameter("page");	//第几页
-		List<Map<String,Object>> resultList = studentService.selOneStuScore(stuId,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
+		List<Map<String,Object>> resultList = studentService.selOneStuScore(stuId,contestName,pageSize,pageNumber); //数据库查询返回的学生成绩结果集
 		//获取分页插件的数据只能通过PageInfo来获取
 		PageInfo pInfo = new PageInfo(resultList);
 		Long total = pInfo.getTotal();
@@ -346,18 +348,25 @@ public class StudentController {
 		String stuName = request.getParameter("stuname");
 		String stuEmail = request.getParameter("stuemail");
 		String newPwd = request.getParameter("newpwd1");
-
+		
 		// MD5加盐加密
 		if(newPwd!=null && !"".equals(newPwd)) {
 			newPwd = MD5Util2.getSaltMD5(newPwd);
 		}
-
+		
+		
+		
 		int updateResult = studentService.updateStuInfo(stuId, stuName, stuEmail, newPwd);
 		if(updateResult>0) {
 			layResp.setCode(0);
 			layResp.setMsg("修改成功");
+		}else if(updateResult == -2){
+			layResp.setMsg("邮箱已存在，请更换邮箱！");
+		}else {
+			layResp.setMsg("修改失败,请重试！");
 		}
-			layResp.setMsg("修改失败");
+		
+		
 			
 		return JSONObject.fromObject(layResp).toString();
 	}
@@ -487,7 +496,7 @@ public class StudentController {
 			HttpSession session = request.getSession(); 
 			User user = (User)session.getAttribute("user");		
 			String stuId = user.getUserId();
-			System.out.println("userId:----"+user.getUserId());
+			//System.out.println("userId:----"+user.getUserId());
 			
 			LayResponse layResp = new LayResponse();//layui参数返回格式
 			layResp.setCode(1); //默认设置为1
@@ -507,7 +516,7 @@ public class StudentController {
 			//计算考试的状态：未开始，正在进行，已结束
 			if(resultList.size()>0) {
 				List<Integer> leftList = new ArrayList<>();	//记录需要留下来的结果集resultList的下标，
-				int i = 0;//结果集初始下标
+				int i = 0; // 结果集初始下标
 				for (Map<String, Object> map : resultList) {
 					String cstatus = ""; //中文字描述考试状态
 					String status = map.get("status").toString();	// 0、1、2数据库表考试状态;	
@@ -530,7 +539,6 @@ public class StudentController {
 							firstStatus = "（未作答）";
 							break;
 						case "1":
-							leftList.add(i);
 							firstStatus = "（正在批改）";
 							break;
 						case "2":
@@ -548,7 +556,7 @@ public class StudentController {
 					i++;
 					map.put("cstatus", cstatus);
 				}
-				System.out.println("leftList+st0----"+leftList);
+				//System.out.println("leftList+st0----"+leftList);
 				if(!leftList.isEmpty()) {		//挑选已结束的考试进集合
 					for(int j : leftList) {
 						overContestList.add(resultList.get(j));						

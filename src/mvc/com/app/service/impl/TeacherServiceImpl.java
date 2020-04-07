@@ -65,7 +65,7 @@ public class TeacherServiceImpl implements TeacherService{
 	 * @return 状态响应
 	 */
 	@Override
-	@SystemServiceLog(description = "添加一场考试")
+//	@SystemServiceLog(description = "添加一场考试")
 	public Response addContest(Contest contest,String className) {
 		Response resp = new Response();
 		//查权限
@@ -157,39 +157,66 @@ public class TeacherServiceImpl implements TeacherService{
 	 * @return 状态响应
 	 */
 	@Override
-	@SystemServiceLog(description = "手动组卷")
+//	@SystemServiceLog(description = "手动组卷")
+	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
 	public Response addNewpaper(OnePaper newpaper,User user,List<OneSimproblem> oneSimps,String basePath) {
 		Response resp = new Response();
-		int maxSimpId;
-		int maxProbId;
-
-		if(simpDao.selSimpCount()>0) {
-			maxSimpId = simpDao.selMaxSimpId();
-		}else {
-			maxSimpId = 1000;
-		}
-
-		if(probDao.selProbCount()>0) {
-			maxProbId = probDao.selMaxProbId();
-		}else {
-			maxProbId = 1000;
-		}
-
-		//表示当前的paperId
-		int thisPaperId;
-		if(paperDao.selPaperCount()>0) {
-			thisPaperId = paperDao.selMaxPaperId()+1;
-		}else {
-			thisPaperId = 1001;
-		}
-
-
 		if(user.getLevel()>0) {
+			/*StringBuilder errorMsg = new StringBuilder();	// 错误信息打印
+			// 判断是否漏添加答案
+			if(oneSimps!=null) {
+				for (OneSimproblem simp : oneSimps) {
+						Simproblem simproblem = simp.getSimproblem();
+						// 1——单选题、2——多选题、3——判断题、4——填空题
+						if()
+				}
+			}*/
+
+			int maxSimpId;
+			int maxProbId;
+
+			if(simpDao.selSimpCount()>0) {
+				maxSimpId = simpDao.selMaxSimpId();
+			}else {
+				maxSimpId = 1000;
+			}
+
+			if(probDao.selProbCount()>0) {
+				maxProbId = probDao.selMaxProbId();
+			}else {
+				maxProbId = 1000;
+			}
+
+			//表示当前的paperId
+			int thisPaperId;
+			if(paperDao.selPaperCount()>0) {
+				thisPaperId = paperDao.selMaxPaperId()+1;
+			}else {
+				thisPaperId = 1001;
+			}
+			
+
+
 			if(newpaper!=null) {
 				Contestpaper cPaper = newpaper.getContestpaper();
+				
+				//判断考试名称是否已经存在
+				String paperTitle = cPaper.getTitle().replaceAll(" ", "");	//去空格
+				List paperList = paperDao.selPaperByTitle(paperTitle);
+				if(!paperList.isEmpty()) {
+					resp.setMsg("试卷标题已存在，请重新设置试卷标题！");
+					resp.setSuccess(0);
+					return resp;
+				} 
+				cPaper.setTitle(paperTitle); // 存去空格后的标题进Obj
+				
 				if(cPaper!=null) {
 					cPaper.setTeacher(user.getUserId());
 					cPaper.setDate(null);
+					
+					while(thisPaperId <= paperDao.selMaxPaperId()) {	//判断是否可以进行新试卷插入（假如目前的新试卷id已经被用了，则不能进行插入）
+						thisPaperId ++;
+					}
 					cPaper.setPaperId(thisPaperId);
 					cpaperDao.insertSelective(cPaper);
 				}
@@ -1225,8 +1252,19 @@ public class TeacherServiceImpl implements TeacherService{
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
 	@SystemServiceLog(description = "手动批改题目，分数追加")
 	public int correctSimpleProblem(int cStatusId,int cStatus,Map<String,Object> realScoreMap,double oldScoreSum,double realScoreSum) {
-
-		//	只需要对simSolution表进行更新（score、status）
+		
+		// 判断判题机是否改完所有的普通题，未改完不允许进行批改主观题
+		List<Map<String,Object>> selList = simpDao.selTypeByStatusIdandStatus(cStatusId);
+		//System.out.println("selList==="+selList);
+		if(selList.size() > 0) {	//有未批改完的题
+			for(Map<String,Object> map : selList) {
+				if(!map.get("type").toString().equals("5")) {	//有一道未批改题目不是简答题，返回信息给前端
+					return -1;
+				}
+			}
+		}
+				
+		//对simSolution表进行更新（score、status）
 		Set<String> set = realScoreMap.keySet();
 		Iterator<String> it = set.iterator();
 		while (it.hasNext()) {
@@ -1241,7 +1279,7 @@ public class TeacherServiceImpl implements TeacherService{
 			simsolution.setScore(realScore);
 			simsolutionDao.updateByPrimaryKeySelective(simsolution);
 		}
-
+		
 		if(cStatus != 2) { // 未批改完的考试状态，第一次批改
 			double addScore = realScoreSum;
 			// 获取原来试卷分数，进行分数加减后重新插入表
@@ -1252,6 +1290,7 @@ public class TeacherServiceImpl implements TeacherService{
 
 			c.setScore(new BigDecimal(finalScore));
 			cStatusDao.updateByPrimaryKeySelective(c);
+			
 		}  else if(cStatus == 2) { // 批改完的考试状态 ,进行总分更新才需要进入此（二次修改分数）
 			double addScore = realScoreSum - oldScoreSum;
 			// 获取原来试卷分数，进行分数加减后重新插入表
@@ -1263,6 +1302,22 @@ public class TeacherServiceImpl implements TeacherService{
 			c.setScore(new BigDecimal(finalScore));
 			cStatusDao.updateByPrimaryKeySelective(c);
 		}
+		return 1;
+	}
+
+	
+	/**
+	 * 判断是否该simproblem已被用作学生考试Cstatus
+	 * @param simpId
+	 * @return -1 1 
+	 */
+	@Override
+	public int judgeUpdateSimp(int simpId) {
+		List list = cStatusDao.selListBySimId(simpId);
+		if(!list.isEmpty()) {
+			return -1;
+		}
+		
 		return 1;
 	}
 

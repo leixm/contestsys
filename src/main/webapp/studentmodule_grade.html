@@ -66,7 +66,7 @@
     	</script>
 
 		<script type="text/html" id="header">
-			<div style="float: right; display: none;" class="layui-inline layui-show-xs-block">
+			<div style="float: right;" class="layui-inline layui-show-xs-block">
 				<button class="layui-btn" lay-event="exportExcel" data-type="exportExcel" id="exportScore"><i class="layui-icon layui-icon-download-circle" ></i>导出</button>
 			</div>
 
@@ -79,6 +79,7 @@
 
 
 		<script>
+			
 			$(document).ready(function() {
 				initTable();
 			});
@@ -110,7 +111,9 @@
 			   });
 			});       
 			 */
-				
+			
+			var search_contestname; // 搜索参数
+			
 			layui.use('table', function() {
 					var table = layui.table;
 					var laypage = layui.laypage;
@@ -135,6 +138,11 @@
 								field: 'contestname',
 								title: '考试名称',
 								minWidth: 250,
+								sort: true
+							}, {
+								field: 'course_name',
+								title: '所属课程',
+								minWidth: 120,
 								sort: true
 							}, {
 								field: 'classname',
@@ -173,28 +181,25 @@
 							});
 							
 						}else if (obj.event === 'reload') {	
-							console.log("执行搜索")
+							//console.log("执行搜索")
+							search_contestname =  $("#contestname").val();
 							var type = $(this).data('type');
 							active[type] ? active[type].call(this) : '';
 							
 						}else if (obj.event === 'exportExcel') {
-							console.log("执行导出")
 							layer.confirm('是否导出Excel?', function(index) {
-								window.location.href = "Teacher/gradeScoreExcel";
-								layer.msg("导出成功!", {
-												time: 1000
-								});
-							 	/* $.ajax({
-									url: "Teacher/gradeScoreExcel",
+							 	 $.ajax({
+									url: "Excel/exportOneStuScore",
 									type: "post",
-									data: "",
-									async: false,
+									data: "contestname="+search_contestname,
+									async: false,	
+									dataType:'json',
 									success: function(result) {
-	
 										if (!result.code) {
-											layer.msg("导出成功!", {
-												time: 1000
+											layer.msg(result.msg, {
+												time: 2000
 											});
+										 	window.open('Excel/exportOneStuScore/download?key='+result.data, '_self'); 
 											active.reload();
 										} else {
 											layer.msg(result.msg, {
@@ -204,7 +209,9 @@
 										}
 	
 									}
-								});  */
+									
+												
+								});    
 								layer.close(index);
 							})
 						};
@@ -265,9 +272,6 @@
 									}, 
 									//获取搜索框参数并传给后台
 									where: {
-										classname: $('#classname').val(),
-										stuid: $('#stuid').val(),
-										stuname: $('#stuname').val(),
 										contestname: $('#contestname').val()
 									}
 								});

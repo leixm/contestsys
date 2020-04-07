@@ -61,7 +61,7 @@
 							<span class="x-red">*</span>
 						</div>
 					</div>
-					<div class="layui-form-item">
+					<!-- <div class="layui-form-item">
 						<label for="email" class="layui-form-label">
 							<span class="x-red">*</span>邮箱
 						</label>
@@ -71,7 +71,7 @@
 						<div class="layui-form-mid layui-word-aux">
 							<span class="x-red">*</span>用户邮箱地址
 						</div>
-					</div>
+					</div> -->
 					<div class="layui-form-item">
 						<label for="realname" class="layui-form-label">
 							<span class="x-red">*</span>真实姓名

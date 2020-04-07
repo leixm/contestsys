@@ -14,6 +14,7 @@ public class testAdd {
         String answer = "§§§§§§§§§";
         StringBuilder simsolutionSB = new StringBuilder();
         String[] simsolutionArr = answer.split("§§§");
+        System.out.println("你好");
         if(simsolutionArr.length > 0) {
             for(String arr : simsolutionArr){
                 try{
@@ -27,6 +28,7 @@ public class testAdd {
             }
             String simsolutionContent = simsolutionSB.substring(0,simsolutionSB.length()-1);
             System.out.println(simsolutionContent);
+
         }
     }
 

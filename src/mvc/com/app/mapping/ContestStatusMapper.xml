@@ -220,11 +220,13 @@
   </update>
   
   <select id="selStuScoreBykeyword" resultType="map">
-  		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,date_format(c.startTime,'%Y-%m-%d') as contesttime,a.score,a.status,a.contest_status_id
+  		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,
+  		date_format(c.startTime,'%Y-%m-%d') as contesttime,a.score,a.status,a.contest_status_id,d.course_name
 		from contest_status a 
 		left join user u on a.student = u.user_id 
-		left join class b on u.class_id = b.class_id
+		left join class b on u.class_id = b.class_id 
 		left join contest c on a.contest_id = c.contest_id
+		left join course d on d.course_id = c.fk_course_id   
 		<where>
             and a.status in
             <foreach collection="status" item="sta" index="index" open="(" close=")" separator=",">
@@ -256,15 +258,17 @@
             </if>
             
 		</where>
-		order by b.class_id,a.contest_id,u.user_id
+		order by contesttime desc,b.class_id,a.contest_id,u.user_id
   </select>
   
   <select id="selAllStuScore" resultType="map">
-  		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,date_format(c.startTime,'%Y-%m-%d') as contesttime,a.score,a.contest_status_id
+  		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,
+  		date_format(c.startTime,'%Y-%m-%d') as contesttime,a.score,a.contest_status_id,d.course_name
 		from contest_status a 
 		left join user u on a.student = u.user_id 
 		left join class b on u.class_id=b.class_id
 		left join contest c on a.contest_id=c.contest_id
+		left join course d on d.course_id = c.fk_course_id   
 			where a.status = 2
 		order by b.class_id,a.contest_id,u.user_id
   </select>
@@ -274,10 +278,13 @@
   </update>
   
   <select id="selOwnContestBykeyword" resultType="map">
-  		select  a.contest_status_id as cstatusid, a.status, b.paper_id, b.title as title, date_format(b.startTime,'%Y-%m-%d %H:%i') as starttime,date_format(b.endTime,'%Y-%m-%d %H:%i') as endtime,u.realName as teacher
+  		select  a.contest_status_id as cstatusid, a.status, b.paper_id, b.title as title,
+  		date_format(b.startTime,'%Y-%m-%d %H:%i') as starttime,date_format(b.endTime,'%Y-%m-%d %H:%i') as endtime,
+  		u.realName as teacher, c.course_name
 		from contest_status as a  
 		left join contest as b on a.contest_id = b.contest_id
 		left join user as u on b.teacher = u.user_id
+		left join course c on c.course_id = b.fk_course_id 
 		<where>
 			<if test="stuid!=null and stuid!=''">
 				and a.student = #{stuid}
@@ -354,21 +361,32 @@
   </select>
   
   <select id="selOneStuScore" resultType="map">
-  		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,date_format(c.startTime,'%Y-%m-%d') as contesttime,a.score,a.contest_status_id
+  		select u.user_id as stuid ,u.realName as stuname,b.name as classname,c.title as contestname,
+  		date_format(c.startTime,'%Y-%m-%d') as contesttime,a.score,a.contest_status_id,d.course_name
 		from contest_status a 
 		left join user u on a.student = u.user_id 
 		left join class b on u.class_id=b.class_id
 		left join contest c on a.contest_id=c.contest_id
+		left join course d on d.course_id = c.fk_course_id
 		<where>
 			and a.status = 2
 
 			<if test="stuid!=null and stuid!=''">
 				and u.user_id = #{stuid}
 			</if>
+			<if test="contestname!=null and contestname!=''">
+				and c.title like "%"#{contestname}"%"
+			</if>
 			
 		</where>
 		order by b.class_id,a.contest_id,u.user_id
   </select>
   
+  <select id="selListBySimId" resultType="map">
+  		select * from contest_status a 
+		left join contest b on b.contest_id = a.contest_id
+		left join simproblem c on c.paper_id = b.paper_id
+		where c.simproblem_id = #{simId}
+  </select>
   
 </mapper>

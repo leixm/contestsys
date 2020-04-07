@@ -14,17 +14,17 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import com.annotation.SystemControllerLog;
+import com.app.service.StudentService;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.app.common.MyException;
 import com.app.service.ExcelService;
 import com.app.tools.ExcelExportUtils;
 import com.code.model.LayResponse;
@@ -40,6 +40,8 @@ public class ExcelController {
 
 	@Autowired
 	private ExcelService excelService;
+	@Autowired
+	private StudentService studentService;
 	
 	private LayResponse layResponse = new LayResponse();
 	
@@ -96,10 +98,52 @@ public class ExcelController {
 		return JSONObject.fromObject(resp).toString();
     }
     
+    /**
+     * 学生模块：
+	 * 根据查询参数导出学生成绩表  （ 接口一：用于存放前端传来的查询参数）
+	 * @param response	
+	 * @param request	
+	 */
+	  /**
+     * 由于ajax无法直接导出excel,所以第一次把请求生成的ExcelParam缓存起来,然后前端再次window.open(url);
+     */
+    @RequestMapping(value = "/exportOneStuScore")
+	@SystemControllerLog(description = "导出学生成绩表（学生模块）")
+    public String exportOneStuScore(HttpServletResponse response,HttpServletRequest request ) {
+		LayResponse resp = new LayResponse();
+		resp.setCode(1); 	//默认设置失败code
+		
+		User user = (User)request.getSession().getAttribute("user");
+		if(user==null) {
+			resp.setMsg("请先登录系统！");
+			return JSONObject.fromObject(resp).toString();
+		}else {
+			if(user.getLevel()!=0) {
+				resp.setMsg("该用户没有导出excel表格权限");
+				return JSONObject.fromObject(resp).toString();
+			}
+		}
+		
+		/*----获取前端传参----*/
+		String contestName = request.getParameter("contestname");
+		
+		Map<String,String> paramMap = new HashMap<>();
+		paramMap.put("contestname", contestName);
+		
+	    String key = UUID.randomUUID().toString();
+	    //System.out.println("key1===="+key);
+	    excelParamCache.put(key, paramMap);			//存参进缓存容器
+	    
+		resp.setMsg("导出考试成绩excel表成功！");
+		resp.setCode(0);
+		resp.setData(key);
+		return JSONObject.fromObject(resp).toString();
+    }
     
     
     
     /**
+     * 教师模块页面：
 	 * 根据查询参数导出学生成绩表  （ 接口二：根据参数下载excel）
 	 * @param response	
 	 * @param request	
@@ -118,6 +162,8 @@ public class ExcelController {
 		String stuId = paramMap.get("stuId");
 		String stuName = paramMap.get("stuName");
 		String contestName = paramMap.get("contestName");
+		User user = (User)request.getSession().getAttribute("user");
+		String userId = user.getUserId();
 		
 		//判断是否非空后再来去掉前后空格，防止空指针
 		if(className!=null||"".equals(className)) {
@@ -136,7 +182,9 @@ public class ExcelController {
 		if(request.getSession().getAttribute("course_id")!=null) {
 			simCourseId = Integer.parseInt(request.getSession().getAttribute("course_id").toString());
 		}
-    	scoreExcelList = excelService.selStuScoreByKeyword(className, stuId, stuName, contestName,simCourseId);
+		
+		
+    	scoreExcelList = excelService.selStuScoreByKeyword(className, stuId, stuName, contestName,simCourseId,userId);
 		// "xxx.xls"名字必须和Util的一致
 		String fileName ="学生成绩表.xls";
 		String tableTitle = "学生成绩表";
@@ -153,6 +201,53 @@ public class ExcelController {
 		exportExcelDwonloadMethod(response, request, scoreExcelList, paramList, fileName, tableTitle, headers, dateType);
     }
     
+    
+    /**
+     * 学生模块页面：
+	 * 根据查询参数导出学生成绩表  （ 接口二：根据参数下载excel）
+	 * @param response	
+	 * @param request	
+	 */
+    @RequestMapping(value = "/exportOneStuScore/download")		
+    public void exportOneStuScoreDownload(HttpServletResponse response,HttpServletRequest request ) {
+    	List<Map<String, Object>> scoreExcelList = new ArrayList<>();			//存放导出表格所需要的学生个人成绩信息
+		//利用key获取缓存参数
+    	String key = request.getParameter("key");
+    	Map<String,String> paramMap = excelParamCache.get(key);
+    	//System.out.println("key2======="+key);
+    	excelParamCache.remove(key);	//用完key之后记得去掉，防止占用容器位置
+    	
+		/*----获取导出的数据集开始----*/
+		String contestName = paramMap.get("contestname");
+		User user = (User)request.getSession().getAttribute("user");
+		String userId = user.getUserId();
+		
+		//判断是否非空后再来去掉前后空格，防止空指针
+		if(contestName!=null||"".equals(contestName)) {
+			contestName = contestName.replaceAll(" ","");
+		}
+		int simCourseId = 0;
+		
+		if(request.getSession().getAttribute("course_id")!=null) {
+			simCourseId = Integer.parseInt(request.getSession().getAttribute("course_id").toString());
+		}
+		
+		scoreExcelList = studentService.selOneStuScore(userId, contestName,null,null);
+		//System.out.println("scoreExcelList----"+scoreExcelList);
+		// "xxx.xls"名字必须和Util的一致
+		String fileName ="考试成绩表.xls";
+		String tableTitle = "考试成绩表";
+		String[] headers = {"学号", "姓名","考试名称", "成绩"};
+		String dateType = "yyyy-MM-dd";
+		
+		List<String> paramList = new ArrayList<String>();	//导出表格字段对应的数据库表字段集合，顺序需要严格按照导出表格来
+		paramList.add("stuid");
+		paramList.add("stuname");
+		paramList.add("contestname");
+		paramList.add("score");
+		//调用根据各个参数去调用导出excel静态方法，并下载到本地电脑
+		exportExcelDwonloadMethod(response, request, scoreExcelList, paramList, fileName, tableTitle, headers, dateType);
+    }
     
     
     
@@ -222,21 +317,25 @@ public class ExcelController {
 
 				layResponse = excelService.batchImportSimproblem(fileName, file, courseId, teacherId, importPaper);
 
-
-			}
-
-	    	else {
+			} else {
 	    		layResponse.setCode(1);  //1表示失败
 				layResponse.setMsg("tpye为无效值");
 				return JSONArray.fromObject(layResponse).toString();
 	    	}
+			
 			return JSONArray.fromObject(layResponse).toString();
 
-		} catch (Exception e) {
+		} catch (MyException e){
 			e.printStackTrace();
 			layResponse.setCode(1);  //1表示失败
 			layResponse.setMsg(e.getMessage());
-			System.out.println("fail====="+e.getMessage());
+			//返回自定义异常信息给前端
+			return JSONArray.fromObject(layResponse).toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+			layResponse.setCode(1);  //1表示失败
+			layResponse.setMsg("服务器繁忙，请重新进行文件导入！");
+			//返回自定义异常信息给前端
 			return JSONArray.fromObject(layResponse).toString();
 		}
     }
@@ -319,6 +418,9 @@ public class ExcelController {
  			os = response.getOutputStream();
  			response.setHeader("Content-disposition", "attachment;filename="+ java.net.URLEncoder.encode(fileName, "UTF-8"));//默认Excel名称
  			HSSFWorkbook wb = new ExcelExportUtils().exportExcel(tableTitle,headers, paramList,selExcelList,"yyyy-MM-dd");
+ 			//System.out.println("headers---"+headers);
+ 			//System.out.println("paramList---"+paramList);
+ 			//System.out.println("selExcelList---"+selExcelList);
  			wb.write(os);
  			os.flush();
  			os.close();
@@ -344,11 +446,17 @@ public class ExcelController {
 	 */
 	@RequestMapping("/updateSimPos")
 	public String updateSimPos(HttpServletRequest request) {
-		String paperIdStr = request.getParameter("paperId");
-		String[] paperIdArray = paperIdStr.split(",");
-
 		LayResponse response = new LayResponse();
 		response.setCode(1);
+		
+		String paperIdStr = request.getParameter("paperId");
+		// 假如试卷id未空，则返回结果
+		if(paperIdStr == null) {
+			return JSONObject.fromObject(response).toString();
+		}
+		String[] paperIdArray = paperIdStr.split(",");
+		
+		
 		int paperId = 0;
 		int result = 1;
 

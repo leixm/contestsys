@@ -46,6 +46,9 @@ public interface UserMapper {
 	@Select("select * from user where user_id = #{userid}")
 	List<Map<String, Object>> selUserById(String userid);
 	
+	@Select("select * from user where email = #{email}")
+	List<Map<String, Object>> selUserByEmail(String email);
+	
 	int updateStuInfoByStuId(@Param("stuid") String stuId, @Param("stuname") String stuName,
 			@Param("stuemail") String stuEmail, @Param("newpwd") String newPwd);
 	

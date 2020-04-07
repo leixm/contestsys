@@ -1,13 +1,14 @@
 package com.app.dao;
 
-import com.code.model.ContestStatus;
-import com.code.model.ContestStatusExample;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import com.code.model.ContestStatus;
+import com.code.model.ContestStatusExample;
 
 public interface ContestStatusMapper {
     int countByExample(ContestStatusExample example);
@@ -38,7 +39,7 @@ public interface ContestStatusMapper {
                                                   @Param("stuname") String stuName,@Param("contestname") String contestName,
                                                   @Param("simCourseId") int simCourseId,@Param("status") List status,@Param("userId")String userId);
     
-    List<Map<String,Object>> selAllStuScore( );
+    List<Map<String,Object>> selAllStuScore();
     
     int updateScore(@Param("cstatusid") int cStatusId,@Param("score") BigDecimal score); 
     
@@ -50,5 +51,12 @@ public interface ContestStatusMapper {
     
     List<Map<String, Object>> selStuContestTitleByKeyword(@Param("stuid") String stuId);
     
-    List<Map<String, Object>> selOneStuScore(@Param("stuid") String stuId);
+    List<Map<String, Object>> selOneStuScore(@Param("stuid") String stuId,@Param("contestname") String contestName);
+    
+    @Select("select * from contest_status where contest_id = #{contestId}")
+    List<Map<String, Object>> selOneByContestId(@Param("contestId") int contestId);
+    
+    //根据simpId查询符合条件的cStatus集合
+    List<Map<String, Object>> selListBySimId (@Param("simId") int simId);
+    
 }

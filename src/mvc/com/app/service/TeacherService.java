@@ -235,4 +235,12 @@ public interface TeacherService {
 	 * @return 1 成功
 	 */
 	int correctSimpleProblem(int cStatusId,int cStatus,Map<String,Object> realScoreMap,double oldScoreSum,double realScoreSum);
+	
+	/**
+	 * 判断是否该simproblem已被用作学生考试Cstatus
+	 * @param simpId
+	 * @return -1 1 
+	 */
+	int judgeUpdateSimp(int simpId);
+
 }

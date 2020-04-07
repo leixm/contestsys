@@ -132,6 +132,7 @@ public class PdfHelper {
 	    cell.setVerticalAlignment(Element.ALIGN_MIDDLE); 
 	    cell.setHorizontalAlignment(align);     
 	    cell.setColspan(colspan); 
+	    cell.setRowspan(5);
 	    cell.setPhrase(new Phrase(value,font)); 
 	   return cell; 
 	}
@@ -141,6 +142,7 @@ public class PdfHelper {
 		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		cell.setHorizontalAlignment(align);
 		cell.setColspan(colspan);
+		cell.setRowspan(5);
 		cell.setPhrase(new Phrase(value,font));
 		cell.setPadding(3.0f);
 		if(!boderFlag){
@@ -156,6 +158,7 @@ public class PdfHelper {
 		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		cell.setHorizontalAlignment(align);
 		cell.setColspan(colspan);
+		cell.setRowspan(5);
 		cell.setPhrase(new Phrase(value,font));
 		cell.setPadding(3.0f);
 		if(!boderFlag){

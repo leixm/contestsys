@@ -20,8 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.app.service.impl.ContestPaperService;
-import com.code.model.Contest;
+import com.app.service.impl.ContestPaperServiceImpl;
 import com.code.model.Contestpaper;
 import com.code.model.LayResponse;
 import com.code.model.User;
@@ -34,7 +33,7 @@ import net.sf.json.JSONObject;
 public class ContestPaperController {
 
 	@Resource
-	private ContestPaperService contestpaperService;
+	private ContestPaperServiceImpl contestpaperService;
 	
 	/**
 	 * @author lxm

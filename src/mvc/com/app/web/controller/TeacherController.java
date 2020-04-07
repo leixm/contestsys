@@ -18,9 +18,7 @@ import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,10 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.annotation.SystemControllerLog;
-import com.app.service.impl.ContestPaperService;
+import com.app.service.impl.ContestPaperServiceImpl;
 import com.code.model.*;
-import com.lowagie.text.Paragraph;
-import com.sun.jna.IntegerType;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
@@ -55,7 +51,6 @@ import com.app.tools.PathHelper;
 import com.app.tools.RandomString;
 import com.github.pagehelper.PageInfo;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 
@@ -65,23 +60,22 @@ public class TeacherController {
 	private TeacherService teacherService;
 
 	@Resource
-	private ContestPaperService contestpaperService;
+	private ContestPaperServiceImpl contestpaperService;
 	//导出excel用  文件分隔符
 	public static final String FILE_SEPARATOR = System.getProperties()
 			.getProperty("file.separator");
 	
 	
 	
-	@RequestMapping(value="Teacher/selAllpaper",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
 	/**
 	 * 查老师所有试题(reObj封装的是List<OnePaper>对象)
 	 * @param request
 	 * @param response
 	 * @return 属于同个userId的所有的卷子
 	 */
+	@RequestMapping(value="Teacher/selAllpaper",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
 	@ResponseBody
 	public String selAllpaper(HttpServletRequest request,HttpServletResponse response) {
-		
 		//User user = (User)request.getSession().getAttribute("user");
 		//String userId = user.getUserId();
 		//测试数据
@@ -95,21 +89,17 @@ public class TeacherController {
 		// System.out.println(JSONObject.fromObject(teacherService.selAllpaper(user)).toString());
 		return JSONObject.fromObject(teacherService.selAllpaper(user)).toString();
 	}
-
-	
 	
 
-	//@RequestBody Response resp,
-	@RequestMapping(value="Teacher/addNewpaper",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
 	/**
-	 * 添加新试卷
+	 * 添加新试卷	
 	 * @param request
 	 * @param response
 	 * @return 1添加成功     0添加失败
 	 */
-	//@RequestBody Response resp,
 	@ResponseBody
 	@SystemControllerLog(description = "手动组卷")
+	@RequestMapping(value="Teacher/addNewpaper",method={RequestMethod.POST},produces="text/html;charset=UTF-8")
 	public String addNewpaper(@RequestBody String resp ,HttpServletRequest request,HttpServletResponse response) {
 		LayResponse layresp = new LayResponse();
 		layresp.setCode(1);
@@ -140,7 +130,7 @@ public class TeacherController {
 		classMap.put("answer", Answer.class);
 		classMap.put("urls", UrlData.class);
 		OnePaper newpaper=(OnePaper)JSONObject.toBean(jsonObject,OnePaper.class,classMap);
-		System.out.println("手动组卷内容为：======="+resp);
+		//System.out.println("手动组卷内容为：======="+resp);
 		List<OneSimproblem> oneSimps = newpaper.getSimp();
 		
 		return JSONObject.fromObject(teacherService.addNewpaper(newpaper,user,oneSimps,basePath)).toString();
@@ -974,6 +964,14 @@ public class TeacherController {
 		String simContent = request.getParameter("simContent").trim();	// 内容去前后空格
 
 		String result = "抱歉，题目未进行修改";		// 返回结果
+		
+		// 判断题目是否已经被cStatus使用，即是否有考试在用此题， 有则无法修改 
+		int judge = teacherService.judgeUpdateSimp(simId);	//-1 代表已经被被用作学生考试使用
+		if(judge == -1) {
+			response.setMsg("题目无法修改，该题已被用作学生考试！");
+			return JSONObject.fromObject(response).toString();
+		}
+		
 		//根据题目类型进行不同方法调用和参数获取
 		if("单选题".equals(simType) || "多选题".equals(simType)){
 			int optionNum = Integer.parseInt(request.getParameter("optionNum"));
@@ -1115,7 +1113,7 @@ public class TeacherController {
 		mav.addObject("cStatusId",cStatusId);
 		mav.addObject("cStatus",cStatus);
 		if(correctList.isEmpty()) {
-			mav.setViewName("error.html");		// 表示没有需要手动批改的题目
+			mav.setViewName("correct_error.html");		// 表示没有需要手动批改的题目
 			return mav;
 		}
 		mav.setViewName("simple_problem-correct.jsp");
@@ -1174,11 +1172,13 @@ public class TeacherController {
 		}
 
 		int result = teacherService.correctSimpleProblem(cStatusId,cStatus,realScoreMap,oldScoreSum,realScoreSum);
-		if(result > 0) {
+		if(result == 1) {
 			response.setCode(0);
-			response.setMsg("请求成功");
-		}else {
-			response.setMsg("分数更新失败，请重新操作");
+			response.setMsg("操作成功");
+		}else if(result == -1) {
+			response.setMsg("批改繁忙，请稍等片刻再进行批改！");
+		} else {
+			response.setMsg("分数更新失败，请重新操作！");
 		}
 
 		return JSONObject.fromObject(response).toString();

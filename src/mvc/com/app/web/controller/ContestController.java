@@ -13,7 +13,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.annotation.SystemControllerLog;
@@ -24,10 +23,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.app.service.impl.ClassService;
-import com.app.service.impl.ContestPaperService;
-import com.app.service.impl.ContestService;
-import com.app.service.impl.UserService;
+import com.app.service.impl.ClassServiceImpl;
+import com.app.service.impl.ContestPaperServiceImpl;
+import com.app.service.impl.ContestServiceImpl;
+import com.app.service.impl.UserServiceImpl;
 import com.code.model.Contest;
 import com.code.model.LayResponse;
 import com.code.model.User;
@@ -40,16 +39,16 @@ import net.sf.json.JSONObject;
 public class ContestController {
 
 	@Resource
-	private ContestService contestService;
+	private ContestServiceImpl contestService;
 	 
 	@Resource
-	private ContestPaperService contestpaperService;
+	private ContestPaperServiceImpl contestpaperService;
 	
 	@Resource
-	private UserService userService;
+	private UserServiceImpl userService;
 	
 	@Resource
-	private ClassService classService;
+	private ClassServiceImpl classService;
 	
 	/**
 	 * @author lxm
@@ -157,7 +156,8 @@ public class ContestController {
 		contest.setStarttime(sdf.parse(contest.getStartTimeS())); 
 		contest.setEndtime(sdf.parse(contest.getEndTimeS()));
 		contest.setFkCourseId(Integer.parseInt(fkCourse));
-
+		System.out.println("time----start"+contest.getStartTimeS());
+		System.out.println("time----end"+contest.getEndTimeS());
 		if (contestService.AddContest(contest) > 0) {
 			response.setCode(0);
 			return JSONObject.fromObject(response).toString();
@@ -231,13 +231,20 @@ public class ContestController {
 	@SystemControllerLog(description = "更新考试信息")
 	public String UpdateContest(HttpServletRequest request,Contest contest) throws ParseException {
 		//System.out.println(JSONObject.fromObject(contest).toString());
+		
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		contest.setStarttime(sdf.parse(contest.getStartTimeS())); 
 		contest.setEndtime(sdf.parse(contest.getEndTimeS()));
 		LayResponse response = new LayResponse();
 		response.setCode(1);
-		if (contestService.UpdateContest(contest) > 0) {
+		
+		int resultCode = contestService.UpdateContest(contest);
+		if (resultCode > 0) {
 			response.setCode(0);
+			return JSONObject.fromObject(response).toString();
+		} else if(resultCode == -2){
+			response.setMsg("该考试已添加考试班级，无法进行信息修改。");
 			return JSONObject.fromObject(response).toString();
 		} else {
 			response.setMsg("更新失败");
@@ -387,11 +394,20 @@ public class ContestController {
 	@ResponseBody
 	public String ViewContestStudent(HttpServletRequest request, String id)
 	{
+		//获取分页所需相关数据
+		String pageSize = request.getParameter("limit"); //一页多少个
+		String pageNumber = request.getParameter("page");	//第几页
+		
 		LayResponse response = new LayResponse();
-		List<Map<String,Object>> list = contestService.GetAllContestStudent(id);
+		List<Map<String,Object>> list = contestService.GetAllContestStudent(id,pageSize,pageNumber);
+		
+		//获取分页插件的数据只能通过PageInfo来获取
+		PageInfo pInfo = new PageInfo(list);
+		Long total = pInfo.getTotal();
+				
 		response.setCode(0);
-		response.setCount(list.size());
-		response.setMsg("返回成功");
+		response.setCount(total.intValue());
+		response.setMsg("请求成功");
 		response.setData(list);
 		
 		return JSONObject.fromObject(response).toString();
@@ -421,7 +437,7 @@ public class ContestController {
 			
 			if(contestId==null || classId==null || classId.equals(""))
 			{	
-				response.setMsg("请选并择添加考试班级");
+				response.setMsg("请选择要添加考试的班级");
 				JSONObject.fromObject(response).toString();
 				return JSONObject.fromObject(response).toString();
 			}
@@ -438,6 +454,60 @@ public class ContestController {
 				}
 				response.setCode(0);
 				response.setMsg("添加成功"); 
+				return JSONObject.fromObject(response).toString();
+			}else {	//无权限添加试卷
+				response.setMsg("无法添加考试班级，请对你自己负责的考试进行操作"); 
+				return JSONObject.fromObject(response).toString();
+			}
+			
+			
+			
+		}else {	
+			response.setMsg("无权限，添加失败"); 
+			return JSONObject.fromObject(response).toString();
+		}
+	}
+	
+	/**
+	 * @author zzs
+	 * @description 移除考试班级(教师只能给负责的考试加考试班级)
+	 * @return 响应状态
+	 */
+	@RequestMapping(value = "Contest/removeContestClass", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	@SystemControllerLog(description = "移除考试班级")
+	public String removeContestClass(HttpServletRequest request) throws ParseException {
+		//规定返回对象，默认设置Code为1表示失败
+		LayResponse response = new LayResponse();	
+		response.setCode(1); 
+		
+		//获取登录对象，判断其角色
+		User user = (User)request.getSession().getAttribute("user");
+		int level = user.getLevel(); //学生： 0  老师：1  管理员：2
+		String userId = user.getUserId();
+		
+		if(level>0) {
+			String contestId = request.getParameter("contestId");
+			String classId = request.getParameter("classId");		//classId：1,2,3
+			
+			if(contestId==null || classId==null || classId.equals("")) {	
+				response.setMsg("请选择要移除考试的班级");
+				JSONObject.fromObject(response).toString();
+				return JSONObject.fromObject(response).toString();
+			}
+			//判断操作用户的id是否和contest表中的teacher一样
+			List<Map<String,Object>> selList = contestService.selOneContestById(contestId);
+			String selUserId = selList.get(0).get("teacher").toString();	//获取某个conetstId对应下的userId
+			//System.out.println("selUserId-----"+selUserId);
+			if(selUserId.equals(userId) || level>1) {	//用户的id是否和contest表中的teacher一样  或者  是管理员
+				//分割classId 组成集合
+				String[] classIdStrArr = classId.split(",");
+				List<String> classIdList = new ArrayList<>();
+				for(String classIdStr : classIdStrArr) {	//遍历classIdStr并添加其为考试班级
+					contestService.removeContestClass(Integer.parseInt(contestId), Integer.parseInt(classIdStr));
+				}
+				response.setCode(0);
+				response.setMsg("移除成功"); 
 				return JSONObject.fromObject(response).toString();
 			}else {	//无权限添加试卷
 				response.setMsg("无法添加考试班级，请对你自己负责的考试进行操作"); 

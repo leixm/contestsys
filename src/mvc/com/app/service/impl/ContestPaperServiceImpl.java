@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.annotation.SystemServiceLog;
+import com.app.service.ContestPaperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ import com.github.pagehelper.PageHelper;
 import net.sf.json.JSONArray;
 
 @Service
-public class ContestPaperService {
+public class ContestPaperServiceImpl implements ContestPaperService {
 
 	@Autowired
 	private ContestpaperMapper contestpaperDao;
@@ -72,17 +73,14 @@ public class ContestPaperService {
 	    return list;
 	}
 
-	@SystemServiceLog(description = "添加考试试卷")
 	public int AddContestPaper(Contestpaper contestpaper){
 		return contestpaperDao.insertSelective(contestpaper);
 	}
 
-	@SystemServiceLog(description = "更新试卷信息")
 	public int UpdateContestPaper(Contestpaper contestpaper){
 		return contestpaperDao.updateByPrimaryKeySelective(contestpaper);
 	}
 
-	@SystemServiceLog(description = "删除试卷")
 	public int DeleteContestPaper(String id){
 		//根据id查询试卷是否用作考试
 		List contestList = contestDao.selContestByPaperId(id);
@@ -100,7 +98,6 @@ public class ContestPaperService {
 	}
 	
 	
-	@SystemServiceLog(description = "批量删除试卷")
 	public int DeleteAllContestPaper(List<String> ids) {  
 	   int count = 0;
 	   for(String id : ids){

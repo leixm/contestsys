@@ -139,8 +139,8 @@
 								async: false,
 								dataType: 'json', 
 								success: function(data) {
-									if(data.level<2) {	//判断有误权限进来此页面
-										alert("无访问权限");
+									if(data.level<1) {	//判断有误权限进来此页面
+										//alert("无访问权限");
 										window.location.href = "./error.html";
 									}
 								}

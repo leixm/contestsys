@@ -18,16 +18,20 @@ import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 
 import com.annotation.SystemServiceLog;
+import com.app.service.UserService;
 import com.app.tools.MD5Util2;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.dao.ClassMapper;
 import com.app.dao.CourseMapper;
 import com.app.dao.UserMapper;
 import com.app.tools.MD5Util;
 import com.app.tools.RandomString;
-import com.app.tools.SendEmail;
 import com.code.model.User;
 import com.code.model.UserExample;
 import com.github.pagehelper.PageHelper;
@@ -36,7 +40,7 @@ import net.sf.json.JSONArray;
 
 
 @Service 
-public class UserService {
+public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserMapper userDao;
@@ -46,6 +50,9 @@ public class UserService {
 	
 	@Autowired
 	private CourseMapper courseDao;
+	
+	@Autowired
+    private JavaMailSender javaMailSender;
 	
 	public int LoginByUserName(String userName,String passWord) throws UnsupportedEncodingException, MessagingException, GeneralSecurityException
 	{
@@ -156,6 +163,7 @@ public class UserService {
 	 * @throws MessagingException
 	 * @throws GeneralSecurityException
 	 */
+	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
 	public String Register(User user) throws UnsupportedEncodingException, MessagingException, GeneralSecurityException
 	{
 		String userNameRegex = "^[0-9]*$";
@@ -163,14 +171,15 @@ public class UserService {
 		String emailRegex= "^[0-9A-Za-z][\\.-_0-9A-Za-z]*@[0-9A-Za-z]+(\\.[0-9A-Za-z]+)+$";
 		
 		if(user.getUserId()==null || user.getUserId().length()!=13 || !Pattern.matches(userNameRegex, user.getUserId()))
-			return "用户名不符合规范（要求13位且全部为数字）";
+			return "账号/学号不符合规范（要求13位且全部为数字）";
 		if(user.getPassword()==null || !(user.getPassword().length()>=8 && user.getPassword().length()<=16) || !Pattern.matches(passWordRegex, user.getPassword()))
 			return "密码不符合规范（要求8-16位且由数字或字母组成）";
 		if(user.getEmail()==null || !Pattern.matches(emailRegex, user.getEmail()))
 			return "邮箱格式错误";
-		if(LoginByUserName(user.getUserId(),user.getPassword())>0)
-			return "用户名已经存在";
-		if(LoginByEmail(user.getEmail(),user.getPassword())>0)
+		
+		if(userDao.selectByPrimaryKey(user.getUserId())!=null)
+			return "账号已经存在";
+		if(userDao.selUserByEmail(user.getEmail()).size()>0)
 			return "邮箱地址已经被使用";
 		// MD5加盐加密
 		String password = user.getPassword();
@@ -188,9 +197,9 @@ public class UserService {
 		user.setValidatetime(ca.getTime());
 		userDao.insertSelective(user);
 
-//		ApplyActivate(user.getEmail(),user.getValidatecode());   邮箱激活
+		ApplyActivate(user.getEmail(),user.getValidatecode());   //邮箱激活
 		
-		return "注册成功";
+		return "注册成功,请登录邮箱进行账号激活！";
 	}
 
 	/**
@@ -253,8 +262,7 @@ public class UserService {
 		sb.append("您好:\n");
 		sb.append("以下为您的邮箱激活地址：\n");
 		
-
-		sb.append("<a href=\"http://119.23.10.89:8080/contestsys/User/Validate?email=");
+		sb.append("<a href=\"http://114.55.143.216:8080/contestsys/User/Validate?email=");
 
         sb.append(email); 
         sb.append("&validatecode=");  
@@ -262,7 +270,18 @@ public class UserService {
         sb.append("\">请在15分钟内点击此链接激活您的账号");  
         sb.append("</a>");
         
-		SendEmail.sendMessage("考试系统", email, "注册激活", sb.toString(), "text/html;charset=gb2312");
+        SimpleMailMessage message = new SimpleMailMessage();
+        //发件人的邮箱地址
+        message.setFrom("2267359448@qq.com");
+        //收件人的邮箱地址
+        message.setTo(email);
+        //邮件主题
+        message.setSubject("学生在线考试系统账号激活");
+        //邮件内容
+        message.setText(sb.toString());
+        //发送邮件
+        javaMailSender.send(message);
+		//SendEmail.sendMessage("考试系统", email, "注册激活", sb.toString(), "text/html;charset=gb2312");
 	}
 	
 	public String ApplyResetPassword(String email) throws UnsupportedEncodingException, MessagingException, GeneralSecurityException
@@ -287,11 +306,21 @@ public class UserService {
 	    	
 	    	StringBuilder sb = new StringBuilder();
 			sb.append("您好:\n");
-			sb.append("以下为您的密码重置验证码：");
+			sb.append("以下为您的重置密码，其验证码为：");
 	        sb.append(ran);
 	        sb.append("\n如果不是您本人操作，请忽略此邮件");
 	        
-			SendEmail.sendMessage("考试系统", email, "密码重置", sb.toString(), "text/html;charset=gb2312");
+	        SimpleMailMessage message = new SimpleMailMessage();
+	        //发件人的邮箱地址
+	        message.setFrom("2267359448@qq.com");
+	        //收件人的邮箱地址
+	        message.setTo(email);
+	        //邮件主题
+	        message.setSubject("学生在线考试系统密码重置");
+	        //邮件内容
+	        message.setText(sb.toString());
+	        //发送邮件
+	        javaMailSender.send(message);
 	    	
 	    }
 	    else return "邮箱地址不存在";

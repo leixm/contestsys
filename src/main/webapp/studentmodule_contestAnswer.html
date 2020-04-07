@@ -87,7 +87,8 @@
 	</script>
 
 	<script type="text/html" id="demotool">
-			<a class="layui-btn layui-btn-xs" lay-event="showAnswer">试题回顾</a>
+			<a class="layui-btn layui-btn-xs" lay-event="review">试题回顾</a>
+			<a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="showAnswer">PDF预览</a>
     </script>
 
 
@@ -182,7 +183,11 @@
 									content: "viewpaper.do?id=" + obj.data.paper_id
 								});
 						} else if (obj.event == "showAnswer") {
-                            window.location.href='ContestStatus/Pdf?contestStatusId='+obj.data.cstatusid;
+							layer.confirm('是否导出为pdf文件?', function(index) {
+	                                window.location.href='ContestStatus/Pdf?contestStatusId='+obj.data.cstatusid;
+	                                layer.close(index);
+	                            })
+                            
                         }
 
 					});

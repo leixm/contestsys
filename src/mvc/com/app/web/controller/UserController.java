@@ -28,7 +28,6 @@ import com.annotation.SystemControllerLog;
 import com.app.service.LogService;
 import com.app.tools.MD5Util2;
 import com.code.model.*;
-import net.sf.json.JSON;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -42,8 +41,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.app.service.impl.ClassService;
-import com.app.service.impl.UserService;
+import com.app.service.impl.ClassServiceImpl;
+import com.app.service.impl.UserServiceImpl;
 import com.app.tools.PathHelper;
 import com.app.tools.RandomValidateCode;
 import com.github.pagehelper.PageInfo;
@@ -55,10 +54,10 @@ import net.sf.json.JSONObject;
 public class UserController {
 
 	@Resource
-	private UserService userService;
+	private UserServiceImpl userService;
 	
 	@Resource  
-	private ClassService classService;
+	private ClassServiceImpl classService;
 
 	@Resource
 	private LogService logService;
@@ -114,17 +113,25 @@ public class UserController {
 	@ResponseBody
 	public String Register(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
+		Response re = new Response();
+		re.setSuccess(0);
 		User user = new User();
 		user.setPassword(request.getParameter("password"));
 		user.setUserId(request.getParameter("userId"));
 		user.setEmail(request.getParameter("email"));
 		user.setRealname(request.getParameter("realname"));
+		if(request.getParameter("classid")!=null && !"".equals(request.getParameter("classid")) ) {
+			user.setClassId(Integer.parseInt(request.getParameter("classid").toString()));
+		} else {
+			re.setMsg("请选择班级！");
+			return JSONObject.fromObject(re).toString();
+		}
+		
 		/*System.out.println("passuserid-----"+user.getUserId());
 		System.out.println("password-----"+user.getPassword());
 		System.out.println("passrancode-----"+request.getParameter("rancode"));
 		System.out.println("email-----"+request.getParameter("email"));*/
-		Response re = new Response();
-		re.setSuccess(0);
+		
 		String rancode = request.getParameter("rancode");
 		if (user == null || user.getUserId() == null || user.getPassword() == null || user.getUserId() == null) {
 			re.setMsg("参数错误");
@@ -135,7 +142,7 @@ public class UserController {
 			return JSONObject.fromObject(re).toString();
 		}
 		String result = userService.Register(user);
-		if (result.equals("注册成功")) {
+		if (result.equals("注册成功,请登录邮箱进行账号激活！")) {
 			re.setSuccess(1);
 		}
 		re.setMsg(result);
@@ -279,7 +286,7 @@ public class UserController {
 	
 
 	/**
-	 * @author lxm
+	 * @author zzs
 	 * @description 跳转至添加学生页面
 	 * @return 视图、班级信息
 	 */
@@ -287,8 +294,18 @@ public class UserController {
 			RequestMethod.GET }, produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public ModelAndView PrepareAddUser(HttpServletRequest request) {
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		
+		// 获取某个教师名下的班级
+		List<Map<String,Object>> allClassList = classService.GetAllClass(user.getUserId(),null,null,null);
+		
+		
 		ModelAndView mav = new ModelAndView();
-		mav.addObject("classes", classService.GetAllClass("root",null,null,null));
+		
+		mav.addObject("classes", allClassList);
+		
 		mav.setViewName("student-add.jsp");
 		return mav; 
 	}
@@ -303,9 +320,16 @@ public class UserController {
 	@ResponseBody
 	@SystemControllerLog(description = "添加一名学生用户")
 	public String AddUser(HttpServletRequest request, User user) {
-		System.out.println("AddUser!!!!!!\n" + JSONObject.fromObject(user).toString());
+		//System.out.println("AddUser!!!!!!\n" + JSONObject.fromObject(user).toString());
 		LayResponse response = new LayResponse();
 		response.setCode(1);
+		if(user.getPassword().trim().isEmpty()) {
+			user.setPassword(null);
+		} else {
+			// MD5加盐加密
+			String newPwd = MD5Util2.getSaltMD5(user.getPassword());
+			user.setPassword(newPwd);
+		}
 		if (userService.AddUser(user) > 0) {
 			response.setCode(0);
 			return JSONObject.fromObject(response).toString();
@@ -448,6 +472,13 @@ public class UserController {
 		LayResponse response = new LayResponse();
 		response.setCode(1);
 		user.setLevel(new Integer(1));
+		if(user.getPassword().trim().isEmpty()) {
+			user.setPassword(null);
+		} else {
+			// MD5加盐加密
+			String newPwd = MD5Util2.getSaltMD5(user.getPassword());
+			user.setPassword(newPwd);
+		}
 		if (userService.AddUser(user) > 0) {
 			response.setCode(0);
 			return JSONObject.fromObject(response).toString();

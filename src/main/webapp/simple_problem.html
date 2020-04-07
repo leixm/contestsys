@@ -71,13 +71,13 @@
  
     </script>
 
-		<script type="text/html" id="header">
+	<script type="text/html" id="header">
 			<div id="headbar" style="float:left;">
 				<button class="layui-btn layui-btn-danger" lay-event="delAll" data-type="delAll" id="btn-delAll"><i class="layui-icon"></i>批量删除</button>
 			</div>
 
 			    <div class="layui-input-inline" style="padding-left: 10px;width:130px;">
-					<select id="simType" name="simType" class="valid" >
+					<select id="simType" name="simType" class="simType" οnchange="test()" >
 						<option value="0" selected="selected"> 请选择题型  </option>
 						<option value="1" > 单选题  </option>
 						<option value="2" > 多选题  </option>
@@ -91,8 +91,8 @@
 				<input name="id" class="layui-input" id="simPaperTitle" placeholder="请输入题目来源试卷名" autocomplete="off">
 			</div>
 			<button class="layui-btn" data-type="reload" id="search" lay-event="reload"><i class="layui-icon"></i></button>
-			<button class="layui-btn" id="import"  style="display:none;float:right"; lay-event="importSimproblem" data-type="importSimproblem" id="importSimproblem"><i class="layui-icon layui-icon-download-circle" ></i>批量导入通用题库</button>
-</script>
+			<button class="layui-btn" id="import"  style="float:right"; lay-event="importSimproblem" data-type="importSimproblem" id="importSimproblem"><i class="layui-icon layui-icon-download-circle" ></i>批量导入通用题库</button>
+	 </script>
 
 
 	<script type="text/html" id="demotool">
@@ -108,7 +108,8 @@
 			$(document).ready(function() {
 				initTable();
 			});
-
+			
+			
 			/* 获取用户角色信息 */
 			function roleControl() {
 				$.ajax({
@@ -173,7 +174,6 @@
 								field: 'simCourseName',
 								title: '所属课程',
 								sort: true,
-								hide:true
 							}, {
 								field: 'simId',
 								title: '题目ID',

@@ -103,7 +103,7 @@
 					//监听提交
 					form.on('submit(add)',
 						function(data) { 
-							console.log(data)
+							//console.log(data)
 							$.ajax({  
 								type: "POST",
 								url: "Class/AddTeach?classId=" + data.field.classId + "&teacherId=" + data.field.teacherId,

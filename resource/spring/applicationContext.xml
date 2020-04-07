@@ -20,11 +20,13 @@
     <!-- 数据源 -->
     <bean id="dataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
-        <property name="url" value="jdbc:mysql://localhost:3306/contestsys?serverTimezone=Asia/Shanghai&amp;useSSL=false&amp;characterEncoding=UTF-8" />
-        <property name="username" value="root" />
-        <property name="password" value="root" />
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
     </bean>
+    <!-- 引入jdbc.properties -->
+    <context:property-placeholder location="classpath:spring/jdbc2.properties" ignore-unresolvable="true"/>
 
     <!--会话工厂-->
     <!-- 配置Mybatis的文件 ，mapperLocations配置**Mapper.xml文件位置，configLocation配置mybatis-config文件位置-->
@@ -72,9 +74,24 @@
 		<property name="maxUploadSize" value="2048000"/>
 	</bean>
 
-
-    <context:property-placeholder location="classpath:spring/config.properties" />
+    <context:property-placeholder location="classpath:spring/config.properties" ignore-unresolvable="true"/>
 
     <context:component-scan base-package="com" />
+    
+	<!--读取邮件属性文件-->
+	<context:property-placeholder location="classpath:spring/mail.properties" ignore-unresolvable="true"/>
+	<!--配置邮件接口-->
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${mail.smtp.host}"/>
+        <property name="username" value="${mail.smtp.username}"/>
+        <property name="password" value="${mail.smtp.password}"/>
+        <property name="defaultEncoding" value="${mail.smtp.defaultEncoding}"/>
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
+                <prop key="mail.smtp.timeout">${mail.smtp.timeout}</prop>
+            </props>
+        </property>
+    </bean>
 
 </beans>

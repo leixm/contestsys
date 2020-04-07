@@ -47,7 +47,19 @@
 			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
 		<script type="text/javascript" src="./js/jquery-3.3.1.js"></script>
-		
+		<script type="text/javascript">
+		    //全局定义一次, 加载formSelects
+		    layui.config({
+		        base: './js/' //此处路径请自行处理, 可以使用绝对路径
+		    }).extend({
+		        formSelects: 'formSelects-v4'
+		    });
+		    //加载模块
+		    layui.use(['jquery', 'formSelects'], function(){
+		        var formSelects = layui.formSelects;
+		         
+		    });
+		</script>
 		
     </head>
 	
@@ -66,30 +78,43 @@
 								<div class=" ">
 									<div class=" ">	
 										<div class="layui-form-item">
-											<label for="signin_form">学号</label>
+											<label for="stuid1" >学号</label>
 											<input type="text" class="form-control" name="userId" id="stuid1" placeholder="Student ID" lay-verify="required|number" autocomplete="off">
 										</div><!--/.form-group -->
 										<div class="layui-form-item">
-											<label for="signin_form">确认学号</label>
+											<label for="stuid2">确认学号</label>
 											<input type="text" class="form-control" id="stuid2" placeholder="Enter your student ID again" lay-verify="required|recheck" autocomplete="off">
+									
+										
+										
+										<div class="layui-form-item" >
+											<label for="classId" style="height:30px;">班级</label>
 										</div><!--/.form-group -->
+										<link rel="stylesheet" href="./css/formSelects-v4.css" />
+										<div>
+								            <select id="classId" name="classId" class="valid" lay-filter="classId" xm-select="select1" xm-select-search="" xm-select-radio="" xm-select-search-type="dl" >
+								            	<option value="">请选择你所在班级</option>
+								            </select>
+								        </div>	
+										
+										
 										<div class="layui-form-item">
-											<label for="signin_form">姓名</label>
+											<label for="realname">姓名</label>
 											<input type="text" class="form-control" name="realname" id="realname" placeholder="First name" lay-verify="required|checkname|checkChina" autocomplete="off">
 										</div><!--/.form-group -->
 										
 										<div class="layui-form-item">
-											<label for="signin_form">密码</label>
+											<label for="newpwd1">密码</label>
 											<input type="password" class="form-control" name="password" id="newpwd1" placeholder="Enter your password" lay-verify="required|pwdlength" autocomplete="off">
 										</div><!--/.form-group -->
 										
 										<div class="layui-form-item">
-											<label for="signin_form">确认密码</label>
+											<label for="newpwd2">确认密码</label>
 											<input type="password" class="form-control"  id="newpwd2" placeholder="Enter your password again" lay-verify="required|repass" autocomplete="off">
 										</div><!--/.form-group -->
 										
 										<div class="layui-form-item">
-											<label for="signin_form">绑定邮箱</label>
+											<label for="email">绑定邮箱</label>
 											<input type="email" class="form-control" name="email" id="email" placeholder="Enter your email adress " lay-verify="email|required" autocomplete="off">
 										</div><!--/.form-group -->										
 									</div><!--/.col -->
@@ -111,7 +136,7 @@
 										</div>		
 									</div><!--/.single-password-circle-->
 									<div class="single-forgot-password-circle text-right ">
-										<a href="login.html">找回账号</a>
+										<a href="requertResetPassword.html">找回账号</a>
 									</div><!--/.single-password-circle-->
 								</div><!--/.password-circle-->
 							</div><!--/.signin-password -->
@@ -146,6 +171,10 @@
 
 
 		<script>
+			/* 获取下拉班级信息 */
+			getSelectClass();
+			
+			
 			 layui.use(['form', 'layer'],
 	            function() {
 	                $ = layui.jquery;
@@ -189,43 +218,69 @@
 	                //监听提交
 	                form.on('submit(signup)',
 	                function(data) {
+	                	var layerIndex = layer.load(1, { shade: [0.5, '#393D49'] });	//加载动画
 	                    $.ajax({
-									type: "POST",
-									url: "User/Register?userId=" + $("#stuid1").val() + "&password=" + $("#newpwd1").val()
-										+ "&realname=" + $("#realname").val() + "&rancode=" + $("#inputNum").val() + "&email=" + $("#email").val(),
-									dataType: 'json',
-									contentType:'application/json',
-									async: false,
-									success: function(da) {
-										if (da.success == 1) {
-											layer.alert(da.msg, {
-													icon: 6
-												},
-												function() {
-													//关闭当前frame
-													xadmin.close();
-	
-													// 可以对父窗口进行刷新 
-													xadmin.father_reload();
-												});
-	
-	
-										} else {
-											layer.alert(da.msg, {
-												icon: 5
-											});
-	
-										}
-									}
-								})
-								return false;
+							type: "POST",
+							url: "User/Register?userId=" + $("#stuid1").val() + "&password=" + $("#newpwd1").val()
+								+ "&realname=" + $("#realname").val() + "&rancode=" + $("#inputNum").val() + "&email=" + $("#email").val() + "&classid=" + layui.formSelects.value('select1', 'valStr'),
+							dataType: 'json',
+							contentType:'application/json',
+							async: false,
+							success: function(da) {
+								if (da.success == 1) {
+									layer.close(layerIndex);	//关闭加载动画
+									layer.alert(da.msg, {
+											icon: 6
+										},
+										function() {
+											xadmin.father_reload();
+										});
+
+
+								} else {
+									layer.close(layerIndex);	//关闭加载动画
+									layer.alert(da.msg, {
+										icon: 5
+									});
+									changeRanCode();
+								}
+							},
+							error: function(da) {
+								layer.close(layerIndex);	//关闭加载动画
+									layer.alert("注册失败，激活邮件发送失败！", {
+										icon: 5
+									});
+							}
+							
+						})
+						return false;
 	                });
-	
 	            });
+	            
+	            /*获取初始化下拉框课程选项*/
+				function getSelectClass() {
+					$.ajax({
+							type: "POST", 
+							url: "User/getSelectClass",
+							data: '',
+							async: false,
+							dataType: 'json', 
+							success: function(data) {
+								var classse = data.data;
+					           //遍历成功返回的json数据，取出对应内容进行展示
+					           $.each(classse, function (index,item) {
+		                              var class_name = classse[index].className;
+		                              var class_id = classse[index].classId;
+					               //构造动态option
+					               $('#classId').append("<option value='"+class_id+"'>"+class_name+"</option>")
+					           });
+							}
+						})
+				}
          </script>
          <script type="text/javascript">
          	  //获取验证码
-         	  changeRanCode()
+         	  changeRanCode();
 
 			  function changeRanCode(){
 				$("#img").attr("src","User/GetRanCode?ran=" + Math.random());

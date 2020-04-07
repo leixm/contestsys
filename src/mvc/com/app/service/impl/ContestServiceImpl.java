@@ -13,8 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.annotation.SystemServiceLog;
+import com.app.service.ContestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.dao.ContestMapper;
 import com.app.dao.ContestStatusMapper;
@@ -29,7 +31,7 @@ import com.github.pagehelper.PageHelper;
 import net.sf.json.JSONArray;
 
 @Service
-public class ContestService {
+public class ContestServiceImpl implements ContestService {
 	
 	@Autowired
 	private ContestStatusMapper contestStatusDao;
@@ -73,21 +75,23 @@ public class ContestService {
 	        map.put("startTime", sdf.format((Date)map.get("startTime")));
 	    	map.put("endTime", sdf.format((Date)map.get("endTime")));
 	    }
-	    System.out.println("contestList_------"+JSONArray.fromObject(list).toString());
+	    //System.out.println("contestList_------"+JSONArray.fromObject(list).toString());
 	    return list;
 	}
 
-	@SystemServiceLog(description = "添加考试")
 	public int AddContest(Contest contest){
 		return contestDao.insertSelective(contest);
 	}
 
-	@SystemServiceLog(description = "更新考试信息")
 	public int UpdateContest(Contest contest){
+		// 查询是否有学生已经分配了该考试
+		List list = contestStatusDao.selOneByContestId(contest.getContestId());
+		if(!list.isEmpty()) {
+			return -2;	// 表示已有考试备份匹配，不应该修改
+		}
 		return contestDao.updateByPrimaryKeySelective(contest);
 	}
 
-	@SystemServiceLog(description = "删除考试")
 	public int DeleteContest(String id){
 		return contestDao.deleteByPrimaryKey(Integer.parseInt(id));
 	}
@@ -96,7 +100,6 @@ public class ContestService {
 		return contestDao.selectByPrimaryKey(Integer.parseInt(id));
 	}
 
-	@SystemServiceLog(description = "批量删除考试")
 	public int DeleteAllContest(List<String> ids)
 	{  
 	   int count = 0;
@@ -107,9 +110,16 @@ public class ContestService {
 	   return count;
 	}
 	
-	public List<Map<String,Object>> GetAllContestStudent(String id)
-	{
-       return contestStatusDao.GetAllContestStudent(id);
+	public List<Map<String,Object>> GetAllContestStudent(String id,String pageSize,String pageNumber) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
+		//分页所需相关参数的计算
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
+		resultList = contestStatusDao.GetAllContestStudent(id); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+       return resultList;
 	}
 	
 	/**
@@ -117,7 +127,6 @@ public class ContestService {
 	 * @param contest_id
 	 * @param class_id
 	 */
-	@SystemServiceLog(description = "添加考试班级")
 	public void AddContestClass(Integer contest_id,Integer class_id)
 	{
 
@@ -161,6 +170,28 @@ public class ContestService {
         	contestStatus.setScore(new BigDecimal(0));
         	contestStatus.setStatus(new Integer(0));
         	contestStatusDao.insert(contestStatus);
+		}
+	}
+	
+	/**
+	 * 根据考试id和班级id 移除contest_status
+	 * @param contest_id
+	 * @param class_id
+	 */
+	@Transactional(rollbackFor=Exception.class)	
+	public void removeContestClass(Integer contest_id,Integer class_id) {
+		UserExample userExample = new UserExample();
+		UserExample.Criteria criteria = userExample.createCriteria();
+		criteria.andClassIdEqualTo(class_id);
+		criteria.andLevelEqualTo(0);
+		List<User> users = userDao.selectByExample(userExample);
+		
+		for(User user : users){
+        	ContestStatusExample cStatusExample = new ContestStatusExample();
+        	ContestStatusExample.Criteria criteria2 = cStatusExample.createCriteria();
+        	criteria2.andContestIdEqualTo(contest_id);
+        	criteria2.andStudentEqualTo(user.getUserId());
+        	contestStatusDao.deleteByExample(cStatusExample);
 		}
 	}
 	

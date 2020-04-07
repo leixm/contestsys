@@ -27,6 +27,8 @@ import org.apache.poi.ss.util.CellRangeAddress;
  *            注意这里为了简单起见，boolean型的属性xxx的get器方式为getXxx(),而不是isXxx()
  *            byte[]表jpg格式的图片数据
  */
+
+
 public class ExcelExportUtils<T> {
 	//获取文件分割符
 	public static final String FILE_SEPARATOR = System.getProperties()
@@ -74,6 +76,12 @@ public class ExcelExportUtils<T> {
 	 *            javabean属性的数据类型有基本数据类型及String,Date,byte[](图片数据)
 	 * @param pattern
 	 *            如果有时间数据，设定输出格式。默认为"yyyy-MM-dd"
+	 */
+	/**
+	 * 使用此公共导出方法的：参数格式
+	 * paramList---[stuid, stuname, contestname, classname, score]
+	 * dataset---[{score=15.0, stuid=1614080903300, classname=19软件1班, contesttime=2020-03-04, course_name=Java程序设计, stuname=学生用户1, contestname=JAVA练习卷2.22, contest_status_id=1307, status=2}]
+	 * @author dulldog
 	 */
 	@SuppressWarnings("unchecked")
 	public HSSFWorkbook exportExcel(String tableTitle, String[] headers,

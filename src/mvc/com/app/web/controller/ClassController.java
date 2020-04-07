@@ -6,7 +6,9 @@
 
 package com.app.web.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +17,7 @@ import javax.servlet.http.HttpSession;
 
 import com.annotation.SystemControllerLog;
 import com.code.model.User;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +25,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.app.service.impl.ClassService;
-import com.app.service.impl.UserService;
+import com.app.service.impl.ClassServiceImpl;
+import com.app.service.impl.UserServiceImpl;
 import com.code.model.LayResponse;
 import com.github.pagehelper.PageInfo;
 
@@ -34,10 +37,10 @@ import net.sf.json.JSONObject;
 public class ClassController {
 
 	@Resource
-	private ClassService classService;
+	private ClassServiceImpl classService;
 	
 	@Resource
-	private UserService userService;
+	private UserServiceImpl userService;
 	
 	/**
 	 * @author lxm、zzs
@@ -166,7 +169,7 @@ public class ClassController {
 	public ModelAndView EditClass(HttpServletRequest request, String id) {
 
 		ModelAndView mav = new ModelAndView();
-		System.out.println("id---"+id);
+		//System.out.println("id---"+id);
 		//System.out.println(JSONObject.fromObject(classService.GetClass(id)).toString());
 		mav.addObject("classes", classService.GetClass(id));
 		mav.setViewName("class-edit.jsp");
@@ -246,7 +249,6 @@ public class ClassController {
 	@ResponseBody
 	@SystemControllerLog(description = "移除班级任课关系")
 	public String deleteTeach(HttpServletRequest request, String classId, String teacherId) {
-		
 		LayResponse response = new LayResponse();
 		response.setCode(1);
 		//获取所登录用户的user对象
@@ -337,4 +339,23 @@ public class ClassController {
 		return JSONObject.fromObject(response).toString();
 	}
 	
+	
+	/**
+	 * @author zzs
+	 * @description 获取所有班级下拉
+	 * @return 
+	 */
+	@RequestMapping(value = "User/getSelectClass", method = {
+			RequestMethod.POST }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String getSelectCourse(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		LayResponse layResp = new LayResponse();//layui参数返回格式
+		layResp.setCode(1); //默认设置为1
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+		resultList = classService.GetAllClass("root",null,null,null);
+		layResp.setCode(0);
+		layResp.setMsg("请求成功！");
+		layResp.setData(resultList);
+		return JSONObject.fromObject(layResp).toString();
+	}
 }

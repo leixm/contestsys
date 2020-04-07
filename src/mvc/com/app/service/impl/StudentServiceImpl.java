@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.annotation.SystemServiceLog;
+import com.app.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +28,14 @@ import com.code.model.OneProblem;
 import com.code.model.OneSimproblem;
 import com.code.model.Simsolution;
 import com.code.model.SolutionWithBLOBs;
+import com.code.model.User;
+import com.code.model.UserExample;
+import com.code.model.UserExample.Criteria;
 import com.github.pagehelper.PageHelper;
 
 
 @Service
-public class StudentServiceImpl implements StudentService{
+public class StudentServiceImpl implements StudentService {
 	
 	@Autowired
     private ContestpaperMapper contestpaperDao;
@@ -106,7 +109,7 @@ public class StudentServiceImpl implements StudentService{
 	 * @return 成绩实体Map对象集合
 	 */
 	@Override
-	public List<Map<String, Object>> selOneStuScore(String stuId,String pageSize,String pageNumber) {
+	public List<Map<String, Object>> selOneStuScore(String stuId,String contestName,String pageSize,String pageNumber) {
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
 		//分页所需相关参数的计算
 		if(pageSize!=null&&pageNumber!=null) {
@@ -114,7 +117,7 @@ public class StudentServiceImpl implements StudentService{
 			int pageNumberInt = Integer.parseInt(pageNumber);
 			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
 		}
-		resultList = contestStatusDao.selOneStuScore(stuId); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		resultList = contestStatusDao.selOneStuScore(stuId,contestName); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
 		return resultList;
 	}
 	
@@ -127,8 +130,23 @@ public class StudentServiceImpl implements StudentService{
 	  * @return 更新是否成功 
 	  */
 	@Override
-	@SystemServiceLog(description = "修改个人信息（修改资料）")
+//	@SystemServiceLog(description = "修改个人信息（修改资料）")
 	public int updateStuInfo(String stuId, String stuName, String stuEmail, String newPwd) {
+		//校验邮箱是否已经存在
+		if(stuEmail!=null && !"".equals(stuEmail)) {
+			UserExample example = new UserExample();
+			Criteria criteria = example.createCriteria();
+			criteria.andEmailEqualTo(stuEmail.toString());
+			List<User> userList = userDao.selectByExample(example);
+			if(userList.size() > 0) {	// 表邮箱已有
+				User user = userList.get(0);	
+				//校验是否是自身原来的邮箱
+				if(!user.getUserId().equals(stuId.trim())) {
+					return -2;
+				}
+			}
+		}
+		
 		return userDao.updateStuInfoByStuId(stuId, stuName, stuEmail, newPwd);
 	}
 	

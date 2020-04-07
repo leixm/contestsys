@@ -145,9 +145,8 @@
 								data: data.field,
 								async: false,
 								success: function(da) {
-									console.log(JSON.stringify(da))
 									if (da.code == 0) {
-										layer.alert('添加成功', {
+										layer.alert('更新成功', {
 												icon: 6
 											},
 											function() {
@@ -160,7 +159,7 @@
 
 
 									} else {
-										layer.alert(data.msg, {
+										layer.alert(da.msg, {
 											icon: 5
 										});
 

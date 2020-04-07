@@ -313,7 +313,7 @@
       </if>
     </where>
 
-    order by t.type
+    order by t.type,addTime desc
   </select>
 
 </mapper>

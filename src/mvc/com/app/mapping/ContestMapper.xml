@@ -247,7 +247,8 @@
   </select>
 
   <select id="listAll" resultType="map" >
- select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName from contest,user,contestpaper
+ select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName,course.course_name
+  from contest,user,contestpaper,course
   <where>
     <if test="fkCourseId!=null and fkCourseId!=0">
       and contest.fk_course_id = #{fkCourseId}
@@ -257,12 +258,14 @@
    </if>
     and contest.teacher = user.user_id
     and contest.paper_id = contestpaper.paper_id
+    and course.course_id = contestpaper.fk_course_id
   </where>
  order by endTime desc
  </select>
 
   <select id="listAllByKeyword" resultType="map" parameterType="java.lang.String">
-    select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName from contest,user,contestpaper
+    select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName ,course.course_name
+    from contest,user,contestpaper,course
     <where>
       <if test="fkCourseId!=null and fkCourseId!=0">
       and contest.fk_course_id = #{fkCourseId}
@@ -270,6 +273,7 @@
     <if test="userId!=null and userId!='root'">
      and user.user_id = #{userId}
    </if>
+   	  and course.course_id = contestpaper.fk_course_id
       and contest.teacher = user.user_id
       and contest.paper_id = contestpaper.paper_id
       and (contest_id=#{0} or contest.title=#{0} or contestpaper.title=#{0} or user.realName=#{0})
@@ -278,7 +282,8 @@
   </select>
 
   <select id="listAllByDate" resultType="map" parameterType="java.lang.String">
-    select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName from contest,user,contestpaper
+    select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName,course.course_name
+    from contest,user,contestpaper,course
     <where>
     <if test="fkCourseId!=null and fkCourseId!=0">
       and contest.fk_course_id = #{fkCourseId}
@@ -286,7 +291,8 @@
     <if test="userId!=null and userId!='root'">
      and user.user_id = #{userId}
    </if>
-      and contest.teacher = user.user_id
+   	   and course.course_id = contestpaper.fk_course_id
+       and contest.teacher = user.user_id
        and contest.paper_id = contestpaper.paper_id
        and (startTime between #{1} and #{2})
     </where>
@@ -294,7 +300,8 @@
   </select>
 
   <select id="listAllByKeywordAndDate" resultType="map" parameterType="java.lang.String">
-    select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName from contest,user,contestpaper
+    select contest_id,contest.teacher,startTime,endTime,contest.paper_id,contestpaper.title as papertitle,contest.title,user.realName,course.course_name
+     from contest,user,contestpaper,course
  <where>
    <if test="fkCourseId!=null and fkCourseId!=0">
      and contest.fk_course_id = #{fkCourseId}
@@ -302,8 +309,8 @@
    <if test="userId!=null and userId!='root'">
      and user.user_id = #{userId}
    </if>
-   
-    and contest.teacher = user.user_id
+   and course.course_id = contestpaper.fk_course_id
+   and contest.teacher = user.user_id
    and contest.paper_id = contestpaper.paper_id
    and (contest_id=#{keyword} or contest.title=#{keyword} or contestpaper.title=#{keyword} or user.realName=#{keyword})
    and (startTime between #{startTime} and #{endTime})

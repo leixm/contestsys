@@ -218,12 +218,18 @@
             <version>1.0.6</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/javax.mail/mail -->
-        <dependency>
+       <!--  <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
             <version>1.4.7</version>
-        </dependency>
-
+        </dependency> -->
+		<!--邮件发送-->
+		<dependency>
+		      <groupId>com.sun.mail</groupId>
+		      <artifactId>javax.mail</artifactId>
+		      <version>1.6.1</version>
+		</dependency>
+		
         <!-- 文件上传 -->
         <dependency>
             <groupId>commons-fileupload</groupId>

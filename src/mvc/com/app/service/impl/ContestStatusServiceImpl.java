@@ -7,6 +7,7 @@ package com.app.service.impl;
 
 import com.annotation.SystemServiceLog;
 import com.app.dao.*;
+import com.app.service.ContestStatusService;
 import com.app.tools.PdfHelper;
 import com.code.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ContestStatusService {
+public class ContestStatusServiceImpl implements ContestStatusService {
 
     @Autowired
     private UserMapper userDao;
@@ -47,7 +48,6 @@ public class ContestStatusService {
     private ContestStatusMapper contestStatusDao;
 
 
-    @SystemServiceLog(description = "导出试卷为PDF文件")
     public String GetContestStatusPdf(int contestStatusId){
         String path = "";
         try {

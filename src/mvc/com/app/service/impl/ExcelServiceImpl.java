@@ -67,11 +67,11 @@ public class ExcelServiceImpl implements ExcelService{
 	 * @param 4、考试名称
 	 * @return 成绩实体Map对象集合
 	 */
-	public List<Map<String,Object>> selStuScoreByKeyword(String className,String stuId,String stuName,String contestName,int simCourseId) {
+	public List<Map<String,Object>> selStuScoreByKeyword(String className,String stuId,String stuName,String contestName,int simCourseId,String userId) {
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>(); //返回结果的容器
 		List statusList = new ArrayList();
 		statusList.add(2);
-		resultList = contestStatusMapper.selStuScoreBykeyword(className, stuId, stuName, contestName, simCourseId,statusList); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
+		resultList = contestStatusMapper.selStuScoreBykeyword(className, stuId, stuName, contestName, simCourseId,statusList,userId); //根据参数查询学生成绩等字段，如果参数全部为空自动查询全部学生的相关成绩
 		return resultList;
 	}
 	
@@ -85,7 +85,6 @@ public class ExcelServiceImpl implements ExcelService{
 	 */
 	@Override
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
-	@SystemServiceLog(description = "批量导入学生用户")
 	public LayResponse batchImportStudent(String fileName, MultipartFile file) throws Exception {
 		int successNum = 0; //导入成功数量
 		int existNum = 0; //已存在数据数量
@@ -220,7 +219,6 @@ public class ExcelServiceImpl implements ExcelService{
 	 */
 	@Override
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
-	@SystemServiceLog(description = "批量导入教师用户")
 	public LayResponse batchImportTeacher(String fileName, MultipartFile file) throws Exception {
 		int successNum = 0; //导入成功数量
 		int existNum = 0; //已存在数据数量
@@ -336,7 +334,6 @@ public class ExcelServiceImpl implements ExcelService{
 	 */
 	@Override
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
-	@SystemServiceLog(description = "批量导入班级")
 	public LayResponse batchImportClass(String fileName, MultipartFile file) throws Exception {
 		int successNum = 0; //导入成功数量
 		int existNum = 0; //已存在数量
@@ -441,7 +438,6 @@ public class ExcelServiceImpl implements ExcelService{
 	 */
 	@Override
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
-	@SystemServiceLog(description = "批量导入通用题")
 	public LayResponse batchImportSimproblem(String fileName, MultipartFile file, int courseId, String teacherId, String importPaper) throws Exception {
 		List<com.code.model.Class> classList = new ArrayList<>();
 		String extraMessage = ""; //附加通知，用来通知有几条信息是数据库已经存在的等信息
@@ -1072,7 +1068,12 @@ public class ExcelServiceImpl implements ExcelService{
 	 * @Date: 14:44 2019/4/1
 	 */
 	public static String StringTrim(String str){
-		return str.replaceAll("[\\s\\u00A0]+","").trim();
+		if(str.replaceAll("[\\s\\u00A0]+","").trim().equals("")) {	//去除空格后内容为空，则对其进行去空（防止前面计算数据行数出错）
+			return str.replaceAll("[\\s\\u00A0]+","").trim();
+		}else {	// 否则原数据返回,不去空
+			return str;
+		}
+		
 	}
 
 	/**
@@ -1108,7 +1109,6 @@ public class ExcelServiceImpl implements ExcelService{
 	 * @return
 	 */
 	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
-	@SystemServiceLog(description = "为新的试题的simproblem配置pos值")
 	public int updateSimPosByPaperId(int paperId) {
 		// 根据paperId查所有的simId，simId按照Type来排列
 		List<Map<String,Object>> simIdList = simproblemMapper.selSimIdByPaperId(paperId);

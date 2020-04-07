@@ -85,7 +85,7 @@
 		<script type="text/html" id="demotool">
 			<div style="display:block;"  class="caozuo">
 				<a class="layui-btn layui-btn-xs " lay-event="edit" >批改</a>
-				<a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="pdf" >PDF预览</a>
+				<a class="layui-btn layui-btn-xs layui-btn-normal" style="display:none;" lay-event="pdf" >PDF预览</a>
 			</div>
    		 </script>
 
@@ -171,7 +171,12 @@
 								title: '考试成绩',
 								minWidth: 120,
 								sort: true
-							}, {
+							},  {
+								field: 'course_name',
+								title: '所属课程',
+								minWidth: 120,
+								sort: true
+							},{
 								field: 'contesttime',
 								title: '考试时间',
 								minWidth: 120,
@@ -180,7 +185,7 @@
 								title: '操作',
 								toolbar: '#demotool',
 								'fixed': 'right',
-								minWidth: 180
+								minWidth: 90
 							}]
 						],
 						url: 'Teacher/selStuScore?shortAnswer=1',
@@ -232,7 +237,7 @@
 					table.on('tool(demo)', function(obj) {
 						if (obj.event == "edit") {
 							//编辑：对成绩的修改
-							console.log("edit")
+							//console.log("edit")
 							layer.open({
 								type: 2,
 								title: "题目批改",
@@ -241,7 +246,7 @@
 								content: "correct.do?cStatusId=" + obj.data.contest_status_id + "&cStatus=" + obj.data.status
 							});
 
-						} else if (obj.event == "pdf") {
+						} else if (obj.event == "pdf1") {
                             layer.confirm('是否导出为pdf文件?', function(index) {
                                 if(ifCorrect == 1) {
                                     window.location.href='ContestStatus/Pdf?contestStatusId='+obj.data.contest_status_id+"&stuid="+obj.data.stuid;

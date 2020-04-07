@@ -9,8 +9,8 @@
   
   <select id="selCourseNameByTeacherId" resultType="map">
   		select t.course_id courseId,u.fk_teacher_id teacherId,v.realName teacherName,t.course_name courseName,
-	  date_format(t.course_createtime,'%Y-%m-%d %H:%i') as createtime from COURSE t
-		left join CONFIGURATION_TEACHER_COURSE u on u.fk_course_id = t.course_id 	
+	  date_format(t.course_createtime,'%Y-%m-%d %H:%i') as createtime from course t
+		left join configuration_teacher_course u on u.fk_course_id = t.course_id
 		left join user v on u.fk_teacher_id = v.user_id
 		<where>
 			<if test="teacherId!=null and teacherId!=''">

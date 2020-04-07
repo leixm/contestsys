@@ -9,17 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.annotation.SystemServiceLog;
+import com.app.service.ClassService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.dao.ClassMapper;
 import com.github.pagehelper.PageHelper;
 
-import net.sf.json.JSONArray;
-
 @Service
-public class ClassService {
+public class ClassServiceImpl implements ClassService {
 
 	@Autowired
 	private ClassMapper classDao;
@@ -39,7 +37,7 @@ public class ClassService {
 	    return list;
 	}
 
-	@SystemServiceLog(description = "添加班级")
+//	@SystemServiceLog(description = "添加班级")
 	public int AddClass(com.code.model.Class cla){
 		List<Map<String,Object>> resultList = classDao.listAllByKeyword(null, cla.getName());
 		if(!resultList.isEmpty()) {
@@ -50,17 +48,17 @@ public class ClassService {
 		return result;
 	}
 
-	@SystemServiceLog(description = "更新班级信息")
+//	@SystemServiceLog(description = "更新班级信息")
 	public int UpdateClass(com.code.model.Class cla){
 		return classDao.updateByPrimaryKeySelective(cla);
 	}
 
-	@SystemServiceLog(description = "删除班级")
+//	@SystemServiceLog(description = "删除班级")
 	public int DeleteClass(String id){
 		return classDao.deleteByPrimaryKey(Integer.parseInt(id));
 	}
 
-	@SystemServiceLog(description = "删除班级任课关系")
+//	@SystemServiceLog(description = "删除班级任课关系")
 	public int deleteTeach(String classsId,String teacherId){
 		int classInt = Integer.parseInt(classsId);
 		return classDao.deleteTeachById(classInt,teacherId);
@@ -70,7 +68,7 @@ public class ClassService {
 		return classDao.selectByPrimaryKey(Integer.parseInt(id));
 	}
 
-	@SystemServiceLog(description = "批量删除班级")
+//	@SystemServiceLog(description = "批量删除班级")
 	public int DeleteAllClass(List<String> ids)
 	{  
 	   int count = 0;
@@ -80,7 +78,7 @@ public class ClassService {
 	   return count;
 	}
 
-	@SystemServiceLog(description = "添加班级任课信息")
+//	@SystemServiceLog(description = "添加班级任课信息")
 	public int AddTeach(String classId,String teacherId){
 		String[] classIdArr = classId.split(",");
 		String[] teacherIdArr = teacherId.split(",");

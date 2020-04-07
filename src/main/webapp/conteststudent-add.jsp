@@ -65,6 +65,34 @@
 					</div>
 					
 				</form>
+				
+				<form class="layui-form">
+					<!-- 无用div控制布局作用 -->
+	               	<div style="height: 30px">
+	               	</div>
+					<div>
+			            <select id="classId2" name="classId2" class="valid" lay-filter="classId2" xm-select="select2" xm-select-search="" xm-select-search-type="dl">
+							<c:forEach var="obj" items="${classes}" varStatus="s">
+			
+								<option value="${obj.classId}">${obj.className}</option>
+			
+							</c:forEach>
+			            </select>
+			        </div>	
+			        
+			        <!-- 无用div控制布局作用 -->
+	               	<div style="height: 30px">
+	               	</div>
+			        
+			        <div class="layui-form-item" style="margin-left: 400px;">
+						<label  class="layui-form-label">
+						</label>
+						<button class="layui-btn layui-btn-danger" lay-filter="remove" lay-submit="">
+							移除
+						</button>
+					</div>
+					
+				</form>
         	</div>
 		</div>
         
@@ -94,6 +122,40 @@
 								success: function(da) {
 									if (da.code == 0) {
 										layer.alert('添加成功', {
+												icon: 6 
+											},
+											function() {
+												//关闭当前frame
+												xadmin.close();
+
+												// 可以对父窗口进行刷新 
+												xadmin.father_reload();
+											});
+
+
+									} else {
+										layer.alert(da.msg, {
+											icon: 5
+										});
+
+									}
+								}
+							})
+
+							return false;
+						});
+						
+						//监听提交
+					form.on('submit(remove)',
+						function(data) { 
+							$.ajax({  
+								type: "POST",
+								url: "Contest/removeContestClass?contestId=" + '${contest_id}' + "&classId=" + data.field.classId2,
+								dataType: 'json',
+								async: false,
+								success: function(da) {
+									if (da.code == 0) {
+										layer.alert('移除成功', {
 												icon: 6 
 											},
 											function() {

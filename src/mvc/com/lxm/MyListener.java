@@ -37,7 +37,6 @@ import com.app.dao.SimsolutionMapper;
 import com.app.dao.SolutionMapper;
 import com.app.dao.UserMapper;
 import com.app.tools.PdfHelper;
-import com.app.tools.SendEmail;
 import com.code.model.Answer;
 import com.code.model.AnswerExample;
 import com.code.model.Contest;
@@ -255,8 +254,7 @@ class MyThread extends Thread{
 						//初始化分数累加对象
 						double tempScore = 0;
 
-						for(Simsolution simsolution : simsolutions2)
-						{
+						for(Simsolution simsolution : simsolutions2) { // 遍历学生作答情况
 							Simproblem simproblem = simproblemDao.selectByPrimaryKey(simsolution.getSimproblemId());  //找对应的题目
 
 							if(simproblem==null) {
@@ -267,16 +265,16 @@ class MyThread extends Thread{
 							AnswerExample.Criteria answerCriteria = answerExample.createCriteria();
 							answerCriteria.andSimproblemIdEqualTo(simproblem.getSimproblemId());  //找到这题的答案
 							List<Answer> answers = answerDao.selectByExampleWithBLOBs(answerExample);
-							if(answers.size()>0){
+
+							if(answers.size() > 0) {
 								BigDecimal bd = new BigDecimal(0);  //分数
 
 								int type = simproblem.getType().intValue();   //题目类型
-
-								if(type==1 || type==3)  //单选和判断 只需要匹配一个答案即可 且答案必定只有一个
-								{
-									for(Answer answer : answers)  //答题正确
-									{
-										if(answer.getContent().equals(simsolution.getAnswer())){
+								System.out.println("simId===="+simproblem.getSimproblemId());
+								if(type==1 || type==3) {	 //单选和判断 只需要匹配一个答案即可 且答案必定只有一个
+									System.out.println("type====1、3");
+									for(Answer answer : answers) {	 //答题正确
+										if(answer.getContent().trim().equals(simsolution.getAnswer().trim())) {
 											simsolution.setStatus(new Integer(1));
 											bd = simproblem.getScore();
 											break;
@@ -284,47 +282,51 @@ class MyThread extends Thread{
 									}
 								}
 
-								//简答题手动批改
-							/*else if(type==5) //简答题
-							{
-								for(Answer answer : answers)  //简答题 包含答案即可
+									//简答题手动批改
+								/*else if(type==5) //简答题
 								{
-									if(simsolution.getAnswer().contains(answer.getContent())){
-										simsolution.setStatus(new Integer(1));
-										bd = simproblem.getScore();
-										break;
+									for(Answer answer : answers)  //简答题 包含答案即可
+									{
+										if(simsolution.getAnswer().contains(answer.getContent())){
+											simsolution.setStatus(new Integer(1));
+											bd = simproblem.getScore();
+											break;
+										}
 									}
-								}
-							}*/
+								}*/
 
-								else if(type==2){ //多选题
+								else if(type==2) {  // 多选题
+									System.out.println("type====2");
 									String[] s = simsolution.getAnswer().split("§§§");
+									System.out.println("sss===="+s);
 									JSONArray arr = JSONArray.fromObject(s);
 									boolean flag = true;
 									int correctCount = 0;
-									for(int i=0;i<answers.size();i++)  //根据对的个数得分，最后四舍五入
-									{
-										if(arr.contains(answers.get(i).getContent())){
+									for(int i=0; i<answers.size(); i++) {	 // 根据对的个数得分，最后四舍五入
+										if(arr.contains(answers.get(i).getContent())) {
 											correctCount++;
 										}
 									}
-									double correctRate = (double)correctCount / answers.size();
-									bd = new BigDecimal(correctRate * simproblem.getScore().doubleValue()).setScale(1,BigDecimal.ROUND_HALF_UP);
+									if(answers.size() < s.length || correctCount < s.length) {	// //如果有错选、多选，多选题零分
+										bd = new BigDecimal(0);
+									} else{
+										double correctRate = (double)correctCount / answers.size();
+										bd = new BigDecimal(correctRate * simproblem.getScore().doubleValue()).setScale(1,BigDecimal.ROUND_HALF_UP);
+									}
+									System.out.println("multiscore====="+bd);
 								}
-								else if(type==4)  //填空题 对应的空必须等于正确答案
-								{
+								else if(type==4) {	 // 填空题 对应的空必须等于正确答案
+									System.out.println("type====4");
 									String[] s = simsolution.getAnswer().split("§§§");
 									JSONArray arr = JSONArray.fromObject(s);
 									double count = 0;
-									for(int i=0;i<simproblem.getBlanks().intValue();i++)  //第i+1个空
-									{
-										for(int j=0;j<answers.size();j++){
-											if(answers.get(j).getPos().intValue()==i && i<arr.size() && arr.get(i)!=null && answers.get(j).getContent().equals(arr.get(i))){
+									for(int i=0; i<simproblem.getBlanks().intValue(); i++) { // 第i+1个空
+										for(int j=0;j<answers.size();j++) {
+											if(answers.get(j).getPos().intValue() == i && i<arr.size() && arr.get(i)!=null && answers.get(j).getContent().trim().equals(arr.get(i).toString().trim())) {
 												count++;  //答对一个空
 												break;
 											}
 										}
-
 									}
 
 									bd = new BigDecimal(simproblem.getScore().doubleValue() * (count/simproblem.getBlanks().intValue())); //根据对的空 给分
@@ -334,7 +336,7 @@ class MyThread extends Thread{
 								Simsolution newSimsolution = new Simsolution();
 								// 对0.5取整
 								bd = new BigDecimal((int)(bd.doubleValue() / 0.5) * 0.5);
-								//System.out.println("bd===="+bd);
+								System.out.println("bd===="+bd);
 								newSimsolution.setScore(bd);
 								newSimsolution.setStatus(new Integer(1));
 								newSimsolution.setSimsolutionId(simsolution.getSimsolutionId());
@@ -344,13 +346,13 @@ class MyThread extends Thread{
 								tempScore += bd.doubleValue();
 							}
 						}
-						//System.out.println("tempScore===="+tempScore);
+						System.out.println("tempScore===="+tempScore);
 						ContestStatus contestStatus =  contestStatusDao.selectByPrimaryKey(cStatusId);
-						if(contestStatus!=null)
-						{
+						if(contestStatus!=null) {
 							//更新分数(累加)
 							contestStatus.setScore(new BigDecimal(contestStatus.getScore().doubleValue() + tempScore));
 							contestStatusDao.updateByPrimaryKey(contestStatus);
+							System.out.println("fenshujiale===+++==="+tempScore);
 						}
 					}
 				}
