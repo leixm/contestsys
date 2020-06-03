@@ -5,33 +5,18 @@
  * */
 package com.app.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import com.app.dao.*;
 import com.app.service.StudentService;
+import com.code.model.*;
+import com.code.model.UserExample.Criteria;
+import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.app.dao.ContestMapper;
-import com.app.dao.ContestStatusMapper;
-import com.app.dao.ContestpaperMapper;
-import com.app.dao.ProblemMapper;
-import com.app.dao.SimproblemMapper;
-import com.app.dao.SimsolutionMapper;
-import com.app.dao.SolutionMapper;
-import com.app.dao.UserMapper;
-import com.code.model.Contest;
-import com.code.model.ContestStatus;
-import com.code.model.Contestpaper;
-import com.code.model.OneProblem;
-import com.code.model.OneSimproblem;
-import com.code.model.Simsolution;
-import com.code.model.SolutionWithBLOBs;
-import com.code.model.User;
-import com.code.model.UserExample;
-import com.code.model.UserExample.Criteria;
-import com.github.pagehelper.PageHelper;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -83,7 +68,63 @@ public class StudentServiceImpl implements StudentService {
 
 	@Override
 	public List<OneSimproblem> getSimproblemAndOptionByPaperId(Integer paperId) {
-		return simproblemDao.getSimproblemAndOptionByPaperId(paperId);
+		List<OneSimproblem> oneSimproblemList = simproblemDao.getSimproblemAndOptionByPaperId(paperId);
+
+		if(oneSimproblemList.size() > 1) {		// 大于两道题才需要进行随机题序
+			List<OneSimproblem> danxuanList = new ArrayList<>();
+			List<OneSimproblem> duoxuanList = new ArrayList<>();
+			List<OneSimproblem> panduanList = new ArrayList<>();
+			List<OneSimproblem> tiankongList = new ArrayList<>();
+			List<OneSimproblem> jiandaList = new ArrayList<>();
+
+			/**打乱各部分题序，简单防止作弊**/
+			for(OneSimproblem simp : oneSimproblemList) {		// 将各部分题目分配到几个list中
+				switch (simp.getSimproblem().getType()) {
+					case 1:
+						danxuanList.add(simp);
+						break;
+
+					case 2:
+						duoxuanList.add(simp);
+						break;
+
+					case 3:
+						panduanList.add(simp);
+						break;
+
+					case 4:
+						tiankongList.add(simp);
+						break;
+
+					case 5:
+						jiandaList.add(simp);
+						break;
+				}
+			}
+
+			/**	小算法： 利用集合打乱的方法Collections.shuffle(list)对各个题型list进行打乱
+			 * 			再将各个list加到总list
+			 * 			然后按照题型type的先后顺序的再来setPos
+			 * 			从而达到打乱题序的目的	 **/
+			Collections.shuffle(danxuanList);
+			Collections.shuffle(duoxuanList);
+			Collections.shuffle(panduanList);
+			Collections.shuffle(tiankongList);
+			Collections.shuffle(jiandaList);
+
+			oneSimproblemList.clear();
+			oneSimproblemList.addAll(danxuanList);
+			oneSimproblemList.addAll(duoxuanList);
+			oneSimproblemList.addAll(panduanList);
+			oneSimproblemList.addAll(tiankongList);
+			oneSimproblemList.addAll(jiandaList);
+
+			for(int i=0; i<oneSimproblemList.size(); i++) {
+				oneSimproblemList.get(i).getSimproblem().setPos(i+1);
+			}
+		}
+		System.out.println("thispaper------"+oneSimproblemList);
+		return oneSimproblemList;
 	}
 
 	@Override

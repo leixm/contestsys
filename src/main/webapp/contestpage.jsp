@@ -460,9 +460,9 @@ var qstr = 'false§false¤page§1§§§¤radio§1§1§true§false§0§true§cesh
    
 //var qstr = 'false§false¤page§1§§§¤radio§1§1§true§false§0§true§ceshi§§0§§§false〒0〒0〒§false〒0〒0〒§false〒0〒〒¤question§2§3§§true§false§false§§§§§§¤question§3§3§§true§false§false§§§§§§¤check§4§1§true§false§0§true,,§ceshi§§0§§§false〒0〒0〒〒§false〒0〒0〒〒§false〒0〒〒〒§false〒0〒〒〒¤question§5§1§§true§false§false§§§§§§';//所有问题，与服务器端交互
 /* var maxSurveyTime=3;var leftSeconds=0-10; 
-console.log("time=" + maxSurveyTime) 
+console.log("time=" + maxSurveyTime)
 var hasSurveyTime=false;
-if(leftSeconds>0){ 
+if(leftSeconds>0){
     if(maxSurveyTime) maxSurveyTime=Math.min(leftSeconds,maxSurveyTime);
     else if(leftSeconds<7200) maxSurveyTime=leftSeconds;
  }
@@ -595,7 +595,7 @@ var LogStoreLocal=0;
                     else window.location.href=window.location.href;
 	    });
  }
-if(window.location.href.toLowerCase().indexOf("/jq/")>-1 && window.PDF_launch){//&& isRunning!="true" 
+if(window.location.href.toLowerCase().indexOf("/jq/")>-1 && window.PDF_launch){//&& isRunning!="true"
      var tMsg=document.getElementById("spanNotSubmit");var val='';
      if(tMsg) val=tMsg.getAttribute("value");
      var divNotRun=document.getElementById("divNotRun");
@@ -661,9 +661,9 @@ function setCookie(name, value, expires, path, domain, secure) {
 
 <script type="text/javascript">
     var maxCheatTimes = 0;
-    console.log("qstr=" + qstr) 
+    console.log("qstr=" + qstr)
 </script>
- 
+
 
 
 
@@ -678,11 +678,11 @@ catch(ex){}
     catch (ex) { }
 </script>
 <div id="ctl00_ContentPlaceHolder1_JQ1_divVisitLog" style="display:none;"><img src="./contest/track.gif"></div>
- 
+
     <div style="clear: both;">
     </div>
     </div>
-    
+
 
                     <div style="margin:30px auto 0; padding-top:30px; overflow: hidden; width:100%;">
                         <div style="border-top: 1px solid #bbbbbb; font-size: 0; height: 1px; line-height: 1px;
@@ -698,7 +698,7 @@ catch(ex){}
                                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                         <tbody><tr id="ctl00_trCopy">
 	<td align="center" style="font-size: 12px; font-family: Tahoma, 宋体; color: #666666;">
-                                                
+
                                             </td>
 </tr>
 
@@ -706,19 +706,19 @@ catch(ex){}
 	<td style="color: #666666; font-family: Tahoma, 宋体;" align="center">
                                                 <div style="height: 10px;">
                                                 </div>
-                                                     
+
                                             </td>
 </tr>
 
                                        <tr>
                                              <td>
-                                                 
+
                                              </td>
                                          </tr>
                                     </tbody></table>
                                 </td>
                             </tr>
-                            
+
                         </tbody></table>
                     </div>
                 </div>
@@ -740,9 +740,9 @@ catch(ex){}
         <div style="height: 20px;">
             &nbsp;</div>
     </div>
-   
+
     <div style="clear:both;"></div>
-   
+
   <div style="display:none;"><script src="./contest/z_stat.php" language="JavaScript"></script><script src="./contest/core.php" charset="utf-8" type="text/javascript"></script><a href="https://www.cnzz.com/stat/website.php?web_id=4478442" target="_blank" title="站长统计">站长统计</a><script>var _hmt = _hmt || [];(function() {var hm = document.createElement("script");hm.src = "https://hm.baidu.com/hm.js?21be24c80829bd7a683b2c536fcf520b";var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s);})();</script></div>
  <script>
      if (window._czc) {
@@ -760,21 +760,21 @@ catch(ex){}
 
 <script src="js/jquery-3.3.1.js"></script>
 <script type="text/javascript">
-	
-	//var student = JSON.parse('${student}') 
-	var contestStatusId = ${contestStatusId}    
+
+	//var student = JSON.parse('${student}')
+	var contestStatusId = ${contestStatusId}
 
 
-	  
- 
+
+
 	var curProblem;
 	var problemCache = [];
-	var languageCache = []; 
+	var languageCache = [];
 	var pro = ${paper}
-	
-	
+
+
 	GenerateAllProblem(pro)
-	 
+
 	var statusId = window.location.pathname.split(".")[0];
 	$.ajax({
 		type: "POST",
@@ -784,13 +784,13 @@ catch(ex){}
 			var da = JSON.parse(data)
 			//GenerateAllProblem(da)
 			pro = da;
-		} 
-		})
-	
-	function AddOption(){
-		
 		}
-		
+		})
+
+	function AddOption(){
+
+		}
+
     function Create_div_question(content,num)
 	{
 		var s = '<div class="div_question" id="div' + num +'">' + content + '<div class="errorMessage"></div></div>';
@@ -815,12 +815,12 @@ catch(ex){}
 	{
 		var s = '<textarea title="" style="overflow: auto;width:62%;height:66px;" class="inputtext" value="" id="q' + num + '" name="q' + num + '"></textarea>';
 		return s;
-	} 
-	function Create_Button(num) 
-	{ 
-		var s = '<input type="button" value="编辑代码" class="submitbutton" style="width: 20%;" onclick="ProblemChange('+ num + ')" data-toggle="modal" data-target="#myModal" id="q' + num + '" name="q' + num+ '">'; 
-		return s; 
-	} 
+	}
+	function Create_Button(num)
+	{
+		var s = '<input type="button" value="编辑代码" class="submitbutton" style="width: 20%;" onclick="ProblemChange('+ num + ')" data-toggle="modal" data-target="#myModal" id="q' + num + '" name="q' + num+ '">';
+		return s;
+	}
 	function Create_ulradiocheck(content)
 	{
 		var s = '<ul class="ulradiocheck">' + content + '<div style="clear:both;"></div></ul>';
@@ -834,14 +834,14 @@ catch(ex){}
 	}
 	function Create_clear_div(){
 		return '<div style="clear:both;"></div>';
-	} 
+	}
 	function Create_jqCheckbox(content,num,count)
 	{
 		var id = 'q' + num + '_' + count;
 		var s = '<li style="width:99%;"><a href="javascript:" class="jqCheckbox" rel="' + id +'"></a><input style="display:none;" id="' + id + '" type="checkbox"  value=\'' + content + '\' /><label onmouseover="selected(this)" onmouseout="unselected(this)" onclick="checkboxClick(this)" id="' + id + '_text">' + content + '</label></li>';
 	    return s;
 	}
-	function CreateProblemContent(obj) 
+	function CreateProblemContent(obj)
 	{
 		var s = '题目标题：' + obj.title.replace("\\n","&#10") +'<br>题目描述：'+ obj.description.replace("\\n","&#10") +'<br>时间限制:' + obj.timeLimit +' sec<br>内存限制:' + obj.memoryLimit + ' MB<br>数据输入:<br>' + obj.sampleInput.replace("\\n","&#10") + '<br>数据输出<br>' + obj.sampleOutput.replace("\\n","&#10") +'<br>提示:<br>' + obj.hint.replace("\\n","&#10");
 		return s;
@@ -866,31 +866,31 @@ catch(ex){}
 				type = obj.simp[i].simproblem.type;
 				break;
 			}
-			
-			if(!flag)  
+
+			if(!flag)
 			for(var i=0;i<obj.prob.length;i++)
 			{
 				if(obj.prob[i].problem.pos==index)
 				pro = obj.prob[i];
-				type = 6;  
-				break; 
+				type = 6;
+				break;
 			}
 			console.log(GenerateProblem(pro,type,index))
 			$("#fieldset1").html($("#fieldset1").html() + GenerateProblem(pro,type,index))
 		//	problemDiv.innerHtml = GenerateProblem(pro,type,index);
 		//	GenerateProblem(pro,type,index);
-			
+
 		}
 	}
 	function GenerateProblem(obj,type,index)
 	{
-		var s = ""; 
+		var s = "";
 		if(type==1){  //单选
 			for(var i=1;i<=obj.option.length;i++)  //生成选项div
 				s += Create_jqRadio(obj.option[i-1].content,index,i);
-			
+
 			s = Create_ulradiocheck(s);
-			s = s + Create_clear_div(); 
+			s = s + Create_clear_div();
 			s = Create_div_table_radio_question(s,index);
 			var head = Create_div_title_question(obj.simproblem.content,index);
 			head = Create_div_title_question_all(head,index);
@@ -900,7 +900,7 @@ catch(ex){}
 		else if(type==2){ //多选
 			for(var i=1;i<=obj.option.length;i++)  //生成选项div
 				s += Create_jqCheckbox(obj.option[i-1].content,index,i);
-			
+
 			s = Create_ulradiocheck(s);
 			s = s + Create_clear_div();
 			s = Create_div_table_radio_question(s,index);
@@ -912,7 +912,7 @@ catch(ex){}
 		else if(type==3){ //判断
 			s += Create_jqRadio("正确",index,1);
 			s += Create_jqRadio("错误",index,2);
-			
+
 			s = Create_ulradiocheck(s);
 			s = s + Create_clear_div();
 			s = Create_div_table_radio_question(s,index);
@@ -926,18 +926,18 @@ catch(ex){}
 		console.log(obj.simproblem.content)
 			var content = obj.simproblem.content;
 			var str = content.split("___________");
-			console.log(str) 
+			console.log(str)
 			var s = "";
 			for(var i=0;i<str.length-1;i++){
 				s += Create_underline(str[i],index,i+1);
 			}
 			s += str[str.length-1];
 			console.log("generate content:\n" + s)
-			s = Create_div_title_question(s,index);  
+			s = Create_div_title_question(s,index);
 			console.log("generate content@@:\n" + s)
-			s = Create_div_title_question_all(s,index); 
+			s = Create_div_title_question_all(s,index);
 			console.log("generate content!!:\n" + s)
-			
+
 			var s1 = "";
 			s1 = Create_ulradiocheck(s1);
 			s1 = s1 + Create_clear_div();
@@ -947,7 +947,7 @@ catch(ex){}
 		}
 		else if(type==5){  //简答
 		s = Create_inputtext(index);
-		
+
 		s = Create_div_table_radio_question(s,index);
 		var head = Create_div_title_question(obj.simproblem.content,index);
 		head = Create_div_title_question_all(head,index);
@@ -957,7 +957,7 @@ catch(ex){}
 		else if(type==6)  //编程
 		{
 		s = Create_Button(index);
-		
+
 		s = Create_ulradiocheck(s);
 		s = s + Create_clear_div();
 		s = Create_div_table_radio_question(s,index);
@@ -966,17 +966,17 @@ catch(ex){}
 		s = Create_div_question(head + s,index);
 		return s;
 		}
-		
-		
+
+
 	}
 </script>
-	
+
 <script>
 
 		function switchLang(lang){
 		   var langnames=new Array("c_cpp","c_cpp","pascal","java","ruby","sh","python","php","perl","csharp","objectivec","vbscript","scheme","c_cpp","c_cpp","lua","javascript","golang");
 		   editor.getSession().setMode("ace/mode/"+langnames[lang]);
-		
+
 		}
 		function reloadtemplate(lang){
 		   console.log("lang="+lang);
@@ -1005,39 +1005,39 @@ catch(ex){}
 			    enableSnippets: true,
 			    enableLiveAutocompletion: true
 		 });
-		reloadtemplate($("#language").val()); 
+		reloadtemplate($("#language").val());
 
-    
+
 
 		function getText(){
 			console.log(editor.getValue())
 		}
-		
+
 		function ProblemChange(num){
 			if(problemCache[curProblem]!=null)
 			editor.setValue(problemCache[curProblem])
-			
+
 			curProblem = num;
-			  
-			for(var i=0;i<pro.prob.length;i++)   
+
+			for(var i=0;i<pro.prob.length;i++)
 			if(pro.prob[i].problem.pos==num)
 			$('#titleSpan').html(pro.prob[i].problem.title)
 		}
-		
-		function SaveSource(){ 
+
+		function SaveSource(){
 		    console.log("savesource:\n" + editor.getValue())
 			if(curProblem!=null)
-			
+
 			problemCache[curProblem] = editor.getValue();
-			console.log($('#language').val()) 
+			console.log($('#language').val())
 			languageCache[curProblem] = $('#language').val()
-			
-		} 
-		
+
+		}
+
 		function generate_submit_paper()
 		{
 		    var solution = [];
-		
+
 		    console.log("pro:\n" + JSON.stringify(pro))
 		    console.log("len=" + pro.simp.length)
 		    for(var i=0;i<pro.simp.length;i++)
@@ -1093,12 +1093,12 @@ catch(ex){}
 		        else{ //简答
 		            solution[index] = $('#q' + index).val()
 		        }
-		        
+
 		        if(solution[index] == null) {		// 防止学生空下的题目以null入库
 		            	solution[index] = '';
 		        }
 		    }
-		
+
 		    for(var i=0;i<pro.prob.length;i++)
 		    {
 		        console.log("!!i=" + i)
@@ -1106,9 +1106,9 @@ catch(ex){}
 		        if(problemCache[index] != null)
 		            solution[index] = problemCache[index];
 		    }
-		
+
 		    console.log("solution:\n" + JSON.stringify(solution))
-		
+
 		    /*  $.ajax({
 		         type: "POST",
 		         url: "User/SubmitPaper?conteststatus_id=" + pro.contestStatus.contestStatusId,
@@ -1118,7 +1118,7 @@ catch(ex){}
 		         alert("提交成功")
 		         }
 		     }) */
-		
+
 		    for(var i=0;i<pro.simp.length;i++){
 		        var solu = new Object();
 		        solu.answer = solution[pro.simp[i].simproblem.pos]
@@ -1126,7 +1126,7 @@ catch(ex){}
 		        solu.simproblemId = pro.simp[i].simproblem.simproblemId;
 		        pro.simp[i].simsolution = solu;
 		    }
-		
+
 		    for(var i=0;i<pro.prob.length;i++){
 		        var solu = new Object();
 		        solu.source = solution[pro.prob[i].problem.pos]
@@ -1172,14 +1172,14 @@ catch(ex){}
 		function submitpaper()
 		{
 		    generate_submit_paper()
-		
+
 		    layui.use(['layer', 'form'], function(){
-		
+
 		      	layer.confirm('确定提交答卷？', function(index) {
 		            submit_post()
 						layer.close(index);
 				})
-			      
+
 		 	});
 		}
 
@@ -1187,7 +1187,7 @@ catch(ex){}
         var span = document.getElementById('spanMaxTime')
         var timer = setInterval(function(){
                 span.innerHTML = getMaxTimeStr(leftContestTime--)
-                console.log(span.innerHTML)
+                /*console.log(span.innerHTML)*/
                 if(span.innerHTML<="00:00:00"){
                     generate_submit_paper()
                     layui.use(['layer', 'form'], function(){
@@ -1199,8 +1199,8 @@ catch(ex){}
             },
             1000);
 
-/* 
-	
+/*
+
 var t2 = window.setInterval(function(){
 	console.log($('#q4_1').prop("checked"))
 },1000);  
@@ -1218,7 +1218,8 @@ var t2 = window.setInterval(function(){
 			$("#submit_button").hide();
 		};
 	}
-	
+
+
     function changeStyle()
     {
     
@@ -1229,7 +1230,6 @@ var t2 = window.setInterval(function(){
     }
     
 </script>
-
 
  <script type="text/javascript" src="./contest/hintinfo.js"></script>
 

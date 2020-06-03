@@ -524,6 +524,66 @@ public class SimproblemExample {
             addCriterion("fk_course_id not between", value1, value2, "fkCourseId");
             return (Criteria) this;
         }
+
+        public Criteria andDifficultyIsNull() {
+            addCriterion("difficulty is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyIsNotNull() {
+            addCriterion("difficulty is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyEqualTo(Integer value) {
+            addCriterion("difficulty =", value, "difficulty");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyNotEqualTo(Integer value) {
+            addCriterion("difficulty <>", value, "difficulty");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyGreaterThan(Integer value) {
+            addCriterion("difficulty >", value, "difficulty");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyGreaterThanOrEqualTo(Integer value) {
+            addCriterion("difficulty >=", value, "difficulty");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyLessThan(Integer value) {
+            addCriterion("difficulty <", value, "difficulty");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyLessThanOrEqualTo(Integer value) {
+            addCriterion("difficulty <=", value, "difficulty");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyIn(List<Integer> values) {
+            addCriterion("difficulty in", values, "difficulty");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyNotIn(List<Integer> values) {
+            addCriterion("difficulty not in", values, "difficulty");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyBetween(Integer value1, Integer value2) {
+            addCriterion("difficulty between", value1, value2, "difficulty");
+            return (Criteria) this;
+        }
+
+        public Criteria andDifficultyNotBetween(Integer value1, Integer value2) {
+            addCriterion("difficulty not between", value1, value2, "difficulty");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -86,11 +86,11 @@ public class StudentController {
 	        int paper_id = contest.getPaperId();
 	        List<OneProblem> ProblemList = studentService.getProblemAndSolutionByPaperId(paper_id);
 	       
-	        //获取指定试卷的所有选择题和选项、填空题
+	        //获取指定试卷的所有选择题和选项、填空题（打乱题目顺序，）
 	        List<OneSimproblem> SimproblemList = studentService.getSimproblemAndOptionByPaperId(paper_id);
 	        //封装一张试题
 	        OnePaper onePaper = new OnePaper();
-	
+
 	        Contestpaper contestpaper = studentService.selectContestpaperByPrimaryKey(paper_id);
 	          
 	        onePaper.setContestpaper(contestpaper);

@@ -282,19 +282,6 @@ class MyThread extends Thread{
 									}
 								}
 
-									//简答题手动批改
-								/*else if(type==5) //简答题
-								{
-									for(Answer answer : answers)  //简答题 包含答案即可
-									{
-										if(simsolution.getAnswer().contains(answer.getContent())){
-											simsolution.setStatus(new Integer(1));
-											bd = simproblem.getScore();
-											break;
-										}
-									}
-								}*/
-
 								else if(type==2) {  // 多选题
 									System.out.println("type====2");
 									String[] s = simsolution.getAnswer().split("§§§");
@@ -371,7 +358,12 @@ class MyThread extends Thread{
 					ContestStatus contestStatus = contestStatusDao.selectByPrimaryKey(solution.getContestStatusId()); //考试记录
 					if(contestStatus!=null)
 					{
-						contestStatus.setScore(new BigDecimal(contestStatus.getScore().doubleValue() + score * solution.getPassRate().doubleValue())); //根据通过率给分
+						if(solution.getPassRate()!=null || !"".equals(solution.getPassRate())) {
+							contestStatus.setScore(new BigDecimal(contestStatus.getScore().doubleValue() + score * solution.getPassRate().doubleValue())); //根据通过率给分
+						}else {
+							contestStatus.setScore(new BigDecimal(contestStatus.getScore().doubleValue() + score * 0)); //根据通过率给分
+						}
+
 						contestStatusDao.updateByPrimaryKey(contestStatus);  //更新记录
 
 						solution.setStatus(new Integer(1));

@@ -99,7 +99,7 @@
 			$(document).ready(function() {
 				initTable();
 			});
-			
+
 			layui.use('laydate', function() {
 				var laydate = layui.laydate;
 				//时间选择器
@@ -241,7 +241,7 @@
 												time: 2000
 											});
 										 	window.open('Excel/exportStuScore/download?key='+result.data, '_self'); 
-											
+
 											/* window.location.href = "Excel/exportStuScore/download?key="+result.data;   */
 											active.reload();
 										} else {
@@ -252,9 +252,7 @@
 										}
 	
 									}
-									
-												
-								});    
+								});
 								layer.close(index);
 							})
 						};

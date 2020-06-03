@@ -11,6 +11,7 @@
     <result column="paper_id" property="paperId" jdbcType="INTEGER" />
     <result column="score" property="score" jdbcType="DECIMAL" />
     <result column="pos" property="pos" jdbcType="INTEGER" />
+    <result column="fk_course_id" property="fkCourseId" jdbcType="INTEGER" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.code.model.ProblemWithBLOBs" extends="BaseResultMap" >
     <result column="description" property="description" jdbcType="LONGVARCHAR" />
@@ -19,44 +20,43 @@
     <result column="sample_input" property="sampleInput" jdbcType="LONGVARCHAR" />
     <result column="sample_output" property="sampleOutput" jdbcType="LONGVARCHAR" />
     <result column="hint" property="hint" jdbcType="LONGVARCHAR" />
-    
   </resultMap>
-  
+
   <resultMap type="com.code.model.OneProblem" id="problemSolutionResultMap">
- 
- 	<id column="problem_id" property="problemId"/>
- 	
-	<!-- <association property="problem" javaType="com.code.model.Problem">
+
+    <id column="problem_id" property="problemId"/>
+
+    <!-- <association property="problem" javaType="com.code.model.Problem">
         <id column="problem_id" property="problemId" jdbcType="INTEGER" />
-		<result column="title" property="title" jdbcType="VARCHAR" />
-		<result column="source" property="source" jdbcType="VARCHAR" />
-		<result column="sample_Program" property="sampleProgram" jdbcType="VARCHAR" />
-	    <result column="time_limit" property="timeLimit" jdbcType="INTEGER" />
-	    <result column="memory_limit" property="memoryLimit" jdbcType="INTEGER" />
-	    <result column="paper_id" property="paperId" jdbcType="INTEGER" />
-	    <result column="score" property="score" jdbcType="DECIMAL" />
-	    <result column="pos" property="pos" jdbcType="INTEGER" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="source" property="source" jdbcType="VARCHAR" />
+        <result column="sample_Program" property="sampleProgram" jdbcType="VARCHAR" />
+        <result column="time_limit" property="timeLimit" jdbcType="INTEGER" />
+        <result column="memory_limit" property="memoryLimit" jdbcType="INTEGER" />
+        <result column="paper_id" property="paperId" jdbcType="INTEGER" />
+        <result column="score" property="score" jdbcType="DECIMAL" />
+        <result column="pos" property="pos" jdbcType="INTEGER" />
     </association> -->
 
-	<association property="problem" javaType="com.code.model.ProblemWithBLOBs" >
-		<id column="problem_id" property="problemId" jdbcType="INTEGER" />
-		<result column="title" property="title" jdbcType="VARCHAR" />
-		<result column="source" property="source" jdbcType="VARCHAR" />
-		<result column="sample_Program" property="sampleProgram" jdbcType="VARCHAR" />
-	    <result column="time_limit" property="timeLimit" jdbcType="INTEGER" />
-	    <result column="memory_limit" property="memoryLimit" jdbcType="INTEGER" />
-	    <result column="paper_id" property="paperId" jdbcType="INTEGER" />
-	    <result column="score" property="score" jdbcType="DECIMAL" />
-	    <result column="pos" property="pos" jdbcType="INTEGER" />
-        <result column="description" property="description" jdbcType="LONGVARCHAR" />
-	    <result column="input" property="input" jdbcType="LONGVARCHAR" />
-	    <result column="output" property="output" jdbcType="LONGVARCHAR" />
-	    <result column="sample_input" property="sampleInput" jdbcType="LONGVARCHAR" />
-	    <result column="sample_output" property="sampleOutput" jdbcType="LONGVARCHAR" />
-	    <result column="hint" property="hint" jdbcType="LONGVARCHAR" />
-	    </association>
+    <association property="problem" javaType="com.code.model.ProblemWithBLOBs" >
+      <id column="problem_id" property="problemId" jdbcType="INTEGER" />
+      <result column="title" property="title" jdbcType="VARCHAR" />
+      <result column="source" property="source" jdbcType="VARCHAR" />
+      <result column="sample_Program" property="sampleProgram" jdbcType="VARCHAR" />
+      <result column="time_limit" property="timeLimit" jdbcType="INTEGER" />
+      <result column="memory_limit" property="memoryLimit" jdbcType="INTEGER" />
+      <result column="paper_id" property="paperId" jdbcType="INTEGER" />
+      <result column="score" property="score" jdbcType="DECIMAL" />
+      <result column="pos" property="pos" jdbcType="INTEGER" />
+      <result column="description" property="description" jdbcType="LONGVARCHAR" />
+      <result column="input" property="input" jdbcType="LONGVARCHAR" />
+      <result column="output" property="output" jdbcType="LONGVARCHAR" />
+      <result column="sample_input" property="sampleInput" jdbcType="LONGVARCHAR" />
+      <result column="sample_output" property="sampleOutput" jdbcType="LONGVARCHAR" />
+      <result column="hint" property="hint" jdbcType="LONGVARCHAR" />
+    </association>
   </resultMap>
-	    
+
   <sql id="Example_Where_Clause" >
     <where >
       <foreach collection="oredCriteria" item="criteria" separator="or" >
@@ -116,23 +116,12 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    problem_id, title, source, sample_Program, time_limit, memory_limit, paper_id, score, 
-    pos
+    problem_id, title, source, sample_Program, time_limit, memory_limit, paper_id, score,
+    pos, fk_course_id
   </sql>
   <sql id="Blob_Column_List" >
     description, input, output, sample_input, sample_output, hint
   </sql>
-  
-  <select id="getProblemAndSolutionByPaperId" resultMap="problemSolutionResultMap" parameterType="java.lang.Integer" >
-    select
-    problem.problem_id problemId,
-    problem.*
-    from
-    problem
-    where
-    problem.paper_id = #{paper_id}
-   </select>
-  
   <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.code.model.ProblemExample" >
     select
     <if test="distinct" >
@@ -164,7 +153,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
-    select 
+    select
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -182,18 +171,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.code.model.ProblemWithBLOBs" >
-    insert into problem (problem_id, title, source, 
-      sample_Program, time_limit, memory_limit, 
-      paper_id, score, pos, 
-      description, input, output, 
-      sample_input, sample_output, hint
-      )
-    values (#{problemId,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, 
-      #{sampleProgram,jdbcType=VARCHAR}, #{timeLimit,jdbcType=INTEGER}, #{memoryLimit,jdbcType=INTEGER}, 
-      #{paperId,jdbcType=INTEGER}, #{score,jdbcType=DECIMAL}, #{pos,jdbcType=INTEGER}, 
-      #{description,jdbcType=LONGVARCHAR}, #{input,jdbcType=LONGVARCHAR}, #{output,jdbcType=LONGVARCHAR}, 
-      #{sampleInput,jdbcType=LONGVARCHAR}, #{sampleOutput,jdbcType=LONGVARCHAR}, #{hint,jdbcType=LONGVARCHAR}
-      )
+    insert into problem (problem_id, title, source,
+      sample_Program, time_limit, memory_limit,
+      paper_id, score, pos,
+      fk_course_id, description, input,
+      output, sample_input, sample_output,
+      hint)
+    values (#{problemId,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR},
+      #{sampleProgram,jdbcType=VARCHAR}, #{timeLimit,jdbcType=INTEGER}, #{memoryLimit,jdbcType=INTEGER},
+      #{paperId,jdbcType=INTEGER}, #{score,jdbcType=DECIMAL}, #{pos,jdbcType=INTEGER},
+      #{fkCourseId,jdbcType=INTEGER}, #{description,jdbcType=LONGVARCHAR}, #{input,jdbcType=LONGVARCHAR},
+      #{output,jdbcType=LONGVARCHAR}, #{sampleInput,jdbcType=LONGVARCHAR}, #{sampleOutput,jdbcType=LONGVARCHAR},
+      #{hint,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.code.model.ProblemWithBLOBs" >
     insert into problem
@@ -224,6 +213,9 @@
       </if>
       <if test="pos != null" >
         pos,
+      </if>
+      <if test="fkCourseId != null" >
+        fk_course_id,
       </if>
       <if test="description != null" >
         description,
@@ -271,6 +263,9 @@
       </if>
       <if test="pos != null" >
         #{pos,jdbcType=INTEGER},
+      </if>
+      <if test="fkCourseId != null" >
+        #{fkCourseId,jdbcType=INTEGER},
       </if>
       <if test="description != null" >
         #{description,jdbcType=LONGVARCHAR},
@@ -328,6 +323,9 @@
       <if test="record.pos != null" >
         pos = #{record.pos,jdbcType=INTEGER},
       </if>
+      <if test="record.fkCourseId != null" >
+        fk_course_id = #{record.fkCourseId,jdbcType=INTEGER},
+      </if>
       <if test="record.description != null" >
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -354,20 +352,21 @@
   <update id="updateByExampleWithBLOBs" parameterType="map" >
     update problem
     set problem_id = #{record.problemId,jdbcType=INTEGER},
-      title = #{record.title,jdbcType=VARCHAR},
-      source = #{record.source,jdbcType=VARCHAR},
-      sample_Program = #{record.sampleProgram,jdbcType=VARCHAR},
-      time_limit = #{record.timeLimit,jdbcType=INTEGER},
-      memory_limit = #{record.memoryLimit,jdbcType=INTEGER},
-      paper_id = #{record.paperId,jdbcType=INTEGER},
-      score = #{record.score,jdbcType=DECIMAL},
-      pos = #{record.pos,jdbcType=INTEGER},
-      description = #{record.description,jdbcType=LONGVARCHAR},
-      input = #{record.input,jdbcType=LONGVARCHAR},
-      output = #{record.output,jdbcType=LONGVARCHAR},
-      sample_input = #{record.sampleInput,jdbcType=LONGVARCHAR},
-      sample_output = #{record.sampleOutput,jdbcType=LONGVARCHAR},
-      hint = #{record.hint,jdbcType=LONGVARCHAR}
+    title = #{record.title,jdbcType=VARCHAR},
+    source = #{record.source,jdbcType=VARCHAR},
+    sample_Program = #{record.sampleProgram,jdbcType=VARCHAR},
+    time_limit = #{record.timeLimit,jdbcType=INTEGER},
+    memory_limit = #{record.memoryLimit,jdbcType=INTEGER},
+    paper_id = #{record.paperId,jdbcType=INTEGER},
+    score = #{record.score,jdbcType=DECIMAL},
+    pos = #{record.pos,jdbcType=INTEGER},
+    fk_course_id = #{record.fkCourseId,jdbcType=INTEGER},
+    description = #{record.description,jdbcType=LONGVARCHAR},
+    input = #{record.input,jdbcType=LONGVARCHAR},
+    output = #{record.output,jdbcType=LONGVARCHAR},
+    sample_input = #{record.sampleInput,jdbcType=LONGVARCHAR},
+    sample_output = #{record.sampleOutput,jdbcType=LONGVARCHAR},
+    hint = #{record.hint,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -375,14 +374,15 @@
   <update id="updateByExample" parameterType="map" >
     update problem
     set problem_id = #{record.problemId,jdbcType=INTEGER},
-      title = #{record.title,jdbcType=VARCHAR},
-      source = #{record.source,jdbcType=VARCHAR},
-      sample_Program = #{record.sampleProgram,jdbcType=VARCHAR},
-      time_limit = #{record.timeLimit,jdbcType=INTEGER},
-      memory_limit = #{record.memoryLimit,jdbcType=INTEGER},
-      paper_id = #{record.paperId,jdbcType=INTEGER},
-      score = #{record.score,jdbcType=DECIMAL},
-      pos = #{record.pos,jdbcType=INTEGER}
+    title = #{record.title,jdbcType=VARCHAR},
+    source = #{record.source,jdbcType=VARCHAR},
+    sample_Program = #{record.sampleProgram,jdbcType=VARCHAR},
+    time_limit = #{record.timeLimit,jdbcType=INTEGER},
+    memory_limit = #{record.memoryLimit,jdbcType=INTEGER},
+    paper_id = #{record.paperId,jdbcType=INTEGER},
+    score = #{record.score,jdbcType=DECIMAL},
+    pos = #{record.pos,jdbcType=INTEGER},
+    fk_course_id = #{record.fkCourseId,jdbcType=INTEGER}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -413,6 +413,9 @@
       </if>
       <if test="pos != null" >
         pos = #{pos,jdbcType=INTEGER},
+      </if>
+      <if test="fkCourseId != null" >
+        fk_course_id = #{fkCourseId,jdbcType=INTEGER},
       </if>
       <if test="description != null" >
         description = #{description,jdbcType=LONGVARCHAR},
@@ -445,6 +448,7 @@
       paper_id = #{paperId,jdbcType=INTEGER},
       score = #{score,jdbcType=DECIMAL},
       pos = #{pos,jdbcType=INTEGER},
+      fk_course_id = #{fkCourseId,jdbcType=INTEGER},
       description = #{description,jdbcType=LONGVARCHAR},
       input = #{input,jdbcType=LONGVARCHAR},
       output = #{output,jdbcType=LONGVARCHAR},
@@ -462,7 +466,43 @@
       memory_limit = #{memoryLimit,jdbcType=INTEGER},
       paper_id = #{paperId,jdbcType=INTEGER},
       score = #{score,jdbcType=DECIMAL},
-      pos = #{pos,jdbcType=INTEGER}
+      pos = #{pos,jdbcType=INTEGER},
+      fk_course_id = #{fkCourseId,jdbcType=INTEGER}
     where problem_id = #{problemId,jdbcType=INTEGER}
   </update>
+
+  <select id="getProblemAndSolutionByPaperId" resultMap="problemSolutionResultMap" parameterType="java.lang.Integer" >
+    select
+    problem.problem_id problemId,
+    problem.*
+    from
+    problem
+    where
+    problem.paper_id = #{paper_id}
+   </select>
+
+  <select id="selProblemList" resultType="map"   >
+    SELECT t.problem_id, t.title, t.description, t.input, t.output, t.sample_input, t.sample_output,
+    t.hint, t.source, t.sample_Program, t.time_limit, t.memory_limit, t.paper_id, t.score, t.pos, t.fk_course_id,
+    u.course_name, v.title paperTitle
+
+
+    FROM problem t
+    LEFT JOIN course u on t.fk_course_id = u.course_id
+    LEFT JOIN contestpaper v on t.paper_id = v.paper_id
+    <where>
+      <if test="courseId!=null and courseId!=0">
+        and t.fk_course_id = #{courseId}
+      </if>
+
+      <if test="paperTitle!='' and paperTitle!=null ">
+        and v.title like  "%"#{paperTitle}"%"
+      </if>
+
+
+    </where>
+    ORDER BY fk_course_id,paper_id,problem_id
+   </select>
+
+
 </mapper>

@@ -105,12 +105,12 @@ public class SystemLogAspect {
         //获取请求ip
         String ip = request.getRemoteAddr();
         //获取用户请求方法的参数并序列化为JSON格式字符串
-        String params = "";
+        /*String params = "";
         if (joinPoint.getArgs() !=  null && joinPoint.getArgs().length > 0) {
             for ( int i = 0; i < joinPoint.getArgs().length; i++) {
                 params +=  JSONObject.fromObject(joinPoint.getArgs()[i]).toString()+ ";";
             }
-        }
+        }*/
         try {
             //========控制台输出=========
             System.out.println("=====异常通知开始=====");
@@ -120,7 +120,7 @@ public class SystemLogAspect {
             System.out.println("方法描述:" + getServiceMthodDescription(joinPoint));
             System.out.println("请求人:" + user.getRealname());
             System.out.println("请求IP:" + ip);
-            System.out.println("请求参数:" + params);
+            //System.out.println("请求参数:" + params);
             //==========数据库日志=========
             LogOperation log = new LogOperation();
             log.setDescription(getServiceMthodDescription(joinPoint));

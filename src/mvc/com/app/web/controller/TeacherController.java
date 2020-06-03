@@ -308,13 +308,9 @@ public class TeacherController {
 		response.setSuccess(0);
 		try {
 			User user = (User)request.getSession().getAttribute("user");
-
-
-
 			String filename = file.getOriginalFilename();
 			if(!( (filename.substring(filename.lastIndexOf('.') + 1 , filename.length()).equals("txt"))))
 				return "文件上传失败(只支持txt格式)";
-
 
 			//	获取到的是当前绝对项目路劲并且有/号  	“/”指代项目根目录，所以代码返回的是项目在容器中的实际发布运行的根路径
 			String ranString = RandomString.getRandomString(30);
@@ -1038,12 +1034,20 @@ public class TeacherController {
 		int level = user.getLevel(); //学生： 0  老师：1  管理员：2
 		String userId = user.getUserId();
 		String simId = request.getParameter("simId");
-		
+
 		// 管理员角色、教师角色
 		ModelAndView mav = new ModelAndView();
 		mav.addObject("simId", simId);
 		mav.addObject("paper",contestpaperService.selReusePaper(user.getUserId(), simCourseId));
-		mav.setViewName("simple_problem-reuse.jsp");
+
+		//判断是否是想要复用编程题
+		String isProb = request.getParameter("isProb");
+
+		if("1".equals(isProb)) {	//表示复用编程题
+			mav.setViewName("problem-reuse.jsp");
+		} else {
+			mav.setViewName("simple_problem-reuse.jsp");
+		}
 		return mav;
 		
 	}
@@ -1092,6 +1096,48 @@ public class TeacherController {
 		return JSONObject.fromObject(response).toString();
 	}
 
+	/**
+	 * 复用编程题库题目等信息
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "Teacher/reuseProblem", method = { RequestMethod.POST,RequestMethod.GET }, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	@SystemControllerLog(description = "复用编程题库题目")
+	public String reuseProblem(HttpServletRequest request) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		String simIdStr = request.getParameter("simId");		// 逗号分隔的字符串
+		String paperIdStr = request.getParameter("paperId");
+
+		if(paperIdStr == null || "".equals(paperIdStr)) {
+			response.setMsg("请选择试卷后，再进行添加");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		int result = teacherService.reuseProblem(simIdStr,paperIdStr);
+
+		if(result > 0) {
+			response.setCode(0);
+			response.setMsg("请求成功");
+			HashMap paperMap = new HashMap();
+			paperMap.put("paperId",paperIdStr);
+			response.setData(paperMap);	// 	paperIdStr 用来重新搞试卷里的题目pos
+			return JSONObject.fromObject(response).toString();
+		}
+
+		response.setMsg("复用题目失败");
+		return JSONObject.fromObject(response).toString();
+	}
 
 	/**
 	 * @author zzs
@@ -1181,6 +1227,108 @@ public class TeacherController {
 			response.setMsg("分数更新失败，请重新操作！");
 		}
 
+		return JSONObject.fromObject(response).toString();
+	}
+
+
+	/**
+	 * 查询通用题库列表
+	 * @return 返回JSON格式的列表信息
+	 */
+	@RequestMapping(value = "Teacher/selProblemList", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String selProblemList (HttpServletRequest request) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		int courseId = 0;
+		if(session.getAttribute("course_id")!=null) {
+			courseId = Integer.parseInt(session.getAttribute("course_id").toString());
+		}
+
+		String paperTitle = request.getParameter("paperTitle");
+		if(paperTitle!=null&&!"".equals(paperTitle)) {	//去除前后空格
+			paperTitle = paperTitle.trim();
+		}
+		//获取分页所需相关数据
+		String pageSize = request.getParameter("limit"); //一页多少个
+		String pageNumber = request.getParameter("page");	//第几页
+
+		List<Map<String,Object>> resultList = teacherService.selProblemList(courseId, paperTitle,pageSize,pageNumber);
+
+		//获取分页插件的数据只能通过PageInfo来获取
+		PageInfo pInfo = new PageInfo(resultList);
+		Long total = pInfo.getTotal();
+
+		response.setCode(0);
+		response.setMsg("请求成功");
+		response.setCount(total.intValue());
+		response.setData(resultList);
+		return JSONObject.fromObject(response).toString();
+	}
+
+	/**
+	 * 删除单条problem
+	 * @return 返回JSON格式的列表信息
+	 */
+	@RequestMapping(value = "Teacher/delProblem", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	@SystemControllerLog(description = "删除单条problem")
+	public String delProblem(HttpServletRequest request,String problem_id) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		if(teacherService.delProblemById(Integer.parseInt(problem_id)) > 0) {
+			response.setMsg("删除成功");
+			response.setCode(0);
+			return JSONObject.fromObject(response).toString();
+		}
+		response.setMsg("删除失败");
+		return JSONObject.fromObject(response).toString();
+	}
+
+
+	/**
+	 * 删除多条problem
+	 * @return 返回JSON格式的列表信息
+	 */
+	@RequestMapping(value = "Teacher/delBatchProblem", produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	@SystemControllerLog(description = "批量删除problem")
+	public String delBatchProblem(HttpServletRequest request,@RequestBody List<String> ids) {
+		LayResponse response = new LayResponse();
+		response.setCode(1);
+		//获取所登录用户的user对象
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int level = user.getLevel();
+		if(level < 1) {
+			response.setMsg("无操作权限");
+			return JSONObject.fromObject(response).toString();
+		}
+
+		if(teacherService.delProblemByIds(ids) > 0) {
+			response.setMsg("删除成功");
+			response.setCode(0);
+			return JSONObject.fromObject(response).toString();
+		}
+		response.setMsg("删除失败");
 		return JSONObject.fromObject(response).toString();
 	}
 }

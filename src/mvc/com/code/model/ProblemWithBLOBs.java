@@ -1,8 +1,3 @@
-/** 
- * @author lxm
- * @create_date 2019.5.3
- * @description 编程题BLOBS类、仅为LONGTEXT字段
- * */
 package com.code.model;
 
 public class ProblemWithBLOBs extends Problem {

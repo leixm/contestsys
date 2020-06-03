@@ -221,6 +221,13 @@ public interface TeacherService {
 	 */
 	int reuseSimproblem(String simId, String paperId);
 
+	/**
+	 * 复用编程题库题目等信息
+	 * @param request
+	 * @return		1-成功  -1 失败
+	 */
+	int reuseProblem(String simId, String paperId);
+
 
 	/**
 	 * 查询批改主观题页面显示的相关信息
@@ -242,5 +249,25 @@ public interface TeacherService {
 	 * @return -1 1 
 	 */
 	int judgeUpdateSimp(int simpId);
+
+	/**
+	 * 查询编程题库列表
+	 * @return 所有对象
+	 */
+	List<Map<String,Object>> selProblemList(int courseId,String paperTitle,String pageSize,String pageNumberr);
+
+	/**
+	 * 删除单条problem
+	 * @param proId
+	 * @return
+	 */
+	int delProblemById(int proId);
+
+	/**
+	 * 删除多条problem
+	 * @param ids
+	 * @return
+	 */
+	int delProblemByIds(List<String> ids);
 
 }

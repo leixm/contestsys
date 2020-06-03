@@ -54,8 +54,9 @@ public class TeacherServiceImpl implements TeacherService{
 	private ContestStatusMapper contestStatusDao;
 
 	// 输入文件和输出文件存放地址
-	private String InputAndOutputDataDir = "F:/test_data";
+	//private String InputAndOutputDataDir = "F:/test_data";
 //	private String InputAndOutputDataDir = "/home/judge/data";
+	private String InputAndOutputDataDir = "/usr/local/judge/data";
 
 	/**
 	 * @author zzs
@@ -194,8 +195,6 @@ public class TeacherServiceImpl implements TeacherService{
 			}else {
 				thisPaperId = 1001;
 			}
-			
-
 
 			if(newpaper!=null) {
 				Contestpaper cPaper = newpaper.getContestpaper();
@@ -281,8 +280,6 @@ public class TeacherServiceImpl implements TeacherService{
 								return resp;
 							}
 						}
-
-
 					}
 				}
 				resp.setMsg("添加新的试卷成功");
@@ -1234,6 +1231,34 @@ public class TeacherServiceImpl implements TeacherService{
 
 
 	/**
+	 * 复用编程题库题目等信息
+	 * @param request
+	 * @return		1-成功  -1 失败
+	 */
+	@Transactional(rollbackFor=Exception.class)		// 回滚注解，抛出异常自动回滚
+	@Override
+	public int reuseProblem(String simIdStr, String paperIdStr) {
+		int simId = Integer.parseInt(simIdStr);
+		String[] paperIdArray = paperIdStr.split(",");
+
+		// 查询复用题目的题目相关内容，利用实体类，进行插入操作
+		ProblemWithBLOBs problem = new ProblemWithBLOBs();
+		problem = probDao.selectByPrimaryKey(simId);
+
+		if (paperIdArray.length > 0) {
+			for (int i = 1; i <= paperIdArray.length; i++) {        // 遍历需要复用的paperId
+				int maxProbId = probDao.selMaxProbId();
+				int paperId = Integer.parseInt(paperIdArray[i - 1]);
+				problem.setPaperId(paperId);
+				problem.setProblemId(null);
+				probDao.insertSelective(problem);
+			}
+			return 1;
+		}
+		return -1;
+	}
+
+	/**
 	 * 查询批改主观题页面显示的相关信息
 	 * @param type
 	 * @param cStatusId
@@ -1321,6 +1346,53 @@ public class TeacherServiceImpl implements TeacherService{
 		return 1;
 	}
 
+
+	/**
+	 * 查询编程题库列表
+	 * @return 所有对象
+	 */
+	@Override
+	public List<Map<String,Object>> selProblemList(int courseId,String paperTitle,String pageSize,String pageNumber) {
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+		//分页所需相关参数的计算
+		if(pageSize!=null&&pageNumber!=null) {
+			int pageSizeInt = Integer.parseInt(pageSize);
+			int pageNumberInt = Integer.parseInt(pageNumber);
+			PageHelper.startPage(pageNumberInt,pageSizeInt,true);//使用后数据库语句自动转为分页查询语句进行数据查询
+		}
+		resultList = probDao.selProblemList(courseId, paperTitle);
+
+		return resultList;
+	}
+
+	/**
+	 * 删除单条problem
+	 * @param proId
+	 * @return
+	 */
+	@Override
+	@SystemServiceLog(description = "删除单条problem")
+	public int delProblemById(int proId) {
+
+		return probDao.delProblemById(proId);
+	}
+
+	/**
+	 * 删除多条problem
+	 * @param proId
+	 * @return
+	 */
+	@Override
+	@SystemServiceLog(description = "删除多条problem")
+	public int delProblemByIds(List<String> ids) {
+		int count = 0;
+		if(ids.size() > 0) {
+			for(String str : ids) {
+				count += probDao.delProblemById(Integer.parseInt(str));
+			}
+		}
+		return count;
+	}
 }
 
 

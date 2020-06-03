@@ -22,17 +22,8 @@ public class Problem {
 
     private Integer pos;
 
-    //格式是<1/in,url>  1表示组号  in表示输入输出  url是绝对路径
-    private Map<String,String> fileMap;
-    
-    public Map<String, String> getFileMap() {
-		return fileMap;
-	}
+    private Integer fkCourseId;
 
-	public void setFileMap(Map<String, String> fileMap) {
-		this.fileMap = fileMap;
-	}
-			
     public Integer getProblemId() {
         return problemId;
     }
@@ -103,5 +94,24 @@ public class Problem {
 
     public void setPos(Integer pos) {
         this.pos = pos;
+    }
+
+    public Integer getFkCourseId() {
+        return fkCourseId;
+    }
+
+    public void setFkCourseId(Integer fkCourseId) {
+        this.fkCourseId = fkCourseId;
+    }
+
+    //格式是<1/in,url>  1表示组号  in表示输入输出  url是绝对路径
+    private Map<String,String> fileMap;
+
+    public Map<String, String> getFileMap() {
+        return fileMap;
+    }
+
+    public void setFileMap(Map<String, String> fileMap) {
+        this.fileMap = fileMap;
     }
 }

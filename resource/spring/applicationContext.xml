@@ -2,7 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:tx="http://www.springframework.org/schema/tx"
-	xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="
 		   http://www.springframework.org/schema/tx
@@ -12,10 +11,9 @@
            http://www.springframework.org/schema/aop
            http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context-3.0.xsd
-           http://www.springframework.org/schema/mvc
-           http://www.springframework.org/schema/mvc/spring-mvc.xsd" >
-	    <!-- 告知Spring，我们启用注解驱动 -->
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+
     <!-- myBatis整合 -->
     <!-- 数据源 -->
     <bean id="dataSource"
@@ -38,35 +36,23 @@
         <property name="mapperLocations" value="classpath:com/app/mapping/*.xml"></property>
     </bean>
 
+    <!--配置事务-->
+    <bean id="appTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!--配置支持基于注解的事务-->
+    <tx:annotation-driven proxy-target-class="true" transaction-manager="appTransactionManager" />
+
     <!--mapper工厂-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="com.app.dao" />
     </bean>
 
-    <bean id="appTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource" />
-    </bean>
-
-    <tx:annotation-driven proxy-target-class="true" transaction-manager="appTransactionManager" />
-
-    <!-- 启动对@AspectJ注解的支持 -->
+    <!-- 启动对@AspectJ  日志管理模块注解的支持 -->
     <aop:aspectj-autoproxy/>
     <aop:aspectj-autoproxy proxy-target-class="true" />
 
-    <mvc:annotation-driven/>
-    <!-- org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler，
-    它会像一个检查员，对进入DispatcherServlet的URL进行筛查，如果发现是静态资源的请求，  
-    就将该请求转由Web应用服务器默认的Servlet处理，如果不是静态资源的请求，才由DispatcherServlet继续处理。 -->
-    <mvc:default-servlet-handler/>  
-
-    <!-- 对静态资源文件的访问,因为Spring MVC会拦截所有请求,导致jsp页面中对js和CSS的引用也被拦截,配置后可以把对资源的请求交给项目的
-        默认拦截器而不是Spring MVC-->
-    <!-- 对静态资源的访问 -->
-
-    <!-- 配置Spring MVC的视图解析器 -->
-    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <!-- 有时我们需要访问JSP页面,可理解为在控制器controller的返回值加前缀和后缀,变成一个可用的URL地址 -->
-    </bean>  
 
 	<bean name="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
@@ -74,12 +60,8 @@
 		<property name="maxUploadSize" value="2048000"/>
 	</bean>
 
-    <context:property-placeholder location="classpath:spring/config.properties" ignore-unresolvable="true"/>
-
-    <context:component-scan base-package="com" />
-    
 	<!--读取邮件属性文件-->
-	<context:property-placeholder location="classpath:spring/mail.properties" ignore-unresolvable="true"/>
+	<context:property-placeholder location="classpath:mail/mail.properties" ignore-unresolvable="true"/>
 	<!--配置邮件接口-->
     <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="host" value="${mail.smtp.host}"/>

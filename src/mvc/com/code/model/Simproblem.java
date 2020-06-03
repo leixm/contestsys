@@ -17,6 +17,8 @@ public class Simproblem {
 
     private Integer fkCourseId;
 
+    private Integer difficulty;
+
     private String content;
 
     public Integer getSimproblemId() {
@@ -73,6 +75,14 @@ public class Simproblem {
 
     public void setFkCourseId(Integer fkCourseId) {
         this.fkCourseId = fkCourseId;
+    }
+
+    public Integer getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Integer difficulty) {
+        this.difficulty = difficulty;
     }
 
     public String getContent() {

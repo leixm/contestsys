@@ -91,7 +91,7 @@
 						function(data) { 
 							$.ajax({
 								type: "POST",
-								url: "Teacher/reuseSimproblem?simId=" + '${simId}' + "&paperId=" + data.field.paperId,
+								url: "Teacher/reuseProblem?simId=" + '${simId}' + "&paperId=" + data.field.paperId,
 								dataType: 'json',
 								async: false,
 								success: function(data) {

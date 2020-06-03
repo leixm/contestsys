@@ -9,28 +9,29 @@
     <result column="pos" property="pos" jdbcType="INTEGER" />
     <result column="blanks" property="blanks" jdbcType="INTEGER" />
     <result column="fk_course_id" property="fkCourseId" jdbcType="INTEGER" />
+    <result column="difficulty" property="difficulty" jdbcType="INTEGER" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.code.model.Simproblem" extends="BaseResultMap" >
     <result column="content" property="content" jdbcType="LONGVARCHAR" />
   </resultMap>
-  
+
   <resultMap type="com.code.model.OneSimproblem" id="simproblemOptionResultMap">
-	  <id column="simproblem_id" property="simproblemId"/>
-      <association property="simproblem" javaType="com.code.model.Simproblem">
-           <id column="simproblem_id" property="simproblemId" jdbcType="INTEGER" />
-		   <result column="type" property="type" jdbcType="INTEGER" />
-		   <result column="paper_id" property="paperId" jdbcType="INTEGER" />
-		   <result column="score" property="score" jdbcType="DECIMAL" />
-		   <result column="pos" property="pos" jdbcType="INTEGER" />
-		   <result column="blanks" property="blanks" jdbcType="INTEGER" />
-		   <result column="content" property="content"/>
-      </association>
-      <collection property="option" ofType="com.code.model.Options">
-          <id column="option_id" property="optionId" jdbcType="INTEGER" />
-   		  <result column="simproblem_id" property="simproblemId" jdbcType="INTEGER" />
-   		  <result column="Pos1" property="pos" jdbcType="INTEGER" />
-          <result column="Content1" property="content"/>
-      </collection>
+    <id column="simproblem_id" property="simproblemId"/>
+    <association property="simproblem" javaType="com.code.model.Simproblem">
+      <id column="simproblem_id" property="simproblemId" jdbcType="INTEGER" />
+      <result column="type" property="type" jdbcType="INTEGER" />
+      <result column="paper_id" property="paperId" jdbcType="INTEGER" />
+      <result column="score" property="score" jdbcType="DECIMAL" />
+      <result column="pos" property="pos" jdbcType="INTEGER" />
+      <result column="blanks" property="blanks" jdbcType="INTEGER" />
+      <result column="content" property="content"/>
+    </association>
+    <collection property="option" ofType="com.code.model.Options">
+      <id column="option_id" property="optionId" jdbcType="INTEGER" />
+      <result column="simproblem_id" property="simproblemId" jdbcType="INTEGER" />
+      <result column="Pos1" property="pos" jdbcType="INTEGER" />
+      <result column="Content1" property="content"/>
+    </collection>
 
   </resultMap>
 
@@ -93,12 +94,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    simproblem_id, type, paper_id, score, pos, blanks, fk_course_id
+    simproblem_id, type, paper_id, score, pos, blanks, fk_course_id, difficulty
   </sql>
   <sql id="Blob_Column_List" >
     content
   </sql>
-
   <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.code.model.SimproblemExample" >
     select
     <if test="distinct" >
@@ -148,12 +148,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.code.model.Simproblem" >
-    insert into simproblem (simproblem_id, type, paper_id, 
-      score, pos, blanks, 
-      fk_course_id, content)
+    insert into simproblem (simproblem_id, type, paper_id,
+      score, pos, blanks,
+      fk_course_id, difficulty, content
+      )
     values (#{simproblemId,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, #{paperId,jdbcType=INTEGER},
       #{score,jdbcType=DECIMAL}, #{pos,jdbcType=INTEGER}, #{blanks,jdbcType=INTEGER},
-      #{fkCourseId,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR})
+      #{fkCourseId,jdbcType=INTEGER}, #{difficulty,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.code.model.Simproblem" >
     insert into simproblem
@@ -178,6 +180,9 @@
       </if>
       <if test="fkCourseId != null" >
         fk_course_id,
+      </if>
+      <if test="difficulty != null" >
+        difficulty,
       </if>
       <if test="content != null" >
         content,
@@ -204,6 +209,9 @@
       </if>
       <if test="fkCourseId != null" >
         #{fkCourseId,jdbcType=INTEGER},
+      </if>
+      <if test="difficulty != null" >
+        #{difficulty,jdbcType=INTEGER},
       </if>
       <if test="content != null" >
         #{content,jdbcType=LONGVARCHAR},
@@ -240,6 +248,9 @@
       <if test="record.fkCourseId != null" >
         fk_course_id = #{record.fkCourseId,jdbcType=INTEGER},
       </if>
+      <if test="record.difficulty != null" >
+        difficulty = #{record.difficulty,jdbcType=INTEGER},
+      </if>
       <if test="record.content != null" >
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
@@ -257,6 +268,7 @@
     pos = #{record.pos,jdbcType=INTEGER},
     blanks = #{record.blanks,jdbcType=INTEGER},
     fk_course_id = #{record.fkCourseId,jdbcType=INTEGER},
+    difficulty = #{record.difficulty,jdbcType=INTEGER},
     content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -270,7 +282,8 @@
     score = #{record.score,jdbcType=DECIMAL},
     pos = #{record.pos,jdbcType=INTEGER},
     blanks = #{record.blanks,jdbcType=INTEGER},
-    fk_course_id = #{record.fkCourseId,jdbcType=INTEGER}
+    fk_course_id = #{record.fkCourseId,jdbcType=INTEGER},
+    difficulty = #{record.difficulty,jdbcType=INTEGER}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -296,6 +309,9 @@
       <if test="fkCourseId != null" >
         fk_course_id = #{fkCourseId,jdbcType=INTEGER},
       </if>
+      <if test="difficulty != null" >
+        difficulty = #{difficulty,jdbcType=INTEGER},
+      </if>
       <if test="content != null" >
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
@@ -310,6 +326,7 @@
       pos = #{pos,jdbcType=INTEGER},
       blanks = #{blanks,jdbcType=INTEGER},
       fk_course_id = #{fkCourseId,jdbcType=INTEGER},
+      difficulty = #{difficulty,jdbcType=INTEGER},
       content = #{content,jdbcType=LONGVARCHAR}
     where simproblem_id = #{simproblemId,jdbcType=INTEGER}
   </update>
@@ -320,9 +337,11 @@
       score = #{score,jdbcType=DECIMAL},
       pos = #{pos,jdbcType=INTEGER},
       blanks = #{blanks,jdbcType=INTEGER},
-      fk_course_id = #{fkCourseId,jdbcType=INTEGER}
+      fk_course_id = #{fkCourseId,jdbcType=INTEGER},
+      difficulty = #{difficulty,jdbcType=INTEGER}
     where simproblem_id = #{simproblemId,jdbcType=INTEGER}
   </update>
+
 
   <select id="getSimproblemAndOptionByPaperId" resultMap="simproblemOptionResultMap" parameterType="java.lang.Integer">
     select
@@ -334,39 +353,36 @@
     where simproblem.paper_id = #{paper_id};
   </select>
 
-   <select id="selSimproblemList" resultType="map" >
-	    SELECT t.fk_course_id simCourseId,u.course_name simCourseName,t.simproblem_id simId,
-	    case t.type  when 1 then '单选题' when 2 then '多选题' when 3 then '判断题' when 4 then '填空题' else '简答题' end  simType,
-	    t.content simContent,
-		t.score simScore,t.paper_id simPaperId,v.title simPaperTitle,t.pos simPos
-		FROM simproblem t
-		LEFT JOIN course u on t.fk_course_id = u.course_id
-		LEFT JOIN contestpaper v on t.paper_id = v.paper_id
-	        <where>
-	          <if test="simCourseId!=null and simCourseId!=0">
-	            and t.fk_course_id = #{simCourseId}
-	          </if>
-	
-	          <if test="simPaperTitle!='' and simPaperTitle!=null ">
-	            and v.title like  "%"#{simPaperTitle}"%"
-	          </if>
-	
-	          <if test="simType!=null and simType!=0">
-	            and t.type = #{simType}
-	          </if>
-	        </where>
-	      ORDER BY simCourseId,simPaperId,simId
-   </select>
-   
-   <select id="selTypeByStatusIdandStatus" resultType="map" >
+  <select id="selSimproblemList" resultType="map" >
+    SELECT t.fk_course_id simCourseId,u.course_name simCourseName,t.simproblem_id simId,
+    case t.type  when 1 then '单选题' when 2 then '多选题' when 3 then '判断题' when 4 then '填空题' else '简答题' end  simType,
+    t.content simContent,
+    t.score simScore,t.paper_id simPaperId,v.title simPaperTitle,t.pos simPos
+    FROM simproblem t
+    LEFT JOIN course u on t.fk_course_id = u.course_id
+    LEFT JOIN contestpaper v on t.paper_id = v.paper_id
+    <where>
+      <if test="simCourseId!=null and simCourseId!=0">
+        and t.fk_course_id = #{simCourseId}
+      </if>
+
+      <if test="simPaperTitle!='' and simPaperTitle!=null ">
+        and v.title like  "%"#{simPaperTitle}"%"
+      </if>
+
+      <if test="simType!=null and simType!=0">
+        and t.type = #{simType}
+      </if>
+    </where>
+    ORDER BY simCourseId,simPaperId,simId
+  </select>
+
+  <select id="selTypeByStatusIdandStatus" resultType="map" >
 	    select a.type from simproblem a
 		left join simsolution b on b.simproblem_id = a.simproblem_id
 		left join contest_status c on c.contest_status_id = b.contest_status_id
-		
+
 		where c.contest_status_id = #{cStatusId} and b.`status` = 0
    </select>
-  
-  
-  
-  
+
 </mapper>

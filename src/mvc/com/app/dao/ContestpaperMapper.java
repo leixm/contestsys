@@ -40,7 +40,7 @@ public interface ContestpaperMapper {
 	List<Map<String, Object>> listAllByKeywordAndDate(@Param("keyword")String keyword,@Param("startTime")String startTime,
 													  @Param("endTime")String endTime,@Param("simCourseId")int simCourseId);
 	
-    @Select("select max(paper_id) from contestpaper")
+    @Select("select ifnull(max(paper_id),'0') from contestpaper")
     int selMaxPaperId();
     
     @Select("select  count(*) from contestpaper")

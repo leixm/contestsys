@@ -1007,8 +1007,8 @@ public class UserController {
 	@ResponseBody
 	@SystemControllerLog(description = "批量删除课程")
 	public String delAllCourse(HttpServletRequest request, @RequestBody List<String> ids) {
-		  LayResponse response = new LayResponse(); 
-		  response.setCode(1);
+		 LayResponse response = new LayResponse();
+		 response.setCode(1);
 		//获取所登录用户的user对象
 		HttpSession session = request.getSession();
 		User user = (User)session.getAttribute("user");

@@ -53,7 +53,9 @@ public class ExcelServiceImpl implements ExcelService{
 	private AnswerMapper answerMapper;
 	@Autowired
 	private ContestpaperMapper paperMapper;
-	
+	@Autowired
+	private ProblemMapper probMapper;
+
 	private LayResponse layResponse = new LayResponse();
 	
 	@Transactional(readOnly = false,rollbackFor = Exception.class)
@@ -1112,14 +1114,25 @@ public class ExcelServiceImpl implements ExcelService{
 	public int updateSimPosByPaperId(int paperId) {
 		// 根据paperId查所有的simId，simId按照Type来排列
 		List<Map<String,Object>> simIdList = simproblemMapper.selSimIdByPaperId(paperId);
+		List<Map<String,Object>> probList = probMapper.selProbByPaperId(paperId);
+		int count = 0;
 		// 根据simId的集合的大小，从1开始来插入pos
-		if(!simIdList.isEmpty()) {
-			for(int i=1; i<=simIdList.size(); i++) {
+		if(!simIdList.isEmpty() ) {
+			for(int i=1; i<=simIdList.size(); i++) {	//跟新通用题pos
 				String simId = simIdList.get(i-1).get("simId").toString();
-				simproblemMapper.updatePosBySimId(Integer.parseInt(simId),i);
+				count += simproblemMapper.updatePosBySimId(Integer.parseInt(simId),i);
 			}
-			return 1;
 		}
-		return 0;
+		if(!probList.isEmpty()){        //跟新编程题pos
+			int j=0;
+			for(int i=simIdList.size()+1; i<=simIdList.size()+probList.size(); i++) {
+				String probId = probList.get(j).get("problem_id").toString();
+				count += probMapper.updatePosByProbId(Integer.parseInt(probId), i);
+				j++;
+			}
+		}
+
+		return count>0 ? 1 : 0;
+
 	}
 }

@@ -22,11 +22,17 @@
             <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
         <![endif]--></head>
     <% request.setCharacterEncoding("UTF-8"); %>
+	<style type="text/css">
+		.layui-form-item {
+			width: 80%;
+		}
+
+	</style>
+
     <body>
         <div class="layui-fluid">
             <div class="layui-row">
                 <form class="layui-form">
-			<% System.out.println("aaa"); %>
 					<!-- 无用div控制布局作用 -->
                 	<div style="height: 30px">
                 	</div>
@@ -86,7 +92,7 @@
 								题目内容
 							</label>
 							<div class="layui-input-inline">
-							<textarea type="text" id="simContent" name="" required=""  style="height: 180px" autocomplete="off" class="layui-textarea" value="${obj.simContent}" disabled>
+							<textarea type="text" id="simContent" name="" required=""  style="height: 180px; width:380px;" autocomplete="off" class="layui-textarea" value="${obj.simContent}" disabled>
 									${obj.simContent}</textarea>
 							</div>
 						</div>
@@ -96,7 +102,7 @@
 								学生作答内容
 							</label>
 							<div class="layui-input-inline">
-							<textarea type="text" id="stuAnswer" name="" required="" style="height: 180px" autocomplete="off" class="layui-textarea" value="${obj.stuAnswer}" disabled>
+							<textarea type="text" id="stuAnswer" name="" required="" style="height: 400px; width:380px;" autocomplete="off" class="layui-textarea" value="${obj.stuAnswer}" disabled>
 									${obj.stuAnswer}</textarea>
 							</div>
 						</div>
@@ -121,7 +127,7 @@
 
 						<div class="layui-form-item">
 							<label for="realScore" class="layui-form-label">
-								实际得分
+								<span class="x-red">实际得分</span>
 							</label>
 							<div class="layui-input-inline">
 								<input type="text" id="realScore" name="realScore${s.count}" required="" lay-verify="required" autocomplete="off" class="layui-input" value="${obj.realScore}">

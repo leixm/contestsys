@@ -190,16 +190,16 @@ public class ExcelController {
 		String tableTitle = "学生成绩表";
 		String[] headers = {"学号", "姓名","考试名称", "班级", "成绩"};
 		String dateType = "yyyy-MM-dd";
-		
-		List<String> paramList = new ArrayList<String>();	//导出表格字段对应的数据库表字段集合，顺序需要严格按照导出表格来
+
+	List<String> paramList = new ArrayList<String>();	//导出表格字段对应的数据库表字段集合，顺序需要严格按照导出表格来
 		paramList.add("stuid");
 		paramList.add("stuname");
 		paramList.add("contestname");
 		paramList.add("classname");
 		paramList.add("score");
-		//调用根据各个参数去调用导出excel静态方法，并下载到本地电脑
-		exportExcelDwonloadMethod(response, request, scoreExcelList, paramList, fileName, tableTitle, headers, dateType);
-    }
+	//调用根据各个参数去调用导出excel静态方法，并下载到本地电脑
+	exportExcelDwonloadMethod(response, request, scoreExcelList, paramList, fileName, tableTitle, headers, dateType);
+}
     
     
     /**
@@ -450,7 +450,7 @@ public class ExcelController {
 		response.setCode(1);
 		
 		String paperIdStr = request.getParameter("paperId");
-		// 假如试卷id未空，则返回结果
+		// 假如试卷id为空，则返回结果
 		if(paperIdStr == null) {
 			return JSONObject.fromObject(response).toString();
 		}

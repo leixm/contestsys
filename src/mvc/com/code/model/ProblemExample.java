@@ -1,8 +1,3 @@
-/** 
- * @author lxm
- * @create_date 2019.5.3
- * @description 编程题Example类
- * */
 package com.code.model;
 
 import java.math.BigDecimal;
@@ -677,6 +672,66 @@ public class ProblemExample {
 
         public Criteria andPosNotBetween(Integer value1, Integer value2) {
             addCriterion("pos not between", value1, value2, "pos");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdIsNull() {
+            addCriterion("fk_course_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdIsNotNull() {
+            addCriterion("fk_course_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdEqualTo(Integer value) {
+            addCriterion("fk_course_id =", value, "fkCourseId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdNotEqualTo(Integer value) {
+            addCriterion("fk_course_id <>", value, "fkCourseId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdGreaterThan(Integer value) {
+            addCriterion("fk_course_id >", value, "fkCourseId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("fk_course_id >=", value, "fkCourseId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdLessThan(Integer value) {
+            addCriterion("fk_course_id <", value, "fkCourseId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdLessThanOrEqualTo(Integer value) {
+            addCriterion("fk_course_id <=", value, "fkCourseId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdIn(List<Integer> values) {
+            addCriterion("fk_course_id in", values, "fkCourseId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdNotIn(List<Integer> values) {
+            addCriterion("fk_course_id not in", values, "fkCourseId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdBetween(Integer value1, Integer value2) {
+            addCriterion("fk_course_id between", value1, value2, "fkCourseId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFkCourseIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("fk_course_id not between", value1, value2, "fkCourseId");
             return (Criteria) this;
         }
     }

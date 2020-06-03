@@ -5,10 +5,15 @@
         id="WebApp_1528622548128"
         version="3.1">
 
+  <!-- 配置spring文件监听器 --><!--设置全局参数，用来读取核心配置文件-->
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>classpath:spring/applicationContext.xml</param-value>
   </context-param>
+    <!--设置监听器，在web容器启动时，自动装配applicationContext.xml文件的配置信息-->
+  <listener>
+     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
 
   <!-- log4j 配置 -->
   <context-param>
@@ -17,12 +22,14 @@
     <!-- <param-value>/WEB-INF/log4j.xml</param-value> -->
   </context-param>
 
+  <!-- 配置springmvc前端控制器 -->
   <servlet>
     <servlet-name>springMvc</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+      <!--设置初始化参数，用来读取spring_mvc配置文件-->
     <init-param>
       <param-name>contextConfigLocation</param-name>
-      <param-value>classpath:spring/applicationContext.xml</param-value>
+      <param-value>classpath:spring/applicationContext-mvc.xml</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
@@ -32,6 +39,7 @@
     <url-pattern>/</url-pattern>
   </servlet-mapping>
 
+  <!-- 配置post请求方式乱码处理，配置在所有过滤器前面-->
   <filter>
     <filter-name>encodingFilter</filter-name>
     <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -44,15 +52,10 @@
       <param-value>true</param-value>
     </init-param>
   </filter>
-
   <filter-mapping>
     <filter-name>encodingFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-
-  <listener>
-       <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-  </listener>
 
    <listener>
        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>

@@ -44,7 +44,15 @@ public class OneSimproblem {
 	public void setAnswer(List<Answer> answer) {
 		this.answer = answer;
 	}
-	
-	
-	
+
+	@Override
+	public String toString() {
+		return "OneSimproblem{" +
+				"simproblemId=" + simproblemId +
+				", simproblem=" + simproblem +
+				", option=" + option +
+				", simsolution=" + simsolution +
+				", answer=" + answer +
+				'}';
+	}
 }

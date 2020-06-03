@@ -467,7 +467,7 @@ public class UserServiceImpl implements UserService {
 	   int count = 0;
 	   for(String id : ids){
 		 count += userDao.deleteByPrimaryKey(id);
-		 System.out.println("count=" + count);
+		 //System.out.println("count=" + count);
 	   } 
 	   return count;
 	} 
